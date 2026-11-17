@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>匯率換算</title>
+<link rel="icon" type="image/svg+xml" href="ui/title-icon.svg">
+<style>
+:root{--bg:#f5ecdb;--card:#fffaf0;--fg:#3a2f25;--muted:#86745f;--line:#e8dcc3;--accent:#a4602a;--accent-ink:#fffaf0;--soft:#f4e8cf;--field:#fdf6e6;--warn:#84560f;--warn-bg:#f6e6c4}
+*{box-sizing:border-box}html{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+header,main{max-width:560px;margin:0 auto;padding:0 16px}
+header{padding-top:20px}
+h1{margin:0 0 4px;font:700 26px "Noto Serif TC","Songti TC",serif;letter-spacing:.04em}
+.sub{color:var(--muted);margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.lock{display:flex;gap:10px;align-items:center;cursor:pointer;font-weight:700}
+.lock input{width:20px;height:20px;accent-color:var(--accent)}
+.lock.on{color:var(--accent)}
+label.f{display:block;font-weight:700;margin:0 0 4px}
+input.n{font:600 20px/1.3 ui-monospace,Menlo,"Noto Sans TC",monospace;font-variant-numeric:tabular-nums;background:var(--field);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--fg);width:100%;text-align:right}
+.muted{color:var(--muted);font-size:13px}
+.state{margin-top:6px;padding:6px 10px;border-radius:8px;font-size:13.5px}
+.state.off{background:var(--field);color:var(--muted)}.state.on{background:var(--warn-bg);color:var(--warn)}
+</style>
+</head>
+<body>
+<header>
+  <h1>匯率換算</h1>
+  <p class="sub">新台幣、WC 幣、遊戲商城幣值三者互相換算。</p>
+</header>
+<main>
+  <section class="card">
+    <label class="lock" id="lockLbl"><input type="checkbox" id="lock"> 🔒 鎖定目前比例</label>
+    <div class="state off" id="state">沒鎖定：三格各自輸入，你打在三格的數字，就是你要的比例。</div>
+  </section>
+  <section class="card"><label class="f" for="twd">💳 新台幣（TWD）</label><input class="n" id="twd" type="text" inputmode="decimal" autocomplete="off"></section>
+  <section class="card"><label class="f" for="wc">🪙 WC 幣</label><input class="n" id="wc" type="text" inputmode="decimal" autocomplete="off"></section>
+  <section class="card"><label class="f" for="game">🛍️ 遊戲商城幣值（楓幣／點數）</label><input class="n" id="game" type="text" inputmode="decimal" autocomplete="off"></section>
+  <p class="muted">用法：先在三格打上你的比例（例如 100 元＝300 WC＝10,000,000 楓幣），再勾「鎖定目前比例」。鎖定之後改任何一格，另外兩格會照這個比例自動算出來。</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const num=s=>{const v=parseFloat(String(s).replace(/[,\s]/g,''));return isNaN(v)?0:v};
+const fmt=(v,d)=>{const x=d==null?Math.round(v):Math.round(v*Math.pow(10,d))/Math.pow(10,d);return x.toLocaleString('en-US',{maximumFractionDigits:d==null?0:d})};
+let base={twd:100,wc:300,game:10000000};
+$('twd').value='100';$('wc').value='300';$('game').value='10,000,000';
+function onInput(src){
+  if(!$('lock').checked){ // 沒鎖定：三格現在的數字就是比例
+    base={twd:num($('twd').value)||1,wc:num($('wc').value)||1,game:num($('game').value)||1};return}
+  const v=num($(src).value);
+  if(src==='twd'){$('wc').value=fmt(v*base.wc/base.twd,1);$('game').value=fmt(v*base.game/base.twd)}
+  else if(src==='wc'){$('twd').value=fmt(v*base.twd/base.wc,1);$('game').value=fmt(v*base.game/base.wc)}
+  else{$('twd').value=fmt(v*base.twd/base.game,1);$('wc').value=fmt(v*base.wc/base.game,1)}
+}
+['twd','wc','game'].forEach(id=>{
+  $(id).addEventListener('input',()=>onInput(id));
+  // 打字時不改寫文字（避免游標跳掉），離開欄位時才補上千分位逗號
+  $(id).addEventListener('blur',()=>{const v=num($(id).value);$(id).value=fmt(v,id==='game'?0:1)});
+});
+$('lock').addEventListener('change',()=>{
+  const on=$('lock').checked;
+  if(on)base={twd:num($('twd').value)||1,wc:num($('wc').value)||1,game:num($('game').value)||1};
+  $('lockLbl').classList.toggle('on',on);
+  $('state').className='state '+(on?'on':'off');
+  $('state').textContent=on?`已鎖定：${fmt(base.twd,1)} 元 ＝ ${fmt(base.wc,1)} WC ＝ ${fmt(base.game)} 楓幣／點數。改任何一格，另外兩格會自動換算。`:'沒鎖定：三格各自輸入，你打在三格的數字，就是你要的比例。';
+});
+</script>
+<script src="edward-nav.js?v=r151"></script>
+</body>
+</html>

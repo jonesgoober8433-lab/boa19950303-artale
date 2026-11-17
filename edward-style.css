@@ -1,0 +1,227 @@
+/* Edward 奶油金色調（參考「魔攻計算機」與官方頁面的金褐色）。想換色只改最上面的 :root */
+:root {
+    --bg: #f5ecdb; --card: #fffaf0; --fg: #3a2f25; --muted: #86745f; --line: #e8dcc3;
+    --accent: #a4602a; --accent-dark: #7f4719; --accent-ink: #fffaf0;
+    --soft: #f4e8cf; --field: #fdf6e6;
+    --gold: #d9b57f; --gold-deep: #c49a5a; --gold-ink: #5a3d1c;
+    --good: #4d7a36; --good-bg: #e6efd9; --bad: #a8392b;
+    --warn: #84560f; --warn-bg: #f6e6c4;
+    --shadow: 0 1px 0 rgba(120,88,48,.05), 0 14px 30px -18px rgba(120,88,48,.35);
+    --sans: "Noto Sans TC", system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+    --serif: "Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif;
+}
+html, body { background: var(--bg) !important; background-image: none !important; }
+body::before { display: none !important; }
+body { font-family: var(--sans) !important; color: var(--fg); line-height: 1.6; }
+h1, h2, h3, .skill-name, label { font-family: var(--serif) !important; letter-spacing: .04em; text-shadow: none !important; }
+h1 { color: var(--fg); font-weight: 700; font-size: 2rem; }
+.title-icon { width: 60px; height: 60px; border-radius: 50%; margin-right: 14px; box-shadow: 0 6px 16px -6px rgba(120,88,48,.5); }
+h2 { color: var(--fg); border-bottom: 1px solid var(--line) !important; font-weight: 600; font-size: 1.15rem; padding-bottom: 10px; }
+
+/* 控制列 */
+.controls { background: var(--card) !important; border: 1px solid var(--line) !important; border-radius: 16px !important; box-shadow: var(--shadow) !important; backdrop-filter: none !important; }
+.controls label { color: var(--muted); font-weight: 600; font-size: .9rem; font-family: var(--sans) !important; }
+.controls input[type="number"], .controls select {
+    background: var(--field) !important; border: 1px solid var(--line) !important; border-radius: 8px !important; color: var(--fg); box-shadow: none !important;
+}
+.controls input[type="number"]:focus, .controls select:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.reset-button, .share-button { border-radius: 999px !important; font-weight: 700; box-shadow: none !important; border: 1px solid var(--line); padding-inline: 18px; }
+.reset-button { background: var(--card) !important; color: var(--accent) !important; border-color: var(--line) !important; }
+.reset-button:hover { background: var(--soft) !important; border-color: var(--accent) !important; }
+.share-button { background: var(--accent) !important; color: var(--accent-ink) !important; border-color: var(--accent) !important; }
+.share-button:hover { background: var(--accent-dark) !important; }
+
+/* 主體 */
+.container, .skill-tree, .page-container { background: transparent !important; box-shadow: none !important; border: 0 !important; }
+.summary, .content-section { background: var(--card) !important; border: 1px solid var(--line) !important; border-radius: 16px !important; box-shadow: var(--shadow) !important; backdrop-filter: none !important; }
+.summary h2 { color: var(--accent); border-bottom: 2px solid var(--gold) !important; }
+.summary p { font-variant-numeric: tabular-nums; }
+.summary hr { border: 0; border-top: 1px solid var(--line); }
+
+/* 轉職階段橫幅：官方頁面的金褐色 */
+.skill-section { margin-top: 28px; }
+.skill-section:first-child { margin-top: 0; }
+.skill-section > h2 {
+    position: sticky; top: 0; z-index: 5; margin: 0 0 12px; padding: 10px 18px;
+    background: var(--gold); color: var(--gold-ink);
+    border: 1px solid var(--gold-deep) !important; border-radius: 12px;
+    font-size: 1.3rem; font-weight: 700; text-align: left; letter-spacing: .1em;
+    box-shadow: 0 8px 18px -12px rgba(120,88,48,.6);
+}
+
+/* 技能卡 */
+.skill-item { background: var(--card) !important; border: 1px solid var(--line) !important; border-radius: 12px !important; box-shadow: none !important; }
+.skill-item:hover { border-color: var(--gold-deep) !important; box-shadow: none !important; transform: none !important; }
+.skill-name { font-weight: 600; color: var(--fg); }
+.skill-level-controls button { background: var(--card) !important; border: 1px solid var(--line) !important; color: var(--fg) !important; border-radius: 8px !important; box-shadow: none !important; }
+.skill-level-controls button:hover:not(:disabled) { border-color: var(--accent) !important; color: var(--accent) !important; background: var(--soft) !important; }
+.skill-level-controls button:disabled { background: var(--soft) !important; color: #c2b49b !important; border-color: var(--line) !important; }
+.skill-level-controls .max-button { background: var(--accent) !important; color: var(--accent-ink) !important; border-color: var(--accent) !important; font-weight: 700; }
+.skill-level-controls .max-button:hover:not(:disabled) { background: var(--accent-dark) !important; color: var(--accent-ink) !important; }
+.skill-level-controls .max-button:disabled { background: var(--soft) !important; color: #c2b49b !important; border-color: var(--line) !important; }
+.skill-level-controls .skill-level-input { border: 1px solid var(--line) !important; border-radius: 8px; background: var(--field); color: var(--fg); }
+.skill-description-area { background: var(--field) !important; border: 1px solid var(--line) !important; border-radius: 10px; }
+.skill-description-area .current-level-effect { color: var(--accent); }
+.skill-prerequisites .prereq-met { color: var(--good); }
+.skill-prerequisites .prereq-unmet { color: var(--bad); }
+
+/* 滿需求／還差 N 點 */
+.sp-full { display: block; width: fit-content; max-width: 100%; margin: 4px 0 0; padding: 1px 10px; border-radius: 999px;
+    background: var(--good-bg); color: var(--good); border: 1px solid #c9dcb4; font-size: .82em; font-weight: 600; white-space: normal; }
+.sp-full.sp-need { background: var(--warn-bg); color: var(--warn); border-color: #e5cf9c; }
+.sp-full:empty { display: none; }
+
+/* 首頁：職業分組 */
+.job-group + .job-group { margin-top: 28px; }
+.job-group-title { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; font-size: 1.2rem; color: var(--fg); }
+.job-group-count { font-size: .8rem; font-weight: 500; color: var(--muted); font-family: var(--sans); }
+.new-badge { margin-left: auto; padding: 3px 12px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: 700 .78rem var(--sans); letter-spacing: .08em; }
+.job-group.cygnus { background: linear-gradient(180deg, #f4e8cf, #fffaf0); border: 1px solid var(--gold); border-radius: 16px; padding: 16px; }
+.profession-selection-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 700px) { .profession-selection-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; } }
+.profession-card { position: relative; background: var(--card) !important; border: 1px solid var(--line) !important; border-radius: 14px !important; box-shadow: none !important; }
+.profession-card:hover { border-color: var(--accent) !important; transform: translateY(-2px); box-shadow: 0 10px 22px -12px rgba(120,88,48,.55) !important; }
+.profession-card span { color: var(--fg); font-weight: 700; font-family: var(--serif); }
+.profession-card.is-new { border-color: var(--gold-deep) !important; }
+.profession-card img { object-fit: cover; border-radius: 12px; width: 140px; height: 140px; }
+.card-new { position: absolute; top: 8px; left: 8px; z-index: 1; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: 700 .7rem var(--sans); font-style: normal; letter-spacing: .08em; }
+#updateLog li { border-color: var(--line) !important; color: var(--fg); }
+#updateLog .date { background: var(--soft) !important; color: var(--accent) !important; border-radius: 6px; padding: 1px 8px; font-weight: 700; }
+#updateLog a { color: var(--accent); }
+.show-more-btn { background: var(--card) !important; color: var(--accent) !important; border: 1px solid var(--gold) !important; border-radius: 999px; }
+
+/* 頁尾與回頂 */
+.page-footer { color: var(--muted); border-top: 1px solid var(--line); background: transparent !important; }
+.footer-heading, .page-footer hb, .page-footer HB { color: var(--fg) !important; letter-spacing: .14em; font-weight: 700; font-size: 1rem; border: 0 !important; font-family: var(--serif); }
+#backToTopBtn { background: var(--accent) !important; color: var(--accent-ink) !important; box-shadow: 0 10px 24px -8px rgba(80,50,20,.55) !important; }
+
+/* 頁尾：自我介紹 + IG */
+.ig-footer { text-align: center; padding: 34px 16px 28px; margin-top: 36px; }
+.ig-footer .intro-title { font-family: var(--serif); font-size: 1.35rem; font-weight: 700; color: var(--fg); letter-spacing: .08em; margin: 0 0 10px; }
+.ig-footer .intro { max-width: 640px; margin: 0 auto 22px; color: var(--muted); font-size: 1rem; }
+.ig-footer .intro p { margin: 0 0 16px; }
+.ig-footer .intro p + p { padding-top: 16px; border-top: 1px dashed var(--line); }
+.ig-footer .intro .ln { display: block; line-height: 2; text-wrap: balance; }
+.ig-footer .intro p:first-child .ln:first-child { color: var(--fg); font-weight: 700; }
+.ig-pill { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent) !important; background: var(--card); font-weight: 700; font-size: 1.05rem; text-decoration: none !important; transition: background .15s; }
+.ig-pill:hover { background: var(--soft); }
+.ig-pill svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* 技能說明：過長時在區塊內捲動，保留換行，避免撐壞版面或擋住下一個技能 */
+.skill-description-area .full-description { white-space: pre-line; overflow-wrap: anywhere; max-height: 15em; overflow-y: auto; }
+.skill-description-area { overflow: hidden; }
+
+/* 手機：滿足下一轉需求的跳窗 */
+#stageDialog { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(58,47,37,.45); }
+#stageDialog.show { display: flex; }
+#stageDialog .sd-card { width: min(360px, 100%); background: var(--card); border: 1px solid var(--gold); border-radius: 18px; padding: 22px 20px 18px; text-align: center; box-shadow: 0 24px 50px -12px rgba(58,47,37,.6); }
+#stageDialog .sd-icon { width: 46px; height: 46px; margin: 0 auto 10px; border-radius: 50%; background: var(--good-bg); color: var(--good); display: grid; place-items: center; font-size: 24px; font-weight: 700; }
+#stageDialog h3 { margin: 0 0 8px; font-size: 1.25rem; color: var(--fg); }
+#stageDialog p { margin: 0 0 16px; color: var(--muted); line-height: 1.7; font-size: .98rem; }
+#stageDialog .sd-actions { display: flex; gap: 10px; }
+#stageDialog .sd-actions button { flex: 1; padding: 10px 12px; border-radius: 999px; font-weight: 700; font-size: 1rem; cursor: pointer; border: 1px solid var(--accent); }
+#stageDialog .sd-go { background: var(--accent); color: var(--accent-ink); }
+#stageDialog .sd-close { background: var(--card); color: var(--accent); }
+
+/* 技能互斥提醒 */
+.skill-conflict { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); }
+.conflict-chip { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--warn-bg); color: var(--warn); border: 1px solid #e5cf9c; font-size: .82rem; font-weight: 600; line-height: 1.5; }
+
+/* 更新日誌：日期獨立一行，每則一行 */
+#updateLog .date { display: block; width: fit-content; margin: 0 0 8px; }
+#updateLog .log-line { line-height: 1.9; }
+
+/* 「顯示全部」與折線圖 */
+.skill-all-wrap { margin-top: 8px; }
+.show-all-btn { background: transparent !important; border: 1px dashed var(--gold-deep) !important; color: var(--accent) !important; border-radius: 999px !important; padding: 3px 14px !important; font-size: .85rem; font-weight: 700; cursor: pointer; }
+.show-all-btn:hover { background: var(--soft) !important; }
+.skill-all { margin-top: 10px; padding: 12px; background: var(--field); border: 1px solid var(--line); border-radius: 12px; }
+.skill-all[hidden] { display: none; }
+.ch-hint { font-size: .82rem; color: var(--muted); margin-bottom: 10px; }
+.ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.ch-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px 6px; min-width: 0; }
+.ch-title { font-weight: 700; font-size: .92rem; color: var(--fg); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; }
+.ch-title small { font-weight: 500; color: var(--muted); font-size: .78rem; }
+.ch-title .ch-flat { margin-left: auto; color: var(--accent); }
+.ch-dot { display: inline-block; width: 18px; height: 3px; border-radius: 2px; background: var(--accent); margin-right: 4px; align-self: center; }
+.ch-wrap { position: relative; }
+.ch-svg { width: 100%; height: auto; display: block; touch-action: pan-y; }
+.ch-axis { stroke: var(--line); stroke-width: 1; }
+.ch-tick { fill: var(--muted); font-size: 11px; font-family: var(--sans); }
+.ch-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.ch-area { fill: var(--accent); opacity: .08; }
+.ch-guide { stroke: var(--gold-deep); stroke-width: 1; stroke-dasharray: 3 3; }
+.ch-hover { fill: var(--card); stroke: var(--accent); stroke-width: 2; }
+.ch-cur { fill: var(--gold); stroke: var(--accent-dark); stroke-width: 2; }
+.ch-tip { position: absolute; top: -4px; transform: translate(-50%, -100%); background: var(--fg); color: var(--card); padding: 3px 9px; border-radius: 8px; font-size: .78rem; white-space: nowrap; pointer-events: none; z-index: 3; }
+.ch-empty { color: var(--muted); font-size: .9rem; margin: 0; }
+.ms-box { margin-top: 12px; padding: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+.ms-title { font-weight: 700; font-size: .9rem; margin-bottom: 8px; }
+.ms-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ms-chip { background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; font-size: .8rem; color: var(--fg); }
+.ms-chip b { color: var(--accent); margin-right: 6px; }
+.ch-table { margin-top: 12px; }
+.ch-table summary { cursor: pointer; color: var(--accent); font-weight: 700; font-size: .88rem; }
+.ch-table-scroll { overflow-x: auto; max-height: 320px; margin-top: 8px; }
+.ch-table table { border-collapse: collapse; font-size: .82rem; width: 100%; }
+.ch-table th, .ch-table td { border-bottom: 1px solid var(--line); padding: 4px 10px; text-align: right; white-space: nowrap; }
+.ch-table th:first-child { text-align: left; position: sticky; left: 0; background: var(--field); }
+
+/* 分享對話框（沿用跳窗樣式） */
+.sd-overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(58,47,37,.45); }
+.sd-overlay.show { display: flex; }
+.sd-overlay .sd-card { width: min(420px, 100%); background: var(--card); border: 1px solid var(--gold); border-radius: 18px; padding: 22px 20px 18px; box-shadow: 0 24px 50px -12px rgba(58,47,37,.6); }
+.sd-overlay h3 { margin: 0 0 6px; text-align: center; font-size: 1.25rem; }
+.sd-overlay .sh-desc { margin: 0 0 14px; color: var(--muted); text-align: center; font-size: .95rem; }
+.sh-opt { display: block; width: 100%; text-align: left; margin: 0 0 10px; padding: 12px 14px; background: var(--card); border: 1px solid var(--gold); border-radius: 12px; cursor: pointer; color: var(--fg); }
+.sh-opt:hover { background: var(--soft); border-color: var(--accent); }
+.sh-opt b { display: block; color: var(--accent); font-size: 1.02rem; }
+.sh-opt span { display: block; color: var(--muted); font-size: .85rem; margin-top: 2px; }
+.sh-msg { min-height: 1.2em; margin: 4px 0 10px; color: var(--good); font-size: .88rem; text-align: center; }
+.sh-close { width: 100%; padding: 9px; border-radius: 999px; background: var(--card); color: var(--accent); border: 1px solid var(--accent); font-weight: 700; cursor: pointer; }
+
+/* 打開分享連結／分享檔時，最上方的完整點法摘要 */
+.shared-summary { width: 100%; max-width: 980px; margin: 14px auto 6px; background: var(--card); border: 1px solid var(--gold); border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow); }
+.ss-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ss-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+.ss-sub { color: var(--muted); font-size: .92rem; margin-top: 2px; }
+.ss-toggle { background: var(--card); border: 1px solid var(--accent); color: var(--accent); border-radius: 999px; padding: 3px 14px; font-weight: 700; cursor: pointer; }
+.ss-body { margin-top: 10px; }
+.ss-body[hidden] { display: none; }
+.ss-stage { padding: 8px 0; border-top: 1px dashed var(--line); }
+.ss-h { font-weight: 700; margin-bottom: 6px; }
+.ss-h small { margin-left: 8px; color: var(--muted); font-weight: 500; }
+.ss-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ss-chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; font-size: .88rem; }
+.ss-chip b { color: var(--accent); }
+.ss-chip i { font-style: normal; font-size: .72rem; background: var(--good-bg); color: var(--good); border-radius: 999px; padding: 0 6px; }
+
+/* 點數總結與第一個轉職橫幅頂端對齊（電腦版） */
+@media (min-width: 769px) { .summary { margin-top: 40px; } }
+
+/* 配點思路 */
+.build-notes { width: 100%; max-width: 980px; margin: 14px auto 0; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow); box-sizing: border-box; }
+.bn-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.bn-head label { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.bn-count { color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.build-notes textarea { width: 100%; box-sizing: border-box; min-height: 84px; max-height: 320px; resize: vertical; padding: 10px 12px; background: var(--field); border: 1px solid var(--line); border-radius: 10px; color: var(--fg); font: inherit; line-height: 1.8; }
+.build-notes textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bn-hint { margin-top: 6px; color: var(--muted); font-size: .82rem; }
+.sd-overlay .sh-note { margin: 0 0 10px; padding: 6px 10px; background: var(--soft); border-radius: 8px; color: var(--muted); font-size: .85rem; line-height: 1.6; }
+.shared-summary { box-sizing: border-box; }
+
+/* 版面固定：不允許左右捲動／移動 */
+html { overflow-x: hidden; }
+body { max-width: 100%; }
+.page-footer, .ig-footer, .controls, .container, .build-notes, .shared-summary, #homeView, .page-container, .content-section { box-sizing: border-box; max-width: 100%; }
+img, svg, table, textarea, select, input { max-width: 100%; }
+.ch-table-scroll { max-width: 100%; }
+
+/* 特例按鈕（閃雷悍將） */
+.special-btn { display: inline-block; margin-left: 4px; padding: 0 9px; border-radius: 999px; border: 1px dashed var(--gold-deep); background: var(--card); color: var(--accent); font-size: .8rem; font-weight: 700; cursor: pointer; line-height: 1.7; }
+.special-btn[hidden] { display: none; }
+.special-btn:hover { background: var(--soft); }
+.special-btn.on { background: var(--accent); color: var(--accent-ink); border-style: solid; border-color: var(--accent); }
+
+/* 手機：職業卡片縮小，與魔改存檔的冒險家一致 */
+@media(max-width:768px){.profession-selection-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}.profession-card{padding:6px 4px!important;border-radius:12px!important;gap:2px;background:#fffaf0!important;border:1px solid #e8dcc3;box-shadow:none!important}.profession-card:hover{transform:none!important}.profession-card img{width:min(64px,100%)!important;height:auto!important;aspect-ratio:1;object-fit:cover;border-radius:10px;margin-bottom:2px!important}.profession-card span{font-size:12.5px!important}}

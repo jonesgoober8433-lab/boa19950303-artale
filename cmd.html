@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>遊戲快捷指令</title>
+<link rel="icon" type="image/svg+xml" href="ui/title-icon.svg">
+<style>
+:root{--bg:#f5ecdb;--card:#fffaf0;--fg:#3a2f25;--muted:#86745f;--line:#e8dcc3;--accent:#a4602a;--accent-ink:#fffaf0;--soft:#f4e8cf;--field:#fdf6e6;--good:#4d7a36;--good-bg:#e6efd9;--bad:#a8392b}
+*{box-sizing:border-box}html{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+header,main{max-width:860px;margin:0 auto;padding:0 16px}
+header{padding-top:20px}
+h1{margin:0 0 4px;font:700 26px "Noto Serif TC","Songti TC",serif;letter-spacing:.04em}
+.sub{color:var(--muted);margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.cmd{display:grid;grid-template-columns:minmax(210px,260px) 1fr auto auto;gap:10px;align-items:center}
+@media(max-width:700px){.cmd{grid-template-columns:1fr auto;gap:8px}.cmd .ty{grid-column:1/-1}.cmd .arg{grid-column:1/-1}.cmd .arg.hide{display:none}.cmd button.cp{padding:9px 16px}button.x{padding:8px 14px}.x .lbl{display:inline}.card.cmd{padding:10px 12px}}
+.x .lbl,.mobnote{display:none}@media(max-width:700px){.mobnote{display:block;margin:0 0 8px}.x .lbl{display:inline}}
+select,input{font:inherit;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--fg);width:100%;min-width:0}
+.arg{display:flex;align-items:center;gap:8px;min-width:0}.arg .pre{font:700 13px ui-monospace,Menlo,monospace;color:var(--muted);white-space:nowrap}
+.arg.hide{visibility:hidden}
+button{font:inherit;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:6px 18px;cursor:pointer;white-space:nowrap}
+button.cp{background:var(--accent);color:var(--accent-ink);padding:9px 22px}
+button.x{border-color:var(--line);color:var(--muted);padding:6px 12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.muted{color:var(--muted);font-size:13px}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--fg);color:var(--card);padding:8px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10000;max-width:90vw}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>遊戲快捷指令</h1>
+  <p class="sub">按一下「複製指令」，到遊戲裡貼上就能用。需要輸入名字的指令，先在格子裡打好名字再複製。</p>
+</header>
+<main>
+  <p class="muted mobnote">不需要的欄位，按右邊的「✕ 刪除欄位」就會移除，只留下你要用的。</p>
+  <div id="list"></div>
+  <div class="row"><button id="add" type="button">＋ 新增欄位</button><span class="muted">你新增的欄位與輸入的名字，會自動存在這個瀏覽器裡。</span></div>
+</main>
+<div id="toast"></div>
+<script>
+// 指令種類：id、顯示名稱、指令、是否要輸入、輸入欄的提示
+const TYPES=[
+ {id:'mute',label:'/mute（關閉／開啟 特效）',cmd:'/mute'},
+ {id:'marker',label:'/marker（箭頭標記自己）',cmd:'/marker'},
+ {id:'leave',label:'/退出隊伍',cmd:'/退出隊伍'},
+ {id:'invite',label:'/邀請組隊（輸入隊友名字）',cmd:'/邀請組隊',arg:true,ph:'輸入隊友名字…'},
+ {id:'kick',label:'/踢出隊伍（輸入玩家名稱）',cmd:'/踢出隊伍',arg:true,ph:'輸入玩家名稱…'},
+ {id:'summon',label:'/刪除召喚獸',cmd:'/刪除召喚獸'},
+ {id:'custom',label:'其他（自行輸入完整指令）',cmd:'',arg:true,full:true,ph:'輸入完整指令，例如 /all 大家好'}
+];
+const DEFAULT=['mute','marker','leave','invite','kick','summon','custom'].map(t=>({t,v:''}));
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='cmd_rows_v1';
+let rows;try{rows=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+if(!Array.isArray(rows)||!rows.length)rows=DEFAULT.map(r=>({...r}));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(rows))}catch(e){}};
+const T=id=>TYPES.find(x=>x.id===id)||TYPES[TYPES.length-1];
+function render(){
+  $('list').innerHTML=rows.map((r,i)=>{const t=T(r.t);return `<div class="card cmd" data-i="${i}"><div class="ty"><select data-ty>${TYPES.map(x=>`<option value="${x.id}" ${x.id===t.id?'selected':''}>${esc(x.label)}</option>`).join('')}</select></div><div class="arg ${t.arg?'':'hide'}">${t.arg&&!t.full?`<span class="pre">${esc(t.cmd)}</span>`:''}<input data-v value="${esc(r.v||'')}" placeholder="${esc(t.ph||'')}" autocomplete="off"></div><button type="button" class="cp" data-cp>📋 複製指令</button><button type="button" class="x" data-del title="刪除這一欄">✕<span class="lbl"> 刪除欄位</span></button></div>`}).join('')}
+function toast(s){const t=$('toast');t.textContent=s;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),1800)}
+async function copy(text){try{await navigator.clipboard.writeText(text);return true}catch(e){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(e2){}ta.remove();return ok}}
+document.addEventListener('click',async e=>{
+  const row=e.target.closest('.cmd');if(!row)return;const i=+row.dataset.i,r=rows[i],t=T(r.t);
+  if(e.target.closest('[data-cp]')){
+    const v=(r.v||'').trim();let text=t.cmd;
+    if(t.arg){if(!v){toast(t.full?'請先輸入指令內容':'請先輸入名字');row.querySelector('[data-v]').focus();return}text=t.full?v:`${t.cmd} ${v}`}
+    toast((await copy(text))?`✅ 已複製：${text}`:'複製失敗，請手動複製')}
+  else if(e.target.closest('[data-del]')){rows.splice(i,1);save();render()}});
+document.addEventListener('change',e=>{const row=e.target.closest('.cmd');if(!row||!e.target.matches('[data-ty]'))return;const r=rows[+row.dataset.i];r.t=e.target.value;save();render()});
+document.addEventListener('input',e=>{const row=e.target.closest('.cmd');if(!row||!e.target.matches('[data-v]'))return;rows[+row.dataset.i].v=e.target.value;save()});
+$('add').onclick=()=>{rows.push({t:'custom',v:''});save();render()};
+render();
+</script>
+<script src="edward-nav.js?v=r151"></script>
+</body>
+</html>

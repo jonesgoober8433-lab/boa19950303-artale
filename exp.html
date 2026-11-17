@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>升級時間計算</title>
+<link rel="icon" type="image/svg+xml" href="ui/title-icon.svg">
+<style>
+:root{--bg:#f5ecdb;--card:#fffaf0;--fg:#3a2f25;--muted:#86745f;--line:#e8dcc3;--accent:#a4602a;--accent-ink:#fffaf0;--soft:#f4e8cf;--field:#fdf6e6;--good:#4d7a36;--good-bg:#e6efd9;--warn:#84560f;--warn-bg:#f6e6c4}
+*{box-sizing:border-box}html{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+header,main{max-width:960px;margin:0 auto;padding:0 16px}
+header{padding-top:20px}
+h1{margin:0 0 4px;font:700 26px "Noto Serif TC","Songti TC",serif;letter-spacing:.04em}
+h2{margin:0 0 6px;font:700 18px "Noto Serif TC",serif}
+.sub{color:var(--muted);margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+label{display:block;font-size:13px;color:var(--muted);margin:0 0 2px}
+input,select{font:inherit;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--fg);width:100%}
+.in{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.in3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:700px){.in,.in3{grid-template-columns:1fr}}
+.tabs{display:flex;gap:8px;margin:14px 0 10px;flex-wrap:wrap}
+.tab{border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:6px 18px;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer}
+.tab.on{background:var(--accent);color:var(--accent-ink)}
+.res{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
+.res.r3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:820px){.res,.res.r3{grid-template-columns:repeat(2,1fr)}}
+.res div{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.res small{color:var(--muted);display:block;font-size:12.5px}.res b{font-size:20px;font-variant-numeric:tabular-nums}
+.res .big{background:var(--soft);border-color:var(--accent)}.res .big b{color:var(--accent);font-size:23px}
+.blk{margin-top:14px;padding-top:10px;border-top:1px dashed var(--line)}
+.blk h3{margin:0 0 4px;font-size:15px}
+.muted{color:var(--muted);font-size:13px}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:13.5px;margin-top:8px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+button{font:inherit;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:3px 16px;cursor:pointer}
+.tw{max-height:620px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+thead th{position:sticky;top:0;background:var(--soft);color:var(--fg);font-weight:700;font-size:13px;padding:8px 12px;border-bottom:2px solid var(--line);z-index:1}
+th.l,td.l{text-align:center;width:72px}
+td,th{padding:6px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+tbody tr:nth-child(even){background:#fdf6e6}
+tbody tr:hover{background:var(--soft);cursor:pointer}
+tbody tr.me{background:#fdebd9;outline:2px solid #e0803a;outline-offset:-2px;font-weight:700}
+tbody td.l{font-weight:700;color:var(--accent)}
+.src{color:var(--muted);font-size:12.5px;margin:8px 0}
+.mrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.mrow input{width:90px}.mrow button{padding:2px 10px;font-size:13px}.mrow button.on{background:var(--accent);color:var(--accent-ink)}
+.pqinfo{background:var(--soft);border-radius:10px;padding:8px 12px;font-size:13.5px;margin-top:10px;line-height:1.7}.pqinfo b{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>升級時間計算</h1>
+  <p class="sub">算練功或組隊任務要多久升級。下面有 1～200 級的完整經驗表。</p>
+</header>
+<main>
+  <section class="card">
+    <div class="in">
+      <div><label for="lv">你的等級</label><select id="lv"></select></div>
+      <div><label for="pct">目前經驗進度 %（選填，沒填當 0%）</label><input id="pct" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    </div>
+    <div class="tabs" role="tablist"><button type="button" class="tab" data-m="a">⚔️ 練功（每段時間拿多少經驗）</button><button type="button" class="tab" data-m="b">🎯 組隊任務（一場一場算）</button></div>
+
+    <div id="modeA">
+      <div class="in">
+        <div><label for="tmin">時間（分鐘）</label><input id="tmin" type="text" inputmode="decimal" autocomplete="off" placeholder="10"></div>
+        <div><label for="e10" id="e10Lbl">這段時間獲得的經驗</label><input id="e10" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 25000"></div>
+      </div>
+    </div>
+    <div id="modeB" hidden>
+      <div class="in">
+        <div><label for="pq">組隊任務</label><select id="pq"></select></div>
+        <div><label for="mult">經驗倍率（活動期間可自己輸入，也可按右邊 1x～4x，預設 1 倍）</label><div class="mrow"><input id="mult" type="text" inputmode="decimal" autocomplete="off" placeholder="1"><span class="muted">倍</span><button type="button" data-m="1">1x</button><button type="button" data-m="2">2x</button><button type="button" data-m="3">3x</button><button type="button" data-m="4">4x</button></div></div>
+      </div>
+      <div class="pqinfo" id="pqinfo"></div>
+      <div class="in3" style="margin-top:10px">
+        <div><label for="pmin">你實際一場多久（分鐘）</label><input id="pmin" type="text" inputmode="decimal" autocomplete="off" placeholder="例如 25"></div>
+        <div><label for="pexp">一場獲得經驗（沒活動時的基本值）</label><input id="pexp" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 300000"></div>
+        <div><label for="tlv">想到的目標等級</label><select id="tlv"></select></div>
+      </div>
+      <div class="in" style="margin-top:10px">
+        <div><label for="pn">預計跑幾場（選填，算跑完會到幾級）</label><input id="pn" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 20"></div>
+      </div>
+    </div>
+    <div id="out" style="margin-top:12px"></div>
+  </section>
+
+  <section class="card">
+    <h2>1～200 級經驗表</h2>
+    <div class="row"><button id="goMe" type="button">跳到我的等級</button><span class="muted" id="tnote"></span></div>
+    <div class="tw" id="tw"><table><thead><tr><th class="l">等級</th><th>升到下一級所需經驗</th><th>累計經驗</th><th id="thTime">升級所需時間</th></tr></thead><tbody id="tb"></tbody></table></div>
+    <p class="src">資料來源：<a href="https://mapleartale.com/exp-table/" target="_blank" rel="noopener">冒險島世界 Artale 中文網</a> 的經驗表；累計經驗與逐級加總完全一致，1～12 級也與 <a href="https://artale-tools.archie-design.app/tools/exp-calculator" target="_blank" rel="noopener">Artale 經驗計算機</a> 相同。這不是官方資料，實際請以遊戲為準。200 級那一列是來源表列出的數值。</p>
+  </section>
+</main>
+<script>
+const T=[[1,15,0],[2,34,15],[3,57,49],[4,92,106],[5,135,198],[6,372,333],[7,560,705],[8,840,1265],[9,1242,2105],[10,1716,3347],[11,2360,5063],[12,3216,7423],[13,4200,10639],[14,5460,14839],[15,7050,20299],[16,8840,27349],[17,11040,36189],[18,13716,47229],[19,16680,60945],[20,20216,77625],[21,24402,97841],[22,28980,122243],[23,34320,151223],[24,40512,185543],[25,47216,226055],[26,54900,273271],[27,63666,328171],[28,73080,391837],[29,83720,464917],[30,95700,548637],[31,108480,644337],[32,122760,752817],[33,138666,875577],[34,155540,1014243],[35,174216,1169783],[36,194832,1343999],[37,216600,1538831],[38,240500,1755431],[39,266682,1995931],[40,294216,2262613],[41,324240,2556829],[42,356916,2881069],[43,391160,3237985],[44,428280,3629145],[45,468450,4057425],[46,510420,4525875],[47,555680,5036295],[48,604416,5591975],[49,655200,6196391],[50,709716,6851591],[51,748608,7561307],[52,789631,8309915],[53,832902,9099546],[54,878545,9932448],[55,926689,10810993],[56,977471,11737682],[57,1031036,12715153],[58,1087536,13746189],[59,1147132,14833725],[60,1209994,15980857],[61,1276301,17190851],[62,1346242,18467152],[63,1420016,19813394],[64,1497832,21233410],[65,1579913,22731242],[66,1666492,24311155],[67,1757815,25977647],[68,1854143,27735462],[69,1955750,29589605],[70,2062925,31545355],[71,2175973,33608280],[72,2295216,35784253],[73,2420993,38079469],[74,2553663,40500462],[75,2693603,43054125],[76,2841212,45747728],[77,2996910,48588940],[78,3161140,51585850],[79,3334370,54746990],[80,3517093,58081360],[81,3709829,61598453],[82,3913127,65308282],[83,4127566,69221409],[84,4353756,73348975],[85,4592341,77702731],[86,4844001,82295072],[87,5109452,87139073],[88,5389449,92248525],[89,5684790,97637974],[90,5996316,103322764],[91,6324914,109319080],[92,6671519,115643994],[93,7037118,122315513],[94,7422752,129352631],[95,7829518,136775383],[96,8258575,144604901],[97,8711144,152863476],[98,9188514,161574620],[99,9692044,170763134],[100,10223168,180455178],[101,10783397,190678346],[102,11374327,201461743],[103,11997640,212836070],[104,12655110,224833710],[105,13348610,237488820],[106,14080113,250837430],[107,14851703,264917543],[108,15665576,279769246],[109,16524049,295434822],[110,17429566,311958871],[111,18384706,329388437],[112,19392187,347773143],[113,20454878,367165330],[114,21575805,387620208],[115,22758159,409196013],[116,24005306,431954172],[117,25320796,455959478],[118,26708375,481280274],[119,28171993,507988649],[120,29715818,536160642],[121,31344244,565876460],[122,33061908,597220704],[123,34873700,630282612],[124,36784778,665156312],[125,38800583,701941090],[126,40926854,740741673],[127,43169645,781668527],[128,45535341,824838172],[129,48030677,870373513],[130,50662758,918404190],[131,53439077,969066948],[132,56367538,1022506025],[133,59456479,1078873563],[134,62714694,1138330042],[135,66151459,1201044736],[136,69776558,1267196195],[137,73600313,1336972753],[138,77633610,1410573066],[139,81887931,1488206676],[140,86375389,1570094607],[141,91108760,1656469996],[142,96101520,1747578756],[143,101367883,1843680276],[144,106922842,1945048159],[145,112782213,2051971001],[146,118962678,2164753214],[147,125481832,2283715892],[148,132358236,2409197724],[149,139611467,2541555960],[150,147262175,2681167427],[151,155332142,2828429602],[152,163844343,2983761744],[153,172823012,3147606087],[154,182293713,3320429099],[155,192283408,3502722812],[156,202820538,3695006220],[157,213935103,3897826758],[158,225658746,4111761861],[159,238024845,4337420607],[160,251068606,4575445452],[161,264827165,4826514058],[162,279339693,5091341223],[163,294647508,5370680916],[164,310794191,5665328424],[165,327825712,5976122615],[166,345790561,6303948327],[167,364739883,6649738888],[168,384727628,7014478771],[169,405810702,7399206399],[170,428049128,7805017101],[171,451506220,8233066229],[172,476248760,8684572449],[173,502347192,9160821209],[174,529875818,9663168401],[175,558913012,10193044219],[176,589541445,10751957231],[177,621848316,11341498676],[178,655925603,11963346992],[179,691870326,12619272595],[180,729784819,13311142921],[181,769777027,14040927740],[182,811960808,14810704767],[183,856456260,15622665575],[184,903390063,16479121835],[185,952895838,17382511898],[186,1005114529,18335407736],[187,1060194805,19340522265],[188,1118293480,20400717070],[189,1179575962,21519010550],[190,1244216724,22698586512],[191,1312399800,23942803236],[192,1384319309,25255203036],[193,1460180007,26639522345],[194,1540197871,28099702352],[195,1624600714,29639900223],[196,1713628833,31264500937],[197,1807535693,32978129770],[198,1906588648,34785665463],[199,2011069705,36692254111],[200,2121276324,38703323816]]; // [等級, 升到下一級所需經驗, 累計經驗（升到該級起點的總經驗）]
+const $=id=>document.getElementById(id);
+const nf=n=>Math.round(n).toLocaleString('en-US');
+const num=s=>{const v=parseFloat(String(s).replace(/[,\s]/g,''));return isNaN(v)?null:v};
+const need=l=>T[l-1][1],cum=l=>T[l-1][2];
+function fmtTime(min){
+  if(!isFinite(min))return '—';
+  if(min<1)return '不到 1 分鐘';
+  const d=Math.floor(min/1440),h=Math.floor((min%1440)/60),m=Math.round(min%60);
+  let s='';if(d)s+=d+' 天 ';if(h||d)s+=h+' 小時 ';s+=m+' 分鐘';
+  return s.replace(/ 0 分鐘$/,'').trim()||'0 分鐘';
+}
+const fx=(v,d)=>(Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toLocaleString('en-US',{maximumFractionDigits:d});
+function store(k,v){try{localStorage.setItem('exp_'+k,v)}catch(e){}}
+function load(k,d){try{const v=localStorage.getItem('exp_'+k);return v==null?d:v}catch(e){return d}}
+// 阿泰爾官方「組隊任務教學」（artale.live/tw/guide/party-quest）列出等級、人數與獎勵；
+// 每場經驗與時間官方沒有公布，ref 是玩家攻略（巴哈姆特、科技肥宅）整理的「參考值」，可以自己改。
+const PQS=[
+ {id:'moon',name:'月妙任務',min:10,max:null,size:'3～6 人',reward:'頭頂上的一個年糕',ref:{exp:1600,mins:5,guess:0,note:'通關固定 1,600 經驗；打得快 5 分鐘內可結束',src:[['巴哈姆特：月妙組隊任務流程整理','https://forum.gamer.com.tw/C.php?bsn=79354&snA=4748']]}},
+ {id:'kerning',name:'超級綠水靈',min:21,max:30,size:'4～6 人',reward:'黏稠稠鞋子',ref:{exp:4800,mins:15,guess:1,note:'各關 700＋300＋500＋800＋2,500＝4,800 經驗；時間沒有找到可靠數字',src:[['巴哈姆特：超級綠水靈簡單介紹','https://forum.gamer.com.tw/C.php?bsn=79354&snA=357']]}},
+ {id:'ludi',name:'101 組隊任務（玩具城）',min:35,max:50,size:'4～6 人',reward:'有裂痕的眼鏡',ref:{exp:41500,mins:25,guess:1,note:'九個關卡 3,000＋3,500＋3,800＋4,200＋4,700＋2,500＋5,800＋6,800＋7,200＝41,500 經驗；時間沒有找到可靠數字',src:[['巴哈姆特：玩具城101 介紹和跳箱教學','https://forum.gamer.com.tw/C.php?bsn=79354&snA=408']]}},
+ {id:'goddessexp',name:'女神（經驗團）',min:51,max:70,size:'4～6 人',reward:'女神的手鐲（經驗團不領通關獎勵）',ref:{exp:24700,mins:3,guess:0,note:'只打高經驗關卡：5,000＋6,000＋6,200＋7,500＝24,700 經驗；熟練隊伍約 2.5～3 分鐘一場',src:[['科技肥宅：女神經驗團組隊任務教學','https://tech-fz.com/maplestory-artale-goddess-exp-party-quest-guide/'],['巴哈姆特：女神經驗團組隊教學','https://forum.gamer.com.tw/C.php?bsn=79354&snA=1725']]}},
+ {id:'goddessboss',name:'女神（王團）',min:51,max:70,size:'4～6 人',reward:'女神的手鐲',ref:{exp:68300,mins:10,guess:0,note:'各關 5,000＋6,000＋6,200＋7,500＋8,400＋9,500＋8,200＋17,500（庭園 BOSS）＝68,300 經驗；順暢時約 5 分鐘修好女神雕像，打完 BOSS 約 10 分鐘',src:[['科技肥宅：女神之塔王團攻略','https://tech-fz.com/maplestory-goddess-tower-guide/'],['巴哈姆特：從女神經驗團開始當隊長','https://forum.gamer.com.tw/C.php?bsn=79354&snA=1621']]}},
+ {id:'hook',name:'金鉤海賊王',min:55,max:100,size:'3～6 人',reward:'海賊王帽子',ref:{exp:38000,mins:15,guess:1,note:'通關經驗 38,000（有玩家猜全隊平均等級 70 以下會更高，未確認）；第 1 階段限時 4 分鐘，整場時間沒有找到可靠數字',src:[['巴哈姆特：金勾海賊王組隊任務簡單介紹','https://forum.gamer.com.tw/C.php?bsn=79354&snA=4465'],['塔科女子：金勾海賊王任務攻略','https://www.tech-girlz.com/2025/06/maplestoryworld-artale-captain-latanica.html']]}},
+ {id:'rnj',name:'羅密歐與茱麗葉',min:71,max:85,size:'4～6 人',reward:'弗路斯之眼',ref:{exp:201000,mins:20,guess:1,note:'10,000＋20,000＋20,000＋20,000＋125,000（王關，完美通關）＋15,000（獎勵關）＝201,000 經驗；時間沒有找到可靠數字',src:[['巴哈姆特：羅密歐與茱麗葉組隊任務攻略','https://forum.gamer.com.tw/C.php?bsn=79354&snA=9763']]}},
+ {id:'custom',name:'自行輸入',info:''}
+];
+let MODE=load('mode','a');
+$('lv').innerHTML=T.slice(0,199).map(r=>`<option value="${r[0]}">${r[0]} 級</option>`).join('');
+$('lv').value=load('lv','100');
+$('pq').innerHTML=PQS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');$('pq').value=load('pq','custom');if(!PQS.find(p=>p.id===$('pq').value))$('pq').value='custom';$('mult').value=load('mult','1');
+['pct','tmin','e10','pn'].forEach(id=>$(id).value=load(id,id==='tmin'?'10':''));
+function pqKey(k){return k+'_'+$('pq').value}
+function loadPQ(){const p=PQS.find(x=>x.id===$('pq').value),r=p&&p.ref;
+  const a=load(pqKey('pmin'),null),b=load(pqKey('pexp'),null);
+  $('pmin').value=a!=null?a:'';$('pmin').placeholder=r&&r.mins?'沒填就用預估 '+r.mins+' 分鐘':'例如 25';$('pexp').value=b!=null?b:(r&&r.exp?nf(r.exp):'')}
+loadPQ();
+function fillTarget(){
+  const L=+$('lv').value;let t=+load('tlv',L+1);if(!(t>L&&t<=200))t=L+1;
+  $('tlv').innerHTML=T.slice(L).map(r=>`<option value="${r[0]}">${r[0]} 級</option>`).join('');$('tlv').value=t;
+}
+fillTarget();
+// ---- 取得目前狀態
+function state(){
+  const L=+$('lv').value,pct=Math.min(99.99,Math.max(0,num($('pct').value)||0));
+  const done=need(L)*pct/100;            // 這一級已經有的經驗
+  return {L,pct,remain:need(L)-done,abs:cum(L)+done};
+}
+// ---- 結果
+function calc(){
+  const s=state(),L=s.L;let h='',col={t:'升級所需時間',f:null};
+  if(MODE==='a'){
+    const mins=num($('tmin').value),e=num($('e10').value),ok=mins>0&&e>0,N=mins>0?mins:10;
+    $('e10Lbl').textContent=`每 ${fx(N,2)} 分鐘獲得的經驗`;
+    h=`<div class="res"><div><small>${L} 級升到 ${L+1} 級所需經驗</small><b>${nf(need(L))}</b></div><div><small>還差多少經驗${s.pct?`（已 ${s.pct}%）`:''}</small><b>${nf(s.remain)}</b></div>`;
+    if(ok){const blocks=s.remain/e;h+=`<div><small>每 ${fx(N,2)} 分鐘 ${nf(e)} 經驗（約每小時 ${nf(e*60/N)}），需要</small><b>${fx(blocks,blocks<10?2:1)} 個 ${fx(N,2)} 分鐘</b></div><div class="big"><small>預估升級時間</small><b>${fmtTime(blocks*N)}</b></div></div>`;col.f=n=>fmtTime(n/e*N);col.t=`每 ${fx(N,2)} 分鐘 ${nf(e)} 經驗，升級需要`}
+    else{h+=`<div><small>每 ${fx(N,2)} 分鐘獲得的經驗</small><b>—</b></div><div class="big"><small>預估升級時間</small><b>—</b></div></div><div class="notice">請輸入「時間」和「獲得的經驗」，才能算出要練多久。</div>`;col.t='升級所需時間（先輸入上面的經驗）'}
+  }else{
+    const mult=num($('mult').value)>0?num($('mult').value):1,base=num($('pexp').value),e=base>0?base*mult:null,pq0=PQS.find(x=>x.id===$('pq').value),estM=pq0&&pq0.ref&&pq0.ref.mins?pq0.ref.mins:0,mins=num($('pmin').value)>0?num($('pmin').value):estM,ok=mins>0&&e>0,T2=+$('tlv').value,n=num($('pn').value);
+    const pq=PQS.find(p=>p.id===$('pq').value);
+    if(pq&&pq.id!=='custom'){const lo=L<pq.min||(pq.max&&L>pq.max),r=pq.ref;
+      $('pqinfo').innerHTML=`<b>${pq.name}</b>｜等級 ${pq.max?`Lv.${pq.min}～${pq.max}`:`Lv.${pq.min} 以上`}｜${pq.size}｜通關獎勵：${pq.reward}`+
+        (r?`<br><b>預估時間</b>：約 ${r.mins} 分鐘${r.guess?'（粗估，沒有找到實測數字）':'（玩家說法）'}${num($('pmin').value)>0?'；目前用你填的 '+fx(num($('pmin').value),1)+' 分鐘計算':'；你沒填實際時間，先用預估計算，可在下面「你實際一場多久」改成自己的'}。<br><b>參考值</b>：${r.note}。經驗已先填入參考值（玩家攻略整理，版本或活動可能不同，可以自己改）。<br><span class="muted">來源：${r.src.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join('、')}；等級與人數：<a href="https://artale.live/tw/guide/party-quest" target="_blank" rel="noopener">阿泰爾官方「組隊任務教學」</a></span>`:'')+
+        (lo?`<br><b>提醒：</b>你的等級（${L}）不在這個任務的等級範圍；官方說明活動期間會提升經驗、也不受等級上限限制。`:'')}
+    else $('pqinfo').innerHTML='<span class="muted">自己輸入一場的時間與經驗。也可以從上面的選單選阿泰爾的組隊任務，會顯示等級範圍與通關獎勵。</span>';
+    h=`<div class="res r3"><div><small>${L} 級升到 ${L+1} 級所需經驗</small><b>${nf(need(L))}</b></div><div><small>還差多少經驗${s.pct?`（已 ${s.pct}%）`:''}</small><b>${nf(s.remain)}</b></div><div><small>一場${mult!==1&&base>0?`（${nf(base)} × ${fx(mult,2)} 倍）`:''}</small><b>${ok?`${nf(e)} 經驗／${fx(mins,2)} 分`:'—'}</b></div></div>`;
+    if(ok){
+      const r1=s.remain/e,toT=cum(T2)-s.abs,r2=toT/e;
+      h+=`<div class="blk"><h3>① 升到下一級（${L} → ${L+1} 級）</h3><div class="res r3"><div><small>需要場數</small><b>${fx(r1,2)} 場</b></div><div class="big"><small>要跑滿幾場（進位）</small><b>${Math.ceil(r1-1e-9)} 場</b></div><div><small>總時間</small><b>${fmtTime(Math.ceil(r1-1e-9)*mins)}</b></div></div></div>`;
+      h+=`<div class="blk"><h3>② 到目標 ${T2} 級</h3><div class="res r3"><div><small>需要總經驗</small><b>${nf(toT)}</b></div><div class="big"><small>要跑幾場（進位）</small><b>${Math.ceil(r2-1e-9)} 場</b><small>約 ${fx(r2,2)} 場</small></div><div><small>總時間</small><b>${fmtTime(Math.ceil(r2-1e-9)*mins)}</b></div></div></div>`;
+      if(n>0){const tot=s.abs+n*e;let lv=200;if(tot<cum(200)){lv=1;for(let l=1;l<=200;l++){if(cum(l)<=tot)lv=l;else break}}
+        const where=lv>=200&&tot>=cum(200)?`已達 200 級（再多 ${nf(tot-cum(200))} 經驗）`:`${lv} 級 ${fx((tot-cum(lv))/need(lv)*100,2)}%`;
+        h+=`<div class="blk"><h3>③ 跑 ${nf(n)} 場之後</h3><div class="res r3"><div><small>獲得經驗</small><b>${nf(n*e)}</b></div><div class="big"><small>會到</small><b>${where}</b></div><div><small>總時間</small><b>${fmtTime(n*mins)}</b></div></div></div>`}
+      col.f=nn=>fx(nn/e,1)+' 場';col.t=`每場 ${nf(e)} 經驗，升級需要場數`;
+    }else{h+=`<div class="notice">請輸入「一場多久」和「一場獲得經驗」，才能算出要跑幾場。</div>`;col.t='升級所需場數（先輸入上面的經驗）'}
+  }
+  $('out').innerHTML=h;
+  $('tb').innerHTML=T.map(([l,n,c])=>`<tr data-l="${l}" class="${l===L?'me':''}"><td class="l">${l}</td><td>${nf(n)}</td><td>${nf(c)}</td><td>${col.f?col.f(n):'—'}</td></tr>`).join('');
+  $('thTime').textContent=col.t;
+  $('tnote').textContent=`你的等級：${L} 級（點表格任一列也可以改成那一級）`;
+}
+function setMode(m){MODE=m;store('mode',m);$('modeA').hidden=m!=='a';$('modeB').hidden=m!=='b';document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.m===m));calc()}
+// 輸入時不改寫文字（避免打字被打斷），離開欄位再整理千分位
+['pct','tmin','e10','pn'].forEach(id=>{$(id).addEventListener('input',()=>{store(id,$(id).value);calc()});
+  if(['e10','pn'].includes(id))$(id).addEventListener('blur',()=>{const v=num($(id).value);if(v!=null&&v>=0){$(id).value=nf(v);store(id,$(id).value)}})});
+['pmin','pexp'].forEach(id=>{$(id).addEventListener('input',()=>{store(pqKey(id),$(id).value);calc()});
+  if(id==='pexp')$(id).addEventListener('blur',()=>{const v=num($(id).value);if(v!=null&&v>=0){$(id).value=nf(v);store(pqKey(id),$(id).value)}})});
+$('pq').addEventListener('change',()=>{store('pq',$('pq').value);loadPQ();calc()});
+function setMult(v){$('mult').value=v;store('mult',v);document.querySelectorAll('.mrow button').forEach(b=>b.classList.toggle('on',+b.dataset.m===+v));calc()}
+$('mult').addEventListener('input',()=>{store('mult',$('mult').value);document.querySelectorAll('.mrow button').forEach(b=>b.classList.toggle('on',+b.dataset.m===num($('mult').value)));calc()});
+document.querySelectorAll('.mrow button').forEach(b=>b.addEventListener('click',()=>setMult(b.dataset.m)));
+$('lv').addEventListener('change',()=>{store('lv',$('lv').value);fillTarget();store('tlv',$('tlv').value);calc()});
+$('tlv').addEventListener('change',()=>{store('tlv',$('tlv').value);calc()});
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.m)));
+$('tb').addEventListener('click',e=>{const tr=e.target.closest('tr[data-l]');if(!tr)return;const l=+tr.dataset.l;if(l<=199){$('lv').value=l;store('lv',l);fillTarget();store('tlv',$('tlv').value);const y=$('tw').scrollTop;calc();$('tw').scrollTop=y}});
+function goMe(){const tr=document.querySelector('#tb tr.me');if(tr)$('tw').scrollTop=tr.offsetTop-$('tw').clientHeight/2+tr.clientHeight/2}
+$('goMe').onclick=goMe;
+document.querySelectorAll('.mrow button').forEach(b=>b.classList.toggle('on',+b.dataset.m===num($('mult').value)));
+setMode(MODE);goMe();
+</script>
+<script src="edward-nav.js?v=r151"></script>
+</body>
+</html>

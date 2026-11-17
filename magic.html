@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>html,body{margin:0}</style>
+</head>
+<body>
+<title>法師裝備模擬器</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<style>
+/* 奶油色系。版面：頂部工具列（還原、IG）→ 角色點數與 buff → 各套結果 → 依部位輸入裝備 → 註解 → IG。 */
+:root {
+  --bg: #f5ecdb; --card: #fffaf0; --fg: #3a2f25; --muted: #86745f; --line: #e8dcc3;
+  --accent: #a4602a; --accent-ink: #fffaf0; --soft: #f4e8cf; --field: #fdf6e6; --good: #4d7a36; --bad: #a8392b; --bad-bg: #f8e2da; --warn: #84560f; --warn-bg: #f6e6c4;
+  --shadow: 0 1px 0 rgba(120,88,48,.05), 0 14px 30px -18px rgba(120,88,48,.35);
+  --sans: "Noto Sans TC", system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --serif: "Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1d1812; --card: #272018; --fg: #f1e6d1; --muted: #b0a088; --line: #3b3226;
+    --accent: #e3a566; --accent-ink: #231a10; --soft: #31281d; --field: #1f1912; --good: #9bc77f; --bad: #f0a091; --bad-bg: #3d211b; --warn: #e5b866; --warn-bg: #34280f;
+    --shadow: 0 14px 30px -18px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1d1812; --card: #272018; --fg: #f1e6d1; --muted: #b0a088; --line: #3b3226;
+  --accent: #e3a566; --accent-ink: #231a10; --soft: #31281d; --field: #1f1912; --good: #9bc77f; --bad: #f0a091; --bad-bg: #3d211b; --warn: #e5b866; --warn-bg: #34280f;
+  --shadow: 0 14px 30px -18px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.6;
+  padding-block: 24px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1 { font-family: var(--serif); font-size: 30px; margin: 0; letter-spacing: .04em; font-weight: 700; }
+h2 { font-family: var(--serif); font-size: 17px; margin: 0 0 14px; letter-spacing: .06em; color: var(--fg); font-weight: 600; }
+h3 { font-size: 14px; margin: 0; letter-spacing: .04em; }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; min-width: 0; box-shadow: var(--shadow); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px 16px; align-items: end; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+input[type=number], input[type=text], select { font: inherit; font-family: var(--mono); color: var(--fg); background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%; min-width: 0; }
+input[type=text] { font-family: var(--sans); }
+select { font-family: var(--sans); }
+input:focus-visible, button:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chk { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--fg); white-space: nowrap; }
+.chk input { width: 16px; height: 16px; accent-color: var(--accent); flex: none; }
+.pts { display: flex; flex-wrap: wrap; gap: 6px 28px; margin-top: 14px; }
+.pts div { display: flex; flex-direction: column; }
+.pts .k { font-size: 12px; color: var(--muted); }
+.pts .v { font-family: var(--mono); font-size: 18px; }
+.msg { margin-top: 12px; padding: 8px 12px; border-radius: 6px; font-size: 14px; }
+.msg.bad { color: var(--bad); background: var(--bad-bg); }
+.msg.ok { color: var(--good); background: var(--soft); }
+.msg.warn { color: var(--warn); background: var(--warn-bg); }
+.note { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+.banner { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 28px; }
+.banner .s { display: flex; flex-direction: column; }
+.banner .s .l { font-size: 12px; color: var(--muted); }
+.banner .s .v { font-family: var(--mono); font-size: 30px; font-weight: 600; }
+.banner .win .v { color: var(--accent); }
+.banner .diff { font-size: 15px; color: var(--muted); }
+.res-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 24px; margin-bottom: 10px; }
+.res-head .v { font-family: var(--mono); font-size: 36px; font-weight: 600; color: var(--accent); line-height: 1.1; }
+.kv { display: flex; flex-wrap: wrap; gap: 6px 24px; margin-bottom: 10px; }
+.kv div { display: flex; flex-direction: column; }
+.kv .k { font-size: 12px; color: var(--muted); }
+.kv .vv { font-family: var(--mono); font-size: 16px; }
+.equip { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; padding: 0; list-style: none; }
+.equip li { background: var(--soft); border-radius: 4px; padding: 2px 8px; font-size: 13px; }
+.equip li b { color: var(--muted); font-weight: 400; margin-right: 6px; font-size: 12px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 500; font-size: 12px; letter-spacing: .04em; }
+td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+td.sw { color: var(--muted); }
+tr.buff td { background: var(--soft); }
+.empty { color: var(--muted); padding: 12px 0; }
+.slot { border-top: 1px solid var(--line); padding: 12px 0; display: flex; flex-direction: column; gap: 10px; }
+.slot:first-of-type { border-top: 0; padding-top: 0; }
+.slot-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.row { display: grid; grid-template-columns: minmax(150px, 1.4fr) repeat(5, minmax(56px, 76px)) auto; gap: 8px; align-items: end; padding: 10px; background: var(--field); border: 1px solid var(--line); border-radius: 10px; }
+.row .flags { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; min-height: 34px; }
+.mini { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--muted); min-width: 0; }
+.mini input { padding: 4px 6px; background: var(--card); }
+.tag { font-size: 12px; color: var(--warn); background: var(--warn-bg); border-radius: 4px; padding: 0 6px; margin-left: 4px; }
+@media (max-width: 720px) { .row { grid-template-columns: repeat(5, minmax(0, 1fr)); } .row .name, .row .flags { grid-column: 1 / -1; } }
+button { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 999px; padding: 4px 14px; cursor: pointer; transition: background .15s, transform .15s; }
+button:hover { background: var(--soft); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.x { color: var(--muted); padding: 2px 8px; }
+textarea { font-family: var(--mono); font-size: 12px; width: 100%; min-height: 110px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+details summary { cursor: pointer; color: var(--muted); letter-spacing: .06em; }
+details[open] summary { margin-bottom: 10px; }
+.rules { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
+.rules b { color: var(--fg); font-weight: 500; }
+.rulebox h3 { margin: 16px 0 6px; color: var(--fg); }
+.rulebox a, .ig a { color: var(--accent); }
+.rules li { margin: 4px 0; }
+.ig-card { text-align: center; padding: 26px 16px; background: var(--soft); }
+.ig-label { font-size: 13px; letter-spacing: .12em; color: var(--muted); margin-bottom: 4px; }
+.ig-card a { color: var(--accent); font-size: 28px; font-weight: 700; text-decoration: none; letter-spacing: .02em; word-break: break-all; }
+.ig-card a:hover { text-decoration: underline; }
+/* 圖示、頂部工具列、TOP */
+.ico { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--soft); color: var(--accent); flex: none; }
+.ico svg, .ci svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ico svg { width: 18px; height: 18px; }
+.ci { display: inline-grid; place-items: center; vertical-align: -2px; margin-right: 4px; color: var(--accent); }
+.ci svg { width: 14px; height: 14px; }
+.slot-h h3 { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 20px; padding-bottom: 6px; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.reset-btn { position: absolute; top: 14px; right: 14px; display: inline-flex; align-items: center; gap: 6px; height: 34px; min-width: 34px; padding: 0 8px; justify-content: center; color: var(--accent); background: var(--soft); border-color: var(--line); font-size: 13px; font-weight: 700; }
+.reset-btn:hover { background: var(--soft); border-color: var(--accent); }
+.reset-btn.armed { background: var(--bad); border-color: var(--bad); color: #fffaf0; padding: 0 12px; }
+.reset-btn svg, .ig-pill svg, .to-top svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.reset-btn svg { width: 17px; height: 17px; flex: none; }
+.reset-btn span:empty { display: none; }
+.ig-pill { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); background: var(--card); font-weight: 700; text-decoration: none; font-size: 15px; }
+.ig-pill:hover { background: var(--soft); }
+.ig-pill svg { width: 18px; height: 18px; }
+.fab { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(20px, env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column-reverse; align-items: center; gap: 10px; z-index: 50; }
+.to-top { width: 52px; height: 52px; padding: 0; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; background: var(--accent); color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 10px 24px -8px rgba(80,50,20,.55); font-size: 10px; font-weight: 700; letter-spacing: .08em; line-height: 1; }
+.to-top:not(.show) { display: none; }
+.to-top:hover { background: var(--accent); filter: brightness(1.1); }
+.to-top svg { width: 18px; height: 18px; margin-bottom: 2px; }
+.jump-btn { width: 52px; height: 52px; padding: 0; border-radius: 50%; display: grid; place-items: center; background: var(--card); color: var(--accent); border: 1.5px solid var(--accent); box-shadow: 0 10px 24px -10px rgba(80,50,20,.5); }
+.jump-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.jump-btn[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); }
+.jump-panel { position: absolute; right: 0; bottom: calc(100% + 10px); width: min(340px, calc(100vw - 32px)); max-height: 62vh; overflow: auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: 0 18px 40px -14px rgba(80,50,20,.5); }
+.jump-panel[hidden] { display: none; }
+.jp-h { font-family: var(--serif); font-size: 15px; font-weight: 600; margin: 0 0 10px; }
+.jp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.jp-grid button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 12px; background: var(--field); font-size: 13px; line-height: 1.2; }
+.jp-grid button:hover { background: var(--soft); border-color: var(--accent); }
+.jp-grid .ico { width: 30px; height: 30px; }
+.slot, #results { scroll-margin-top: 16px; }
+.ig { margin: 20px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+@media (max-width: 560px) { .res-head .v { font-size: 30px; } .banner .s .v { font-size: 26px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<main>
+  <header>
+    <div>
+      <h1>法師裝備模擬器</h1>
+      <p class="sub">楓之谷法師。算出你選的幾套裝備（A、B，最多到 D）各自能到的魔攻，並給你穿戴順序。資料會自動存在這個瀏覽器。</p>
+    </div>
+    <div class="toolbar">
+      <a class="ig-pill" href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>@boa19950303</a>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="h-char" style="position:relative">
+    <button id="reset" type="button" class="reset-btn" title="還原成範例資料" aria-label="還原成範例資料"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v4.5H8"/></svg><span id="reset-t"></span></button>
+    <h2 id="h-char">角色與點數</h2>
+    <div class="grid">
+      <label class="f" for="level">等級<input id="level" type="number" min="1" value="175"></label>
+      <label class="f" for="str">力量<input id="str" type="number" min="4" value="4"></label>
+      <label class="f" for="dex">敏捷<input id="dex" type="number" min="4" value="4"></label>
+      <label class="f" for="int">智力（已點）<input id="int" type="number" min="4" value="868"></label>
+      <label class="f" for="luk">幸運（已點）<input id="luk" type="number" min="4" value="19"></label>
+    </div>
+    <div class="pts" aria-live="polite">
+      <div><span class="k">應有總點數（每級 5 點）</span><span class="v" id="p-total">-</span></div>
+      <div><span class="k">已點（力＋敏＋智＋幸）</span><span class="v" id="p-used">-</span></div>
+      <div><span class="k">還剩餘點數</span><span class="v" id="p-left">-</span></div>
+    </div>
+    <div id="p-msg"></div>
+    <label class="chk" for="reassign" style="margin-top:12px"><input id="reassign" type="checkbox" checked>洗點（重新分配智力與幸運）</label>
+    <p class="note" id="reassign-note"></p>
+    <p class="note">總點數 = 5 × (等級 − 1) + 25；還剩餘點數 = 總點數 − 四項已點。剩餘為 0，代表你填的數字和等級相符。</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-buff">
+    <h2 id="h-buff">增益 Buff（一定最後才開，不計入穿裝備的需求）</h2>
+    <div class="grid">
+      <label class="f" for="mw">楓葉祝福
+        <select id="mw"><option value="10">等級 10（+5%）</option><option value="20">等級 20（+10%）</option><option value="30">等級 30（+15%）</option></select></label>
+      <label class="chk" for="spOn"><input id="spOn" type="checkbox" checked>開精神強化（魔攻 +20）</label>
+    </div>
+    <p class="note">楓葉祝福：智力、幸運各加「基礎值」的 %，取整數，不吃裝備。精神強化：只有開或不開，開了魔攻 +20。</p>
+  </section>
+
+  <section id="results" class="card" aria-live="polite"></section>
+
+  <section class="card" aria-labelledby="h-eq">
+    <h2 id="h-eq">裝備（每個部位可以放好幾件）</h2>
+    <div class="grid" style="margin-bottom:10px">
+      <label class="f" for="nSets">要比較幾套
+        <select id="nSets"><option value="2">2 套（A、B）</option><option value="3">3 套（A、B、C）</option><option value="4">4 套（A、B、C、D）</option></select></label>
+    </div>
+    <p class="note" id="equip-note" style="margin:0 0 12px"></p>
+    <div id="equip"></div>
+  </section>
+
+
+
+  <section class="card rulebox">
+    <details>
+      <summary>註解</summary>
+    <h3>點數</h3>
+    <ul class="rules">
+      <li>每升 1 級 5 點，總點數 = 5 × (等級 − 1) + 25。</li>
+      <li>力量、敏捷、智力、幸運每項最低 4。</li>
+      <li>還剩餘點數 = 總點數 − 力量 − 敏捷 − 智力 − 幸運，剩餘 0 代表和等級相符。</li>
+      <li>勾「洗點」：有效 AP（可重新分配的點數）= 總點數 − 力量 − 敏捷，幸運最低放 4，其餘放智力，找出最高魔攻。</li>
+      <li>不勾「洗點」：直接用你填的智力、幸運（當前數據），沒分配的點數不會算進去。</li>
+    </ul>
+    <h3>魔攻</h3>
+    <ul class="rules">
+      <li>魔攻 = 智力 + 裝備魔攻 + buff，1 智力 = 1 魔攻。</li>
+      <li>楓葉祝福：等級 10 / 20 / 30 = 基礎智力與基礎幸運的 5% / 10% / 15%，小數無條件捨去，不吃裝備。</li>
+      <li>精神強化：魔攻 +20。</li>
+      <li>Buff 一律最後才開，不計入穿裝備的需求。</li>
+    </ul>
+    <h3>穿裝備</h3>
+    <ul class="rules">
+      <li>穿的那一刻，智力、幸運（含已穿的裝備，扣掉被換掉的舊裝備，不含 buff）要不低於這件的需求。</li>
+      <li>任何一步讓身上某件裝備掉到需求以下，那件會被自動脫掉，所以不允許。</li>
+      <li>套服佔上衣和褲子；戒指最多 4 枚；法杖可以同時穿盾牌。</li>
+      <li>某個部位只有一件、而且沒有需求，視為一開始就穿著。</li>
+    </ul>
+    <h3>結果</h3>
+    <ul class="rules">
+      <li>每一套各自找出魔攻最高的穿法；混搭是把所有套裝的裝備放在一起自由搭配的最高值。</li>
+      <li>不包含技能傷害、熟練度、怪物防禦、卷軸加成、等級與力量敏捷需求。</li>
+    </ul>
+    </details>
+  </section>
+
+  <section class="card ig-card">
+    <div class="ig-label">Instagram</div>
+    <a href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener">@boa19950303</a>
+  </section>
+</main>
+
+<div class="fab" id="fab">
+  <button id="jumpBtn" class="jump-btn" type="button" aria-label="快速跳轉到部位" aria-expanded="false" aria-controls="jumpPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.500 6H20M8.500 12H20M8.500 18H20M4 6h.01M4 12h.01M4 18h.01"/></svg></button>
+  <button id="toTop" class="to-top" type="button" aria-label="回到最上方"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6M6 11.5L12 5.5l6 6"/></svg>TOP</button>
+  <div class="jump-panel" id="jumpPanel" hidden role="dialog" aria-label="快速跳轉"><p class="jp-h">快速跳轉</p><div class="jp-grid" id="jumpList"></div></div>
+</div>
+
+<script>
+// 穿戴順序搜尋 v2
+// 規則（Edward 確認）：
+// - 穿裝備：先扣掉被換掉的舊裝備，再用當下智/幸判定需求
+// - 任何時候，身上每一件裝備的需求都要被滿足（否則遊戲會自動脫裝），所以不允許讓任何一件掉到需求以下的步驟
+// - Buff（楓葉祝福、精神強化）一定最後才開，不計入需求
+// - 套服佔上衣+褲子；戒指可多穿；法杖可以和盾牌同時
+// - 智力+幸運的總點數固定（可重新分配），基礎幸運有下限
+const SLOT_OVERALL = '套服', SLOT_TOP = '上衣', SLOT_BOTTOM = '褲子', SLOT_RING = '戒指';
+
+function solve(items, cfg) {
+  const pool = cfg.pool;
+  const ringCap = cfg.ringCap || 4;
+  const spirit = cfg.spirit || 0, mw = cfg.mwPct || 0;
+  // 自動判定「一開始就穿著」：該部位只有一件、沒有需求（套服/上衣/褲子除外，因為它們互相排斥）
+  const slotCount = {};
+  items.forEach(i => { slotCount[i.slot] = (slotCount[i.slot] || 0) + 1; });
+  const isFixed = i => ![SLOT_OVERALL, SLOT_TOP, SLOT_BOTTOM].includes(i.slot) && slotCount[i.slot] === 1 && !(i.reqInt || 0) && !(i.reqLuk || 0);
+  const fixed = items.filter(isFixed);
+  const vars = items.filter(i => !isFixed(i));
+  const sum = (arr, k) => arr.reduce((a, b) => a + (b[k] || 0), 0);
+  const fx = { int: sum(fixed, 'int'), luk: sum(fixed, 'luk'), mag: sum(fixed, 'mag') };
+  const fixedRings = fixed.filter(i => i.slot === SLOT_RING).length;
+  const cap = Math.max(0, ringCap - fixedRings);
+  const hasFixedOverall = fixed.some(i => i.slot === SLOT_OVERALL);
+  const hasFixedTopBottom = fixed.some(i => i.slot === SLOT_TOP || i.slot === SLOT_BOTTOM);
+
+  // 可用的候選
+  const cand = [];
+  vars.forEach((it, idx) => {
+    if (it.slot === SLOT_OVERALL && hasFixedTopBottom) return;
+    if ((it.slot === SLOT_TOP || it.slot === SLOT_BOTTOM) && hasFixedOverall) return;
+    if (fixed.some(f => f.slot === it.slot && it.slot !== SLOT_RING)) return; // 該部位已被固定裝備佔住
+    cand.push(idx);
+  });
+  const slotNames = [];
+  cand.forEach(i => { const s = vars[i].slot; if (s !== SLOT_RING && !slotNames.includes(s)) slotNames.push(s); });
+  const ringIdx = cand.filter(i => vars[i].slot === SLOT_RING);
+  const bySlot = {};
+  slotNames.forEach(s => bySlot[s] = cand.filter(i => vars[i].slot === s));
+
+  // 狀態：{ v: {slot -> itemIdx 或 -1}, r: [戒指 idx 排序] }
+  const enc = st => slotNames.map(s => st.v[s]).join(',') + '|' + st.r.join('.');
+  const wornIdx = st => slotNames.map(s => st.v[s]).filter(x => x >= 0).concat(st.r);
+
+  const limit = cfg.stateLimit || 300000;
+  let truncated = false;
+  const lo = cfg.reassign ? cfg.lukMin : cfg.curLuk;
+  const hi = cfg.reassign ? Math.min(pool, cfg.lukMax || 160) : cfg.curLuk;
+  const best = new Map();
+
+  for (let L = lo; L <= hi; L++) {
+    const baseInt = pool - L, baseLuk = L;
+    const statsOf = idxs => {
+      let a = baseInt + fx.int, b = baseLuk + fx.luk;
+      idxs.forEach(i => { a += vars[i].int || 0; b += vars[i].luk || 0; });
+      return [a, b];
+    };
+    const okAll = idxs => {
+      const [a, b] = statsOf(idxs);
+      return idxs.every(i => a >= (vars[i].reqInt || 0) && b >= (vars[i].reqLuk || 0)) &&
+        fixed.every(f => a >= (f.reqInt || 0) && b >= (f.reqLuk || 0));
+    };
+    const start = { v: {}, r: [] };
+    slotNames.forEach(s => start.v[s] = -1);
+    const k0 = enc(start);
+    const parent = new Map([[k0, null]]);
+    const stateOf = new Map([[k0, start]]);
+    const queue = [start];
+    if (!okAll([])) continue;
+    for (let qi = 0; qi < queue.length; qi++) {
+      if (queue.length > limit) { truncated = true; break; }
+      const st = queue[qi], k = enc(st), worn = wornIdx(st);
+      const tryEquip = (idx, removed) => {
+        const rest = worn.filter(x => !removed.includes(x));
+        const [a, b] = statsOf(rest); // 不含新裝備、不含被換掉的舊裝備
+        const it = vars[idx];
+        if (a < (it.reqInt || 0) || b < (it.reqLuk || 0)) return;
+        const nIdx = rest.concat([idx]);
+        if (!okAll(nIdx)) return; // 有任何一件會被自動脫掉 → 這步不合法
+        const nv = {}; slotNames.forEach(s => nv[s] = st.v[s]);
+        let nr = st.r.slice();
+        removed.forEach(x => {
+          const s = vars[x].slot;
+          if (s === SLOT_RING) nr = nr.filter(y => y !== x); else nv[s] = -1;
+        });
+        if (it.slot === SLOT_RING) { nr.push(idx); nr.sort((p, q) => p - q); } else nv[it.slot] = idx;
+        const ns = { v: nv, r: nr }, nk = enc(ns);
+        if (parent.has(nk)) return;
+        parent.set(nk, { prev: k, idx, removed, hasInt: a, hasLuk: b });
+        stateOf.set(nk, ns); queue.push(ns);
+      };
+      // 一般部位
+      slotNames.forEach(s => {
+        bySlot[s].forEach(idx => {
+          if (st.v[s] === idx) return;
+          let removed = worn.filter(x => vars[x].slot === s);
+          if (s === SLOT_OVERALL) removed = worn.filter(x => [SLOT_OVERALL, SLOT_TOP, SLOT_BOTTOM].includes(vars[x].slot));
+          else if (s === SLOT_TOP || s === SLOT_BOTTOM) removed = worn.filter(x => vars[x].slot === s || vars[x].slot === SLOT_OVERALL);
+          tryEquip(idx, removed);
+        });
+      });
+      // 戒指
+      ringIdx.forEach(idx => {
+        if (st.r.includes(idx) || cap === 0) return;
+        if (st.r.length < cap) tryEquip(idx, []);
+        else st.r.forEach(j => tryEquip(idx, [j]));
+      });
+    }
+    for (const [k, st] of stateOf) {
+      if (best.has(k)) continue;
+      const worn = wornIdx(st);
+      const [fInt, fLuk] = statsOf(worn);
+      const equipMag = fx.mag + worn.reduce((a, i) => a + (vars[i].mag || 0), 0);
+      const mwInt = Math.floor(baseInt * mw / 100), mwLuk = Math.floor(baseLuk * mw / 100);
+      const magBase = fInt + equipMag;
+      // 還原穿戴順序
+      const steps = []; let cur = k;
+      while (parent.get(cur)) {
+        const p = parent.get(cur);
+        steps.push({ item: vars[p.idx], removed: p.removed.map(x => vars[x]), hasInt: p.hasInt, hasLuk: p.hasLuk, idx: p.idx, rem: p.removed });
+        cur = p.prev;
+      }
+      steps.reverse();
+      let w = [];
+      steps.forEach(stp => {
+        w = w.filter(x => !stp.rem.includes(x)).concat([stp.idx]);
+        const [a, b] = statsOf(w); stp.afterInt = a; stp.afterLuk = b;
+      });
+      best.set(k, {
+        baseLuk: L, baseInt, finalInt: fInt, finalLuk: fLuk, equip: worn.map(i => vars[i]), fixedItems: fixed,
+        magBase, spiritVal: spirit, mwInt, mwLuk, mag: magBase + spirit + mwInt,
+        steps, startInt: baseInt + fx.int, startLuk: baseLuk + fx.luk
+      });
+    }
+    if (truncated) break;
+  }
+  const out = Array.from(best.values()).sort((a, b) => b.mag - a.mag || a.baseLuk - b.baseLuk || b.finalLuk - a.finalLuk);
+  out.truncated = truncated;
+  return out;
+}
+
+// 預設裝備資料（來自截圖）。a / b = 是否納入 A 套 / B 套。note「推算」= 由面板反推。
+const DEFAULT_ITEMS = [
+  // 固定（A、B 共用，一直穿著）
+  { name: '殘暴炎魔頭盔(+10)', slot: '帽', reqInt: 0, reqLuk: 0, int: 26, luk: 16, mag: 0, a: true, b: true },
+  { name: '異界靈魂', slot: '臉飾', reqInt: 0, reqLuk: 0, int: 2, luk: 2, mag: 0, a: true, b: true },
+  { name: '有裂痕的眼鏡', slot: '眼飾', reqInt: 0, reqLuk: 0, int: 1, luk: 1, mag: 0, a: true, b: true },
+  { name: '拉圖斯腰帶(+3)', slot: '腰帶', reqInt: 0, reqLuk: 0, int: 1, luk: 10, mag: 0, a: true, b: true },
+  { name: '發條鐘', slot: '肩章', reqInt: 0, reqLuk: 0, int: 2, luk: 2, mag: 0, a: true, b: true },
+  { name: '闇黑龍王項鍊(+1)', slot: '項鍊', reqInt: 0, reqLuk: 0, int: 22, luk: 23, mag: 0, a: true, b: true },
+  { name: '艾靈森林的守護者', slot: '勳章', reqInt: 0, reqLuk: 0, int: 3, luk: 3, mag: 1, a: true, b: true },
+  { name: '楓葉法師盾牌', slot: '盾牌', reqInt: 0, reqLuk: 0, int: 2, luk: 16, mag: 0, a: true, b: true, note: '推算' },
+  // 可換
+  { name: '紫色披風', slot: '披風', reqInt: 0, reqLuk: 0, int: 0, luk: 11, mag: 0, a: true, b: true, note: '推算' },
+  { name: '黑色龍紋披風(+5)', slot: '披風', reqInt: 0, reqLuk: 0, int: 10, luk: 0, mag: 0, a: true, b: true },
+  { name: '玫瑰耳環(+4)', slot: '耳環', reqInt: 0, reqLuk: 0, int: 8, luk: 0, mag: 14, a: true, b: true },
+  { name: '太極扇(+6)', slot: '武器', reqInt: 0, reqLuk: 0, int: 0, luk: 6, mag: 0, a: true, b: false },
+  { name: '強化冰輪杖(+5)', slot: '武器', reqInt: 363, reqLuk: 123, int: 12, luk: 2, mag: 153, a: true, b: false },
+  { name: '香菇(+4)', slot: '武器', reqInt: 0, reqLuk: 92, int: 12, luk: 0, mag: 121, a: false, b: true },
+  { name: '強化奧丁手套(+1)', slot: '手套', reqInt: 368, reqLuk: 123, int: 5, luk: 9, mag: 3, a: true, b: false },
+  { name: '藍色貴族手套(+3)', slot: '手套', reqInt: 278, reqLuk: 93, int: 6, luk: 4, mag: 0, a: false, b: true },
+  { name: '強化奧丁鞋(+4)', slot: '鞋子', reqInt: 368, reqLuk: 123, int: 8, luk: 7, mag: 1, a: true, b: false },
+  { name: '赤紅水晶涼鞋(+4)', slot: '鞋子', reqInt: 218, reqLuk: 73, int: 3, luk: 2, mag: 5, a: false, b: true },
+  { name: '強化藍霧(+7)', slot: '套服', reqInt: 355, reqLuk: 120, int: 24, luk: 5, mag: 0, a: true, b: false },
+  { name: '綠色宮廷服(+7)', slot: '套服', reqInt: 235, reqLuk: 80, int: 9, luk: 20, mag: 0, a: true, b: true },
+  { name: '赤犬郎袍(+4)', slot: '套服', reqInt: 265, reqLuk: 90, int: 25, luk: 4, mag: 0, a: false, b: false, note: '想買的，預設沒勾' }
+];
+
+(function () {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const SLOTS = ['帽', '臉飾', '眼飾', '耳環', '項鍊', '披風', '肩章', '勳章', '武器', '盾牌', '手套', '鞋子', '腰帶', '套服', '上衣', '褲子', '戒指'];
+  const ICONS = {
+    '帽': '<path d="M12 3L6.5 17h11z"/><path d="M3 19.5h18"/>',
+    '臉飾': '<circle cx="12" cy="12" r="8.5"/><path d="M9 14.6c1.6 1.6 4.4 1.6 6 0M9 10h.01M15 10h.01"/>',
+    '眼飾': '<circle cx="7" cy="14" r="3.6"/><circle cx="17" cy="14" r="3.6"/><path d="M10.6 14h2.8M3.4 14L5 8M20.6 14L19 8"/>',
+    '耳環': '<circle cx="12" cy="6" r="2"/><path d="M12 8.5c3 3.4 4 5.4 4 7.4a4 4 0 0 1-8 0c0-2 1-4 4-7.4z"/>',
+    '項鍊': '<path d="M5 4c0 8 3 11.5 7 11.5S19 12 19 4"/><path d="M12 15.5l-2.2 3L12 21.5l2.2-3z"/>',
+    '披風': '<path d="M8 4h8l3.5 16h-15z"/><path d="M8.6 4c.3 2 1.5 3.2 3.4 3.2s3.100-1.200 3.400-3.200"/>',
+    '肩章': '<path d="M4 11c0-3.500 3-6 8-6s8 2.500 8 6v2H4z"/><path d="M7 13v5M10 13v5M14 13v5M17 13v5"/>',
+    '勳章': '<path d="M8.500 3L12 10l3.500-7"/><circle cx="12" cy="15" r="5"/><path d="M12 12.800v4.400M9.800 15h4.400"/>',
+    '武器': '<path d="M4.500 19.500L14 10"/><circle cx="17" cy="7" r="3.500"/><path d="M3.500 20.500l2-2"/>',
+    '盾牌': '<path d="M12 3l7 3v5.500c0 4.500-3 8-7 9.500-4-1.500-7-5-7-9.500V6z"/>',
+    '手套': '<path d="M7 21v-5l-2.500-4a1.200 1.200 0 0 1 2-1.300L8 12V5.500a1.200 1.200 0 0 1 2.400 0V11V4.500a1.200 1.200 0 0 1 2.400 0V11V5.500a1.200 1.200 0 0 1 2.400 0V12l1.200-1.600a1.200 1.200 0 0 1 1.900 1.400L15.500 16v5z"/>',
+    '鞋子': '<path d="M6 4h6v7c0 1 .7 1.600 1.600 2l5.400 2c1.200.5 2 1.400 2 2.800V19H6z"/><path d="M6 19h15"/>',
+    '腰帶': '<rect x="2.500" y="9" width="19" height="6" rx="1.500"/><rect x="9.500" y="7.500" width="5" height="9" rx="1"/>',
+    '套服': '<path d="M8 3l4 3 4-3 3.500 5-3.500 2.200V21H8V10.200L4.500 8z"/>',
+    '上衣': '<path d="M8.500 4L3 7l2 4 3-1v10.500h8V10l3 1 2-4-5.500-3c-.5 1.600-1.900 2.400-3.500 2.400S9 5.600 8.500 4z"/>',
+    '褲子': '<path d="M7 3h10l1 18h-4.500L12 11.500 10.500 21H6z"/>',
+    '戒指': '<circle cx="12" cy="15" r="5.500"/><path d="M9.500 7.500L12 4l2.500 3.500-2.500 2z"/>',
+    '結果': '<path d="M5 20V10M12 20V4M19 20v-7"/>',
+    _: '<path d="M12 3l8 9-8 9-8-9z"/>'
+  };
+  const svgOf = sl => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[sl] || ICONS._) + '</svg>';
+  const KEY = 'maple-calc-v2';
+  const INIT_POINTS = 25, LUK_MIN = 4;
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const DEFAULT_STATE = () => ({ level: 175, str: 4, dex: 4, int: 868, luk: 19, mw: 20, spOn: true, reassign: true, nSets: 2, items: clone(DEFAULT_ITEMS) });
+  let S = DEFAULT_STATE();
+
+  function load() { try { const t = localStorage.getItem(KEY); if (t) { const o = JSON.parse(t); if (o && Array.isArray(o.items)) S = Object.assign(DEFAULT_STATE(), o); if (![10, 20, 30].includes(S.mw)) S.mw = 20; if (![2, 3, 4].includes(S.nSets)) S.nSets = 2; S.reassign = S.reassign !== false; } } catch (e) {} }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+  function pushInputs() {
+    ['level', 'str', 'dex', 'int', 'luk'].forEach(k => $(k).value = S[k]);
+    $('mw').value = String(S.mw); $('spOn').checked = S.spOn; $('reassign').checked = S.reassign; $('nSets').value = String(S.nSets);
+  }
+  function pullInputs() {
+    ['level', 'str', 'dex', 'int', 'luk'].forEach(k => S[k] = +$(k).value || 0);
+    S.mw = +$('mw').value; S.spOn = $('spOn').checked; S.reassign = $('reassign').checked; S.nSets = +$('nSets').value;
+  }
+
+  function points() {
+    const total = 5 * (S.level - 1) + INIT_POINTS, used = S.str + S.dex + S.int + S.luk, left = total - used;
+    // 洗點：智力、幸運（含還沒分配的點數）都能重新分配；不洗點：只用當前填的智力＋幸運
+    const pool = S.reassign ? total - S.str - S.dex : S.int + S.luk;
+    return { total, used, left, pool, luk: S.luk };
+  }
+
+  // ---------- 結果 ----------
+  function runSet(filter, p) {
+    const items = S.items.filter(filter).map(i => ({ ...i }));
+    return solve(items, { pool: p.pool, curLuk: S.luk, lukMin: LUK_MIN, reassign: S.reassign,
+      spirit: S.spOn ? 20 : 0, mwPct: S.mw / 2 });
+  }
+  function stepsTable(r) {
+    const rows = r.steps.map((s, i) => `<tr><td class="n">${i + 1}</td><td>${esc(s.item.slot)}</td><td>${esc(s.item.name)}</td>
+      <td class="sw">${s.removed.length ? '換掉 ' + s.removed.map(x => esc(x.name)).join('、') : ''}</td>
+      <td class="n">${s.item.reqInt || 0} / ${s.item.reqLuk || 0}</td><td class="n">${nf(s.hasInt)} / ${nf(s.hasLuk)}</td><td class="n">${nf(s.afterInt)} / ${nf(s.afterLuk)}</td></tr>`).join('');
+    const buffs = [];
+    if (S.mw) buffs.push(`<tr class="buff"><td class="n">★</td><td colspan="3">最後開 楓葉祝福 等級 ${S.mw}（${S.mw / 2}%）</td><td></td><td></td><td class="n">智力 +${r.mwInt}</td></tr>`);
+    if (S.spOn) buffs.push(`<tr class="buff"><td class="n">★</td><td colspan="3">最後開 精神強化</td><td></td><td></td><td class="n">魔攻 +${r.spiritVal}</td></tr>`);
+    return `<div class="scroll"><table>
+      <tr><th class="n">順序</th><th>部位</th><th>裝備</th><th></th><th class="n">需求 智/幸</th><th class="n">穿前 智/幸</th><th class="n">穿後 智/幸</th></tr>
+      <tr><td class="n">0</td><td colspan="3">起始（只有一件且沒有需求的裝備先穿上）</td><td></td><td></td><td class="n">${r.startInt} / ${r.startLuk}</td></tr>
+      ${rows}${buffs.join('')}</table></div>`;
+  }
+  function card(title, res, desc) {
+    if (!res.length) return `<div style="margin-top:18px"><h3>${esc(title)}</h3><p class="empty">這一組在目前設定下，沒有任何裝備穿得起來。</p></div>`;
+    const r = res[0];
+    const eq = r.fixedItems.concat(r.equip).map(e => `<li><b><span class="ci">${svgOf(e.slot)}</span>${esc(e.slot)}</b>${esc(e.name)}</li>`).join('');
+    return `<div style="margin-top:22px;border-top:1px solid var(--line);padding-top:16px">
+      <div class="res-head"><h3>${esc(title)}</h3><span class="v">${nf(r.mag)}</span><span class="note" style="margin:0">魔攻（含 buff）｜不含 buff ${nf(r.magBase)}</span></div>
+      ${desc ? `<p class="note" style="margin:0 0 10px">${desc}</p>` : ''}
+      <div class="kv"><div><span class="k">最低基礎幸運</span><span class="vv">${r.baseLuk}</span></div>
+        <div><span class="k">基礎智力</span><span class="vv">${nf(r.baseInt)}</span></div>
+        <div><span class="k">最終智力（不含 buff）</span><span class="vv">${nf(r.finalInt)}</span></div>
+        <div><span class="k">最終幸運</span><span class="vv">${r.finalLuk}</span></div></div>
+      <ul class="equip">${eq}</ul>${stepsTable(r)}${res.truncated ? '<div class="msg warn">候選裝備太多，搜尋提前停止，結果可能不是最高。</div>' : ''}</div>`;
+  }
+  const nf = v => typeof v === 'number' && isFinite(v) ? v.toLocaleString('en-US') : v;
+  const NAMES = ['A', 'B', 'C', 'D'];
+  const inSet = (it, k) => !!it.fixed || !!it[k.toLowerCase()];
+  function renderResults() {
+    const p = points(), el = $('results');
+    if (p.left < 0 || S.str < 4 || S.dex < 4 || S.int < 4 || S.luk < 4 || p.pool - LUK_MIN < 0) { el.innerHTML = '<h2>結果</h2><p class="empty">先修正上面的點數，才能計算。</p>'; return; }
+    const ks = NAMES.slice(0, S.nSets);
+    const R = ks.map(k => runSet(i => inSet(i, k), p));
+    const mags = R.map(r => r[0] ? r[0].mag : null);
+    const valid = mags.filter(m => m != null), top = valid.length ? Math.max(...valid) : null;
+    let head = '';
+    if (valid.length >= 2) {
+      const cells = ks.map((k, n) => mags[n] == null ? '' : `<div class="s ${mags[n] === top ? 'win' : ''}"><span class="l">${k} 套</span><span class="v">${nf(mags[n])}</span></div>`).join('');
+      const winners = ks.filter((k, n) => mags[n] === top);
+      const second = Math.max(...valid.filter(m => m !== top), -Infinity);
+      const txt = winners.length === valid.length ? '都一樣高' : winners.join('、') + ' 套最高' + (winners.length === 1 && isFinite(second) ? '，領先 ' + nf(top - second) : '');
+      head = `<div class="banner">${cells}<span class="diff">${txt}</span></div>`;
+    }
+    let body = ks.map((k, n) => card(k + ' 套', R[n])).join('');
+    if (ks.length >= 2) {
+      const ALL = runSet(i => i.fixed || ks.some(k => inSet(i, k)), p);
+      body += card(ks.join('＋') + ' 全部裝備混搭（最高）', ALL, '把所有套裝的裝備放進同一個池子，不分套裝自由搭配。它不是一套，是你手上裝備能到的天花板；如果比各套都高，代表混搭有好處。');
+    }
+    el.innerHTML = `<h2>結果：魔攻（含已勾的 buff）</h2>${head}${body}`;
+  }
+
+  function renderPoints() {
+    const p = points();
+    $('p-total').textContent = p.total; $('p-used').textContent = p.used; $('p-left').textContent = p.left;
+    const m = [];
+    if (p.left < 0) m.push(['bad', `多點了 ${-p.left} 點。等級 ${S.level} 只有 ${p.total} 點，請減少力量、敏捷、智力或幸運。`]);
+    else if (p.left > 0) m.push(['warn', S.reassign ? `還有 ${p.left} 點沒分配，和等級 ${S.level} 不相符。計算時會把這些點數當成可以自由分配。` : `還有 ${p.left} 點沒分配，和等級 ${S.level} 不相符。目前是「不洗點」模式，這些點數不會算進去。`]);
+    else m.push(['ok', '點數和等級相符。']);
+    if (S.str < 4 || S.dex < 4 || S.int < 4 || S.luk < 4) m.push(['bad', '每一項能力值都不能低於 4。']);
+    $('reassign-note').textContent = S.reassign ? '洗點：自動重新分配智力與幸運（幸運最低 4），找出最高魔攻。' : '不洗點：直接用上面填的智力與幸運（當前數據）計算。';
+    $('p-msg').innerHTML = m.map(x => `<div class="msg ${x[0]}">${x[1]}</div>`).join('');
+  }
+
+  // ---------- 裝備輸入 ----------
+  const mini = (k, i, lab, v) => `<label class="mini">${lab}<input type="number" data-k="${k}" data-i="${i}" value="${v || 0}"></label>`;
+  function rowHTML(it, i) {
+    return `<div class="row">
+      <label class="mini name">名稱${it.note ? `<span class="tag">${esc(it.note)}</span>` : ''}<input type="text" data-k="name" data-i="${i}" value="${esc(it.name)}"></label>
+      ${mini('reqInt', i, '需求智', it.reqInt)}${mini('reqLuk', i, '需求幸', it.reqLuk)}${mini('int', i, '智', it.int)}${mini('luk', i, '幸', it.luk)}${mini('mag', i, '魔攻', it.mag)}
+      <div class="flags">
+        ${NAMES.slice(0, S.nSets).map(k => `<label class="chk"><input type="checkbox" data-k="${k.toLowerCase()}" data-i="${i}" ${it[k.toLowerCase()] ? 'checked' : ''}>${k}</label>`).join('')}
+        <button class="x" type="button" data-del="${i}" aria-label="刪除 ${esc(it.name)}">刪</button></div></div>`;
+  }
+  function renderEquip() {
+    const ks = NAMES.slice(0, S.nSets).map(k => '「' + k + '」').join('');
+    $('equip-note').textContent = `勾${ks}決定這件屬於哪一套；勾多個，這幾套都能用。想買的裝備也可以放進來，勾上就會參與計算。某個部位如果只有一件、而且沒有需求，會自動當成一開始就穿著。`;
+    const extra = [...new Set(S.items.map(i => i.slot))].filter(s => !SLOTS.includes(s));
+    const all = SLOTS.concat(extra);
+    $('jumpList').innerHTML = [['結果', 'results']].concat(all.map((s, n) => [s, 'slot-' + n])).map(x =>
+      `<button type="button" data-jump="${x[1]}"><span class="ico">${svgOf(x[0])}</span>${esc(x[0])}</button>`).join('');
+    $('equip').innerHTML = all.map((s, n) => {
+      const rows = S.items.map((it, i) => it.slot === s ? rowHTML(it, i) : '').join('');
+      return `<div class="slot" id="slot-${n}"><div class="slot-h"><h3><span class="ico">${svgOf(s)}</span>${esc(s)}</h3><button type="button" data-add="${esc(s)}">＋ 新增${esc(s)}</button></div>${rows}</div>`;
+    }).join('');
+  }
+
+  let timer;
+  function refresh(now) { renderPoints(); clearTimeout(timer); timer = setTimeout(() => { renderResults(); save(); }, now ? 0 : 250); }
+
+  document.querySelectorAll('#level,#str,#dex,#int,#luk,#mw,#spOn,#reassign').forEach(el => {
+    el.addEventListener('input', () => { pullInputs(); refresh(); });
+    el.addEventListener('change', () => { pullInputs(); refresh(); });
+  });
+  $('nSets').addEventListener('change', () => { pullInputs(); renderEquip(); refresh(true); });
+  $('equip').addEventListener('input', e => {
+    const t = e.target, i = t.dataset.i; if (i === undefined) return;
+    const k = t.dataset.k;
+    S.items[i][k] = t.type === 'checkbox' ? t.checked : (t.type === 'number' ? (+t.value || 0) : t.value);
+    refresh();
+  });
+  $('equip').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.del !== undefined) { S.items.splice(+b.dataset.del, 1); renderEquip(); refresh(true); }
+    else if (b.dataset.add !== undefined) {
+      S.items.push({ name: '新' + b.dataset.add, slot: b.dataset.add, reqInt: 0, reqLuk: 0, int: 0, luk: 0, mag: 0, a: true, b: false, c: false, d: false });
+      renderEquip(); refresh(true);
+    }
+  });
+  let resetTimer;
+  const disarm = () => { clearTimeout(resetTimer); $('reset').classList.remove('armed'); $('reset-t').textContent = ''; };
+  $('reset').addEventListener('click', () => {
+    if (!$('reset').classList.contains('armed')) {
+      $('reset').classList.add('armed'); $('reset-t').textContent = '再按一次，確定還原';
+      resetTimer = setTimeout(disarm, 3500); return;
+    }
+    disarm(); S = DEFAULT_STATE(); pushInputs(); renderEquip(); renderPoints(); renderResults(); save();
+  });
+  const topBtn = $('toTop');
+  const onScroll = () => topBtn.classList.toggle('show', (window.scrollY || document.documentElement.scrollTop) > 300);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  topBtn.addEventListener('click', () => {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+  onScroll();
+  const panel = $('jumpPanel'), jb = $('jumpBtn');
+  const setJump = open => { panel.hidden = !open; jb.setAttribute('aria-expanded', open ? 'true' : 'false'); };
+  jb.addEventListener('click', e => { e.stopPropagation(); setJump(panel.hidden); });
+  panel.addEventListener('click', e => {
+    e.stopPropagation();
+    const b = e.target.closest('button[data-jump]'); if (!b) return;
+    const t = document.getElementById(b.dataset.jump); setJump(false); if (!t) return;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  });
+  document.addEventListener('click', () => setJump(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') setJump(false); });
+  load(); pushInputs(); renderEquip(); renderPoints(); renderResults();
+})();
+</script>
+
+<script src="edward-nav.js?v=r151"></script>
+</body>
+</html>
