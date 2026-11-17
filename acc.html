@@ -16,7 +16,7 @@ h1{margin:0 0 4px;font:700 26px "Noto Serif TC","Songti TC",serif;letter-spacing
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
 .grid{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:14px;align-items:stretch}.grid>.card{margin:0}.grid>.col{display:flex;flex-direction:column;gap:14px;min-height:540px}.grid>.col>.card{margin:0}.grid>.col>#out{flex:1}
 .grid>.card.left{display:flex;flex-direction:column}.grid>.card.left .list{flex:1 1 0;height:0;min-height:0;max-height:none}
-@media(max-width:820px){.grid{grid-template-columns:1fr}}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.grid>.card.left .list{flex:none;height:auto;min-height:0;max-height:295px}}
 input[type=search],input[type=number],select{font:inherit;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:6px 8px;color:var(--fg);width:100%}
 label{display:block;font-size:13px;color:var(--muted);margin:8px 0 2px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -69,6 +69,7 @@ footer{color:var(--muted);font-size:12.5px;margin:20px 0 60px}
       <b>① 選怪物</b>
       <input type="search" id="q" placeholder="搜尋怪物名稱…" style="margin-top:8px">
       <div class="muted" id="cnt" style="margin-top:6px"></div>
+      <b style="display:block;margin-top:10px;font-size:14px">全部怪物</b>
       <div class="list" id="list"></div>
     </section>
     <div class="col">
@@ -179,6 +180,6 @@ $('tb').addEventListener('click',e=>{const r=e.target.closest('tr[data-i]');if(r
 ['q2','sort','only'].forEach(id=>$(id).addEventListener('input',renderTable));
 renderChips();renderList();all();
 </script>
-<script src="edward-nav.js?v=r156"></script>
+<script src="edward-nav.js?v=r157"></script>
 </body>
 </html>

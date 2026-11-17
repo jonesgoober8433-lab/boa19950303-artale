@@ -48,6 +48,10 @@
   '@media(max-height:520px){#edward-rail .tx{display:none}}'+
   '@media(max-width:700px){#edward-rail{display:none}body{padding-left:0!important;padding-top:60px!important}}';
   var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+  // 手機版：導覽列不佔左邊空間，但頁面自己的左右留白要一樣（之前左邊被清成 0，內容會偏一邊）
+  var mq=window.matchMedia('(max-width:700px)');
+  function fixPad(){var b=document.body;if(mq.matches){b.style.removeProperty('padding-left');b.style.setProperty('padding-left',getComputedStyle(b).paddingRight,'important')}else b.style.removeProperty('padding-left')}
+  fixPad();if(mq.addEventListener)mq.addEventListener('change',fixPad);
   var nav=document.createElement('nav');nav.id='edward-rail';nav.setAttribute('aria-label','選擇工具');
   nav.innerHTML=TOOLS.map(function(t){return '<a href="'+t.href+'" title="'+t.name+'" class="'+(t.match.indexOf(cur)>=0?'on':'')+'"><span class="ic">'+t.icon+'</span><span class="tx">'+t.name+'</span></a>'}).join('');
 

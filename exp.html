@@ -36,6 +36,7 @@ input,select{font:inherit;background:var(--field);border:1px solid var(--line);b
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 button{font:inherit;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:3px 16px;cursor:pointer}
 .tw{max-height:620px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+@media(max-width:700px){.tw{max-height:340px}}
 table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
 thead th{position:sticky;top:0;background:var(--soft);color:var(--fg);font-weight:700;font-size:13px;padding:8px 12px;border-bottom:2px solid var(--line);z-index:1}
 th.l,td.l{text-align:center;width:72px}
@@ -201,6 +202,6 @@ $('goMe').onclick=goMe;
 document.querySelectorAll('.mrow button').forEach(b=>b.classList.toggle('on',+b.dataset.m===num($('mult').value)));
 setMode(MODE);goMe();
 </script>
-<script src="edward-nav.js?v=r156"></script>
+<script src="edward-nav.js?v=r157"></script>
 </body>
 </html>
