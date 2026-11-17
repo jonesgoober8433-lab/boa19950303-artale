@@ -68,7 +68,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const adj={},HOW={},INFO={};D.maps.forEach(m=>adj[m]=[]);
 D.edges.forEach(([a,b,both,how,mode,tm])=>{const h=mode||how||'',inf={mode:mode||'',tm:tm||'',how:how||''};adj[a].push(b);HOW[a+'|'+b]=h;INFO[a+'|'+b]=inf;if(both){adj[b].push(a);HOW[b+'|'+a]=h;INFO[b+'|'+a]=inf}});
-const ICO={'走路':'🚶','飛船':'⛵','飛機':'✈️','鶴':'🕊️','電梯':'🛗','計程車':'🚕','地鐵':'🚇','世界導遊':'🌏'};
+const ICO={'走路':'🚶','飛機':'✈️','搭船':'⛵','搭電梯':'🛗','計程車':'🚕','直接傳送':'✨','世界導遊':'🌏'};
 // 赫爾奧斯塔電梯：每 4 分鐘一輪（00 分 99 樓開門、01 分從 99 樓出發、02 分 1 樓開門、03 分從 1 樓出發）
 const ELEV=['在99樓等待(開門)','從99樓出發(搭乘)','在1樓等待(開門)','從1樓出發(搭乘)'];
 const elevTable=()=>{const cell=m=>`<tr><td>${String(m).padStart(2,'0')}</td><td>${ELEV[m%4]}</td></tr>`;let l='',r='';for(let m=0;m<30;m++){l+=cell(m);r+=cell(m+30)}return `<details class="elev"><summary>🛗 赫爾奧斯塔電梯時間表（每 4 分鐘一輪）</summary><div class="elevg"><table>${l}</table><table>${r}</table></div></details>`};
@@ -113,7 +113,7 @@ function find(a,b,maxHop,cap,orig){
         if(++exp>300000)return res;const np=p.concat(v);if(v===b){res.push(np);if(res.length>=cap)return res}else nq.push(np)}}
     q=nq}
   return res}
-function stepsOf(p){let rows='',elev=false;for(let k=0;k<p.length-1;k++){const i=INFO[p[k]+'|'+p[k+1]]||{};if(i.mode==='電梯')elev=true;const txt=[i.tm,i.how&&i.how!==i.mode?i.how:''].filter(Boolean).join('｜');if(i.mode||txt)rows+=`<li><b>${esc(p[k])} → ${esc(p[k+1])}</b>：${i.mode?(ICO[i.mode]||'')+' '+esc(i.mode):''}${txt?(i.mode?'，':'')+esc(txt):''}</li>`}return (rows?`<ul class="steps">${rows}</ul>`:'')+(elev?elevTable():'')}
+function stepsOf(p){let rows='',elev=false;for(let k=0;k<p.length-1;k++){const i=INFO[p[k]+'|'+p[k+1]]||{};if(i.mode==='搭電梯')elev=true;const txt=[i.tm,i.how&&i.how!==i.mode?i.how:''].filter(Boolean).join('｜');if(i.mode||txt)rows+=`<li><b>${esc(p[k])} → ${esc(p[k+1])}</b>：${i.mode?(ICO[i.mode]||'')+' '+esc(i.mode):''}${txt?(i.mode?'，':'')+esc(txt):''}</li>`}return (rows?`<ul class="steps">${rows}</ul>`:'')+(elev?elevTable():'')}
 function show(){
   syncOrig();
   const a=nm($('from').value),b=nm($('to').value),el=$('out'),orig=ASK(a)?$('orig').value:'';
