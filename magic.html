@@ -154,7 +154,7 @@ header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content:
       <p class="sub">楓之谷法師。算出你選的幾套裝備（A、B，最多到 D）各自能到的魔攻，並給你穿戴順序。資料會自動存在這個瀏覽器。</p>
     </div>
     <div class="toolbar">
-      <a class="ig-pill" href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>@boa19950303</a>
+      <a class="ig-pill" href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>boa19950303</a>
     </div>
   </header>
 
@@ -185,8 +185,10 @@ header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content:
       <label class="f" for="mw">楓葉祝福
         <select id="mw"><option value="10">等級 10（+5%）</option><option value="20">等級 20（+10%）</option><option value="30">等級 30（+15%）</option></select></label>
       <label class="chk" for="spOn"><input id="spOn" type="checkbox" checked>開精神強化（魔攻 +20）</label>
+      <label class="f" for="rage">激勵（英雄的隊伍 Buff）
+        <select id="rage"></select></label>
     </div>
-    <p class="note">楓葉祝福：智力、幸運各加「基礎值」的 %，取整數，不吃裝備。精神強化：只有開或不開，開了魔攻 +20。</p>
+    <p class="note">楓葉祝福：智力、幸運各加「基礎值」的 %，取整數，不吃裝備。精神強化：只有開或不開，開了魔攻 +20。激勵：依等級加魔攻（1~20 級各為 +1～+10），選「不開」就不算。</p>
   </section>
 
   <section id="results" class="card" aria-live="polite"></section>
@@ -238,7 +240,7 @@ header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content:
 
   <section class="card ig-card">
     <div class="ig-label">Instagram</div>
-    <a href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener">@boa19950303</a>
+    <a href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener">boa19950303</a>
   </section>
 </main>
 
@@ -446,19 +448,22 @@ const DEFAULT_ITEMS = [
   const KEY = 'maple-calc-v2';
   const INIT_POINTS = 25, LUK_MIN = 4;
   const clone = o => JSON.parse(JSON.stringify(o));
-  const DEFAULT_STATE = () => ({ level: 175, str: 4, dex: 4, int: 868, luk: 19, mw: 20, spOn: true, reassign: true, nSets: 2, items: clone(DEFAULT_ITEMS) });
+  const DEFAULT_STATE = () => ({ level: 175, str: 4, dex: 4, int: 868, luk: 19, mw: 20, spOn: true, rage: 0, reassign: true, nSets: 2, items: clone(DEFAULT_ITEMS) });
   let S = DEFAULT_STATE();
 
+  // 激勵（英雄）各等級增加的魔力（魔改版數值，來自技能模擬器的配點資料）
+  const RAGE_MAG = [0,1,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10];
+  $('rage').innerHTML = '<option value="0">不開</option>' + RAGE_MAG.slice(1).map((v, i) => `<option value="${i + 1}">等級 ${i + 1}（魔攻 +${v}）</option>`).join('');
   function load() { try { const t = localStorage.getItem(KEY); if (t) { const o = JSON.parse(t); if (o && Array.isArray(o.items)) S = Object.assign(DEFAULT_STATE(), o); if (![10, 20, 30].includes(S.mw)) S.mw = 20; if (![2, 3, 4].includes(S.nSets)) S.nSets = 2; S.reassign = S.reassign !== false; } } catch (e) {} }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
   function pushInputs() {
     ['level', 'str', 'dex', 'int', 'luk'].forEach(k => $(k).value = S[k]);
-    $('mw').value = String(S.mw); $('spOn').checked = S.spOn; $('reassign').checked = S.reassign; $('nSets').value = String(S.nSets);
+    $('mw').value = String(S.mw); $('spOn').checked = S.spOn; $('rage').value = String(S.rage || 0); $('reassign').checked = S.reassign; $('nSets').value = String(S.nSets);
   }
   function pullInputs() {
     ['level', 'str', 'dex', 'int', 'luk'].forEach(k => S[k] = +$(k).value || 0);
-    S.mw = +$('mw').value; S.spOn = $('spOn').checked; S.reassign = $('reassign').checked; S.nSets = +$('nSets').value;
+    S.mw = +$('mw').value; S.spOn = $('spOn').checked; S.rage = +$('rage').value || 0; S.reassign = $('reassign').checked; S.nSets = +$('nSets').value;
   }
 
   function points() {
@@ -472,7 +477,7 @@ const DEFAULT_ITEMS = [
   function runSet(filter, p) {
     const items = S.items.filter(filter).map(i => ({ ...i }));
     return solve(items, { pool: p.pool, curLuk: S.luk, lukMin: LUK_MIN, reassign: S.reassign,
-      spirit: S.spOn ? 20 : 0, mwPct: S.mw / 2 });
+      spirit: (S.spOn ? 20 : 0) + (RAGE_MAG[S.rage] || 0), mwPct: S.mw / 2 });
   }
   function stepsTable(r) {
     const rows = r.steps.map((s, i) => `<tr><td class="n">${i + 1}</td><td>${esc(s.item.slot)}</td><td>${esc(s.item.name)}</td>
@@ -480,7 +485,8 @@ const DEFAULT_ITEMS = [
       <td class="n">${s.item.reqInt || 0} / ${s.item.reqLuk || 0}</td><td class="n">${nf(s.hasInt)} / ${nf(s.hasLuk)}</td><td class="n">${nf(s.afterInt)} / ${nf(s.afterLuk)}</td></tr>`).join('');
     const buffs = [];
     if (S.mw) buffs.push(`<tr class="buff"><td class="n">★</td><td colspan="3">最後開 楓葉祝福 等級 ${S.mw}（${S.mw / 2}%）</td><td></td><td></td><td class="n">智力 +${r.mwInt}</td></tr>`);
-    if (S.spOn) buffs.push(`<tr class="buff"><td class="n">★</td><td colspan="3">最後開 精神強化</td><td></td><td></td><td class="n">魔攻 +${r.spiritVal}</td></tr>`);
+    if (S.spOn) buffs.push(`<tr class="buff"><td class="n">★</td><td colspan="3">最後開 精神強化</td><td></td><td></td><td class="n">魔攻 +20</td></tr>`);
+    if (S.rage) buffs.push(`<tr class="buff"><td class="n">★</td><td colspan="3">最後開 激勵 等級 ${S.rage}</td><td></td><td></td><td class="n">魔攻 +${RAGE_MAG[S.rage]}</td></tr>`);
     return `<div class="scroll"><table>
       <tr><th class="n">順序</th><th>部位</th><th>裝備</th><th></th><th class="n">需求 智/幸</th><th class="n">穿前 智/幸</th><th class="n">穿後 智/幸</th></tr>
       <tr><td class="n">0</td><td colspan="3">起始（只有一件且沒有需求的裝備先穿上）</td><td></td><td></td><td class="n">${r.startInt} / ${r.startLuk}</td></tr>
@@ -496,7 +502,7 @@ const DEFAULT_ITEMS = [
       <div class="kv"><div><span class="k">最低基礎幸運</span><span class="vv">${r.baseLuk}</span></div>
         <div><span class="k">基礎智力</span><span class="vv">${nf(r.baseInt)}</span></div>
         <div><span class="k">最終智力（不含 buff）</span><span class="vv">${nf(r.finalInt)}</span></div>
-        <div><span class="k">最終幸運</span><span class="vv">${r.finalLuk}</span></div></div>
+        <div><span class="k">幸運需求</span><span class="vv">${r.finalLuk}</span></div></div>
       <ul class="equip">${eq}</ul>${stepsTable(r)}${res.truncated ? '<div class="msg warn">候選裝備太多，搜尋提前停止，結果可能不是最高。</div>' : ''}</div>`;
   }
   const nf = v => typeof v === 'number' && isFinite(v) ? v.toLocaleString('en-US') : v;
@@ -563,7 +569,7 @@ const DEFAULT_ITEMS = [
   let timer;
   function refresh(now) { renderPoints(); clearTimeout(timer); timer = setTimeout(() => { renderResults(); save(); }, now ? 0 : 250); }
 
-  document.querySelectorAll('#level,#str,#dex,#int,#luk,#mw,#spOn,#reassign').forEach(el => {
+  document.querySelectorAll('#level,#str,#dex,#int,#luk,#mw,#spOn,#rage,#reassign').forEach(el => {
     el.addEventListener('input', () => { pullInputs(); refresh(); });
     el.addEventListener('change', () => { pullInputs(); refresh(); });
   });
@@ -615,6 +621,6 @@ const DEFAULT_ITEMS = [
 })();
 </script>
 
-<script src="edward-nav.js?v=r157"></script>
+<script src="edward-nav.js?v=r158"></script>
 </body>
 </html>

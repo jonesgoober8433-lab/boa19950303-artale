@@ -37,6 +37,7 @@ label{display:block;font-size:13px;color:var(--muted);margin:8px 0 2px}
 .res div{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .res small{color:var(--muted);display:block}.res b{font-size:24px}
 .bar{height:12px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--accent)}
+.res .bar{padding:0;border:0;background:var(--line);height:12px;border-radius:999px;margin-top:8px;overflow:hidden}.res .bar i{border-radius:999px;min-width:0}   /* 命中率條：不要被 .res 裡的方框樣式吃掉，不然填色填不滿 */
 .tag{display:inline-block;padding:0 8px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.7}
 .t-ok{background:var(--good-bg);color:var(--good)}.t-bad{background:var(--bad-bg);color:var(--bad)}.t-warn{background:var(--warn-bg);color:var(--warn)}
 .notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:13.5px;margin:10px 0 0}
@@ -44,7 +45,7 @@ table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{border-bottom:1
 th{color:var(--muted);font-weight:500;font-size:12px;position:sticky;top:0;background:var(--card)}
 .tw{max-height:560px;overflow:auto;border:1px solid var(--line);border-radius:10px}
 tr.r{cursor:pointer}tr.r:hover{background:var(--soft)}
-td.n{display:flex;align-items:center;gap:6px}td.n img{width:28px;height:28px;object-fit:contain;image-rendering:pixelated}
+td.n .nm{display:flex;align-items:center;gap:6px}td.n img{width:28px;height:28px;object-fit:contain;image-rendering:pixelated}
 .mini{width:70px;height:8px;background:var(--line);border-radius:99px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:6px}.mini i{display:block;height:100%;background:var(--accent)}
 .ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.ctl select,.ctl input{width:auto;min-width:140px}
 details{margin:8px 0}summary{cursor:pointer;color:var(--accent);font-weight:700}
@@ -168,7 +169,7 @@ function renderTable(){
   else if(sort==='need')rows.sort((a,b)=>(b.c?b.c.a100:-1)-(a.c?a.c.a100:-1));
   else rows.sort((a,b)=>L(a.m)-L(b.m)||a.m.n.localeCompare(b.m.n));
   $('cnt2').textContent=`${rows.length} 隻`;
-  $('tb').innerHTML=rows.map(({m,i,c})=>`<tr class="r" data-i="${i}"><td class="n">${m.img?`<img src="${imgSrc(m)}" alt="" loading="lazy">`:''}${esc(m.n)}${m.sus?' <span class="tag t-warn">疑似預設值</span>':''}</td><td>${m.lv==null?'暫無':m.lv}</td><td>${nz(m.hp)}</td><td>${nz(m.exp)}</td><td>${m.req==null?'暫無':p3(c?c.a100:m.req)}</td><td>${c?`<span class="mini"><i style="width:${c.r}%"></i></span>${p3(c.r)}%`:'暫無'}</td></tr>`).join('');
+  $('tb').innerHTML=rows.map(({m,i,c})=>`<tr class="r" data-i="${i}"><td class="n"><div class="nm">${m.img?`<img src="${imgSrc(m)}" alt="" loading="lazy">`:''}<span>${esc(m.n)}${m.sus?' <span class="tag t-warn">疑似預設值</span>':''}</span></div></td><td>${m.lv==null?'暫無':m.lv}</td><td>${nz(m.hp)}</td><td>${nz(m.exp)}</td><td>${m.req==null?'暫無':p3(c?c.a100:m.req)}</td><td>${c?`<span class="mini"><i style="width:${c.r}%"></i></span>${p3(c.r)}%`:'暫無'}</td></tr>`).join('');
 }
 function all(){renderOut();renderTable()}
 function pick(i){SEL=i;renderList();renderOut();const it=document.querySelector('#list .it.on');if(it)it.scrollIntoView({block:'nearest'})}
@@ -180,6 +181,6 @@ $('tb').addEventListener('click',e=>{const r=e.target.closest('tr[data-i]');if(r
 ['q2','sort','only'].forEach(id=>$(id).addEventListener('input',renderTable));
 renderChips();renderList();all();
 </script>
-<script src="edward-nav.js?v=r157"></script>
+<script src="edward-nav.js?v=r158"></script>
 </body>
 </html>

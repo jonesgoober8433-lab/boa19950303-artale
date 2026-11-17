@@ -44,6 +44,7 @@
   '#edward-rail .ic{flex:0 1 auto;width:clamp(24px,5.4vh,40px);height:clamp(24px,5.4vh,40px);display:flex;align-items:center;justify-content:center}#edward-rail .ic img,#edward-rail .ic svg{width:100%;height:100%;object-fit:contain;display:block}'+
   '#edward-rail .tx{display:block;max-width:100%;overflow:hidden;text-wrap:balance}'+
   'body{padding-left:76px!important;box-sizing:border-box}'+
+  'html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}html,body{touch-action:pan-y pinch-zoom}.tw,.list,.table-wrap,table,pre,[style*="overflow"]{touch-action:pan-x pan-y pinch-zoom}'+
   '@media(max-height:640px){#edward-rail a{font-size:10px}#edward-rail .tx{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}}'+
   '@media(max-height:520px){#edward-rail .tx{display:none}}'+
   '@media(max-width:700px){#edward-rail{display:none}body{padding-left:0!important;padding-top:60px!important}}';
@@ -102,7 +103,7 @@
     if(document.querySelector('header .ig-pill,.toolbar .ig-pill'))return; // 頁面自己已有（法師裝備模擬器）
     host.classList.add(id==='sim'?'ed-sim':'ed-host');
     var a=document.createElement('a');a.className='ed-ig';a.href='https://www.instagram.com/boa19950303/';a.target='_blank';a.rel='noopener noreferrer';
-    a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>@boa19950303';
+    a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>boa19950303';
     host.insertBefore(a,host.firstChild);
     if(id==='sim'){var fit=function(){a.classList.remove('stack');var x=a.getBoundingClientRect(),y=h.getBoundingClientRect();if(x.left<y.right&&x.right>y.left&&x.top<y.bottom&&x.bottom>y.top)a.classList.add('stack')};fit();window.addEventListener('resize',fit);setTimeout(fit,400)}
   }
@@ -180,7 +181,7 @@
      '#ed-top{position:fixed;left:0;right:0;top:0;height:52px;z-index:10000;background:#f5ecdb;border-bottom:1px solid #e8dcc3;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}'+
      '#ed-menu{display:inline-flex;align-items:center;gap:8px;max-width:62%;padding:5px 12px 5px 6px;border-radius:999px;border:1px solid #a4602a;background:#fffaf0;color:#3a2f25;font:700 14px "Noto Sans TC",system-ui,sans-serif;cursor:pointer}'+
      '#ed-menu .mi{width:28px;height:28px;display:inline-flex;flex:0 0 auto}#ed-menu .mi svg,#ed-menu .mi img{width:100%;height:100%;display:block}#ed-menu .mt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#ed-menu .ch{width:14px;height:14px;fill:none;stroke:#a4602a;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}#ed-menu[aria-expanded=true] .ch{transform:rotate(180deg)}'+
-     '#ed-top .ig{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;border:1px solid #a4602a;background:#fffaf0;color:#a4602a;font:700 12.5px "Noto Sans TC",system-ui,sans-serif;text-decoration:none;white-space:nowrap}#ed-top .ig svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}'+
+     '#ed-top .edig{align-self:center;margin:0;display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;border:1px solid #a4602a;background:#fffaf0;color:#a4602a;font:700 12.5px "Noto Sans TC",system-ui,sans-serif;text-decoration:none;white-space:nowrap}#ed-top .edig svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}'+
      '#ed-menu-list{position:fixed;left:10px;top:58px;z-index:10001;width:min(300px,calc(100vw - 20px));max-height:calc(100vh - 70px);overflow:auto;background:#fffaf0;border:1px solid #e8dcc3;border-radius:16px;padding:6px;box-shadow:0 12px 30px rgba(58,47,37,.28)}#ed-menu-list.open{display:block}'+
      '#ed-menu-list a{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:12px;text-decoration:none;color:#3a2f25;font:700 15px "Noto Sans TC",system-ui,sans-serif}#ed-menu-list a.on{background:#f4e8cf;color:#a4602a}#ed-menu-list .mi{width:32px;height:32px;display:inline-flex;flex:0 0 auto}#ed-menu-list .mi svg,#ed-menu-list .mi img{width:100%;height:100%;display:block}'+
      '.ed-ig,header .ig-pill,.toolbar .ig-pill{display:none!important}.bar{top:52px!important}}';
@@ -188,7 +189,7 @@
     var cur2=TOOLS.filter(function(x){return x.id===id})[0];
     var bar=document.createElement('div');bar.id='ed-top';
     bar.innerHTML='<button type="button" id="ed-menu" aria-expanded="false" aria-haspopup="true" aria-controls="ed-menu-list"><span class="mi">'+(cur2?cur2.icon.split('ni_'+cur2.id).join('nt_'+cur2.id):'')+'</span><span class="mt">'+name+'</span><svg class="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'+
-     '<a class="ig" href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>@boa19950303</a>';
+     '<a class="edig" href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>boa19950303</a>';
     var list=document.createElement('div');list.id='ed-menu-list';list.setAttribute('role','menu');
     list.innerHTML=TOOLS.map(function(x){return '<a role="menuitem" href="'+x.href+'" class="'+(x.id===id?'on':'')+'"><span class="mi">'+x.icon.split('ni_'+x.id).join('nm_'+x.id)+'</span>'+x.name+'</a>'}).join('');
     document.body.appendChild(bar);document.body.appendChild(list);
