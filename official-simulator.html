@@ -1007,7 +1007,7 @@
 
             // --- 新增：更新背景浮水印 ---
             const englishKey = findEnglishKeyByMixedKey(professionKey);
-            const emblemUrl = (currentProfessionData && currentProfessionData.cardImage) || (englishKey ? `emblems/${englishKey}.png` : ''); // 動態生成徽章路徑
+            const emblemUrl = (englishKey ? `emblems/${({buccaneer:"viper",corsair:"captain"})[String(englishKey).toLowerCase()]||String(englishKey).toLowerCase().replace(/_/g,"-")}_face.webp` : ""); // 職業頭像（Edward 的）
             // 使用CSS變數來動態設定偽元素的背景圖片
             document.documentElement.style.setProperty('--emblem-bg-url', `url('${emblemUrl}')`);
 
@@ -1091,7 +1091,7 @@
                         const skillHeader = document.createElement('div');
                         skillHeader.className = 'skill-header';
                         skillHeader.innerHTML = `
-                            ${skill.imageUrl ? `<img src="${skill.imageUrl}" alt="${skill.name}" class="skill-icon" onerror="this.onerror=null;this.src='images/default.png';">` : ''}
+                            ${skill.imageUrl ? `<img src="${skill.imageUrl}" alt="${skill.name}" class="skill-icon" onerror="this.onerror=null;this.src='ui/mushroom.png';">` : ''}
                             <div class="skill-name">${skill.name}</div>
                             <div class="skill-level-controls">
                             <button onclick="decreaseSkill('${skill.id}')">-</button>

@@ -570,10 +570,10 @@
                     const card = document.createElement('a');
                     card.className = 'profession-card' + (data.isNew ? ' is-new' : '');
                     card.href = `official-simulator.html?prof=${encodeURIComponent(key)}`;
-                    const img = data.cardImage || `emblems/${key}_color.png`;
+                    const img = `emblems/${({buccaneer:"viper",corsair:"captain"})[key.toLowerCase()]||key.toLowerCase().replace(/_/g,"-")}_face.webp`;   /* 職業頭像用 Edward 的（官方頭像） */
                     card.innerHTML = `
                         ${data.isNew ? '<em class="card-new">NEW</em>' : ''}
-                        <img src="${img}" alt="${key}" onerror="this.onerror=null;this.src='images/default.png';">
+                        <img src="${img}" alt="${key}" onerror="this.onerror=null;this.src='ui/mushroom.png';">
                         <span>${professionNameMap[key]}</span>
                     `;
                     grid.appendChild(card);
