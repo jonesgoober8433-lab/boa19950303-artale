@@ -123,7 +123,7 @@
     document.head.appendChild(st);
     var d=document.createElement('div');d.id='ed-ver';
     d.innerHTML='<div class="seg"><a href="'+offHref+'" class="'+(official?'on':'')+'">正式版（最初版）</a><a href="'+testHref+'" class="'+(official?'':'on')+'">測試版</a></div>'+
-      '<p>'+(official?'目前是<b>正式版</b>：遊戲裡現在實際的技能資料（冒險家 12 職業），原樣收錄自 Jamox。':'目前是<b>測試版</b>：加入阿泰爾魔改資料與皇家騎士團 5 職業，未來官方正式提供後，這一版會改成正式版。')+'</p>';
+      '<p>'+(official?'目前是<b>正式版</b>：遊戲裡現在實際的技能資料（冒險家 12 職業）。':'目前是<b>測試版</b>：加入阿泰爾魔改資料與皇家騎士團 5 職業，未來官方正式提供後，這一版會改成正式版。')+'</p>';
     document.body.insertBefore(d,document.body.firstChild);
   }
   // ---- 手機版：左上角下拉選單（取代底部工具欄）＋右上角 Instagram

@@ -4,9 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="ui/favicon.ico">
+        <meta property="og:type" content="website">
+    <meta property="og:site_name" content="阿泰爾工具箱">
+    <meta property="og:title" content="阿泰爾工具箱｜技能模擬器、地圖指引、命中計算">
+    <meta property="og:description" content="阿泰爾（Artale）魔改版免費工具：技能模擬器、魔改存檔、地圖指引、命中計算、升級時間等 9 個工具。">
+    <meta property="og:image" content="https://jonesgoober8433-lab.github.io/boa19950303-artale/og-image.png?v=2">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="試點轉職技能點數，17 個職業（含皇家騎士團）。">
+    <link rel="icon" type="image/svg+xml" href="ui/title-icon.svg">
     <title>Artale技能模擬器（正式版）</title>
-    
+
     <script src="official-data.js"></script>
     <style>
         /* --- PC 網頁版通用樣式調整 (魔法書卷風格) --- */
@@ -823,11 +830,13 @@
             /* 滑鼠懸停時移除底線 */
         }
     </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+    <link rel="stylesheet" href="edward-style.css?v=r134">
 </head>
 
 <body>
     <a href="official-index.html" class="title-link">
-        <h1><img src="ui/title-icon.png" alt="標題圖示" class="title-icon">Artale技能模擬器</h1>
+        <h1><img src="ui/title-icon.svg" alt="標題圖示" class="title-icon">Artale技能模擬器</h1>
     </a>
 
     <div class="controls">
@@ -837,34 +846,20 @@
             </select>
         </div>
         <div class="control-group">
-            <label for="recommendedBuildSelect">推薦配點:</label>
-            <select id="recommendedBuildSelect" onchange="showBuildDetails(this.value)">
-                <option value="">— 選擇一個配點 —</option>
-            </select>
-        </div>
-        <div class="control-group">
             <label for="levelInput">當前等級:</label>
-            <input type="number" id="levelInput" value="200" min="1" max="300" oninput="updateLevelFromInput()">
+            <input type="number" id="levelInput" value="200" min="1" max="300" inputmode="numeric" onchange="updateLevelFromInput()" onkeydown="if(event.key==='Enter'){this.blur();}">
         </div>
         <div class="action-buttons">
             <button class="reset-button" onclick="resetSimulator()">重置</button>
             <button class="share-button" onclick="shareBuild()">分享</button>
-            <button class="contribute-button" onclick="openContributionForm()">寫推薦文</button>
         </div>
     </div>
 
-    <!-- 新增：推薦配點詳情區塊 -->
-    <div id="buildDetailsContainer" class="build-details-container" style="display: none;">
-        <h3 id="buildDetailName"></h3>
-        <h4>配點說明</h4>
-        <p id="buildDetailDescription"></p>
-        <h4>技能優先序</h4>
-        <p id="buildDetailPriority"></p>
-        <div class="build-details-actions">
-            <button id="loadBuildBtn" class="share-button">載入此配點</button>
-            <button onclick="closeBuildDetails()" class="reset-button">關閉</button>
-        </div>
-    </div>
+    <section id="buildNotes" class="build-notes">
+        <div class="bn-head"><label for="buildNoteInput">配點思路</label><span class="bn-count" id="bnCount">0 / 1,000</span></div>
+        <textarea id="buildNoteInput" maxlength="1000" rows="3" placeholder="把你的想法寫在這裡，例如：為什麼先點這幾個技能、哪些技能刻意不點、練功的優先順序…"></textarea>
+        <div class="bn-hint">會自動存在這個瀏覽器；按「分享」時，對方也看得到。</div>
+    </section>
 
     <div class="container">
         <div class="skill-tree" id="skillTree">
@@ -875,16 +870,21 @@
             <p>總已分配點數: <span id="spentSp">0</span></p>
             <p>剩餘點數: <span id="remainingSp">0</span></p>
             <hr>
-            <p>1轉/(2轉需求): <span id="spentSp_1stJob">0</span> / <span id="reqSp_2ndJob">0</span></p>
-            <p>2轉/(3轉需求): <span id="spentSp_2ndJob_total">0</span> / <span id="reqSp_3rdJob">0</span></p>
-            <p>3轉/(4轉需求): <span id="spentSp_3rdJob_total">0</span> / <span id="reqSp_4thJob">0</span></p>
+            <p>1轉/(2轉需求): <span id="spentSp_1stJob">0</span> / <span id="reqSp_2ndJob">0</span> <span class="sp-full" id="full_1st"></span></p>
+            <p>2轉/(3轉需求): <span id="spentSp_2ndJob_total">0</span> / <span id="reqSp_3rdJob">0</span> <span class="sp-full" id="full_2nd"></span></p>
+            <p>3轉/(4轉需求): <span id="spentSp_3rdJob_total">0</span> / <span id="reqSp_4thJob">0</span> <button type="button" id="specialCaseBtn" class="special-btn" hidden aria-pressed="false" title="特例：這個職業 1~3 轉技能全部點滿也不到 4 轉需求，按下後 4 轉需求改為「1~3 轉全部點滿」">★ 特例</button> <span class="sp-full" id="full_3rd"></span></p>
         </div>
     </div>
 
-    <footer class="page-footer">
-        <HB>MADE BY JAMOX</HB>
-        <p>正式版（最初版）的資料與介面，原樣收錄自 <a href="https://jamox80.github.io/maplestory-skill-simulator/" target="_blank" rel="noopener noreferrer">Jamox 的 Artale 技能模擬器</a>。想看阿泰爾魔改版的新技能，請切換到上方的「測試版」。</p>
-
+    <footer class="page-footer ig-footer">
+        <p class="intro-title">聰明理財，輕鬆生活</p>
+        <div class="intro">
+            <p><span class="ln">我是 Edward，本業是財務顧問。</span>
+                <span class="ln">每天做的事，就是打個阿泰爾以及幫人把關資產成長把錢算清楚、排整齊</span></p>
+            <p><span class="ln">這個模擬器是我遊戲之餘做的，免費給大家用</span>
+                <span class="ln">如果你也想把自己的財務理清楚，歡迎來找我聊</span></p>
+        </div>
+        <a class="ig-pill" href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>boa19950303</a>
     </footer>
 
     <button id="backToTopBtn" title="回到頂部">▲</button>
@@ -904,7 +904,12 @@
             "Shadower": "暗影神偷",
             "NightLord": "夜使者",
             "Buccaneer": "拳霸",
-            "Corsair": "槍神"
+            "Corsair": "槍神",
+            "SoulMaster": "聖魂劍士",
+            "FlameWizard": "烈焰巫師",
+            "WindBreaker": "破風使者",
+            "NightWalker": "暗夜行者",
+            "Striker": "閃雷悍將"
         };
 
 
@@ -922,11 +927,19 @@
         function initializeSimulator() {
             populateProfessionDropdown();
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const profFromUrl = urlParams.get('prof');
-            const lvlFromUrl = urlParams.get('lvl');
-            const skillsFromUrl = urlParams.get('skills');
-            const buildIndexFromUrl = urlParams.get('buildIndex'); // 新增：獲取推薦配點索引
+            const urlParams = new URLSearchParams(window.__SNAPSHOT_SEARCH || window.location.search);
+            let profFromUrl = urlParams.get('prof');
+            let lvlFromUrl = urlParams.get('lvl');
+            let skillsFromUrl = urlParams.get('skills');
+            const shortCode = urlParams.get('b'); // 新的短分享碼：b=職業.等級.編碼
+            if (shortCode) {
+                const [p, l, c] = shortCode.split('.');
+                profFromUrl = p; lvlFromUrl = l;
+                const cn = professionNameMap[p];
+                const mk = cn && Object.keys(allProfessionsData).find(k => k.startsWith(cn));
+                skillsFromUrl = mk ? decodeBuildCode(mk, c || '') : '';
+                if (!skillsFromUrl) skillsFromUrl = '_none:0'; // 全部沒點也要走「分享連結」流程
+            }
 
             // --- 新增：根據 URL 中的英文 key 找到 data.js 中的混合 key ---
             let targetProfessionKey = null;
@@ -939,18 +952,7 @@
                 }
             }
 
-            // 優先處理：如果 URL 包含 buildIndex，則載入職業並顯示推薦配點詳情
-            if (targetProfessionKey && buildIndexFromUrl !== null && buildIndexFromUrl !== '') {
-                document.getElementById('professionSelect').value = targetProfessionKey;
-                loadProfessionData(targetProfessionKey);
-
-                const buildIndex = parseInt(buildIndexFromUrl, 10);
-                if (!isNaN(buildIndex)) {
-                    // 設定下拉選單的值，並呼叫函式來顯示詳情彈窗
-                    document.getElementById('recommendedBuildSelect').value = buildIndex;
-                    showBuildDetails(buildIndex);
-                }
-            } else if (targetProfessionKey && lvlFromUrl && skillsFromUrl) {
+            if (targetProfessionKey && lvlFromUrl && skillsFromUrl) {
                 // 其次處理：處理完整的分享連結 (直接套用配點)
                 document.getElementById('professionSelect').value = targetProfessionKey;
                 loadProfessionData(targetProfessionKey);
@@ -967,6 +969,10 @@
                     }
                 });
                 updateUI();
+                renderSharedSummary();
+                const sharedNote = (typeof window.__SNAPSHOT_NOTE === 'string') ? window.__SNAPSHOT_NOTE : (urlParams.get('n') ? decodeNoteFromLink(urlParams.get('n')) : '');
+                if (sharedNote) { const ne = document.getElementById('buildNoteInput'); if (ne) { ne.value = sharedNote; updateNoteCount(); } }
+                if (urlParams.get('x') === '1' && currentProfessionData.specialCase) setSpecialCase(true);
             } else if (targetProfessionKey) {
                 // 只從首頁選擇了職業，載入該職業的預設狀態
                 document.getElementById('professionSelect').value = targetProfessionKey;
@@ -978,24 +984,30 @@
         // --- 填充職業下拉選單 ---
         function populateProfessionDropdown() {
             const selectElement = document.getElementById('professionSelect');
+            const groups = {};
             for (const key in allProfessionsData) {
+                const g = allProfessionsData[key].group || '冒險家';
+                if (!groups[g]) { groups[g] = document.createElement('optgroup'); groups[g].label = g === '皇家騎士團' ? '皇家騎士團（全新職業）' : g; selectElement.appendChild(groups[g]); }
                 const option = document.createElement('option');
                 option.value = key;
-                option.textContent = key;
-                selectElement.appendChild(option);
+                option.textContent = (allProfessionsData[key].isNew ? '★ ' : '') + key;
+                groups[g].appendChild(option);
             }
             selectElement.value = currentProfessionKey; // 設定預設選中項
         }
 
         // --- 載入指定職業數據 ---
         function loadProfessionData(professionKey) {
+            stageFullPrev = null;
+            specialCaseOn = false;
+            loadNoteForJob(professionKey);
             currentProfessionKey = professionKey;
             currentProfessionData = allProfessionsData[currentProfessionKey];
             skillsData = currentProfessionData.skills; // 更新技能數據參考
 
             // --- 新增：更新背景浮水印 ---
             const englishKey = findEnglishKeyByMixedKey(professionKey);
-            const emblemUrl = englishKey ? `emblems/${String(englishKey).toLowerCase()}.png` : ''; // 動態生成徽章路徑
+            const emblemUrl = (currentProfessionData && currentProfessionData.cardImage) || (englishKey ? `emblems/${englishKey}.png` : ''); // 動態生成徽章路徑
             // 使用CSS變數來動態設定偽元素的背景圖片
             document.documentElement.style.setProperty('--emblem-bg-url', `url('${emblemUrl}')`);
 
@@ -1015,7 +1027,6 @@
             // 修正：先渲染技能樹的HTML結構，再更新UI內容
             renderSkillTree();
             updateUI();
-            updateRecommendedBuildsDropdown(); // 更新推薦配點下拉選單
         }
 
         // --- 計算最大 SP ---
@@ -1023,9 +1034,12 @@
             let totalSp = 0;
             const { startingLevelForSp, jobAdvancementSpBonuses } = currentProfessionData;
 
+            // 0 轉（新手）技能點：1~10 級給 6 點（使用者提供）；等級 10 以上才算入
+            const beginnerSp = (level >= 10) ? (currentProfessionData.beginnerSp || 0) : 0;
+
             // 1. 轉職前等級不提供 SP
             if (level < startingLevelForSp) {
-                return 0;
+                return beginnerSp;
             }
 
             // 2. 從起始等級開始，每級給3點SP
@@ -1042,23 +1056,10 @@
                 }
             });
 
-            return totalSp;
+            return totalSp + beginnerSp;
         }
 
-        // --- 更新推薦配點下拉選單 ---
-        function updateRecommendedBuildsDropdown() {
-            const select = document.getElementById('recommendedBuildSelect');
-            select.innerHTML = '<option value="">— 選擇一個配點 —</option>'; // 重置
-            closeBuildDetails(); // 切换職業時關閉詳情
 
-            const builds = recommendedBuilds[currentProfessionKey] || [];
-            builds.forEach((build, index) => {
-                const option = document.createElement('option');
-                option.value = index; // 使用索引作為 value
-                option.textContent = build.name;
-                select.appendChild(option);
-            });
-        }
         // --- 輔助函式：計算特定轉職階段的已分配SP ---
         function getSpentSpInJobStage(jobStageKey) {
             let sp = 0;
@@ -1110,6 +1111,12 @@
                         preReqsDiv.className = 'skill-prerequisites';
                         preReqsDiv.id = `${skill.id}-prereqs`;
                         skillItem.appendChild(preReqsDiv);
+                        if (skill.conflictNotes && skill.conflictNotes.length) {
+                            const noteDiv = document.createElement('div');
+                            noteDiv.className = 'skill-conflict';
+                            noteDiv.innerHTML = skill.conflictNotes.map(n => `<span class="conflict-chip">⚠ ${n}</span>`).join('');
+                            skillItem.appendChild(noteDiv);
+                        }
                         // 初始化時，如果沒有前置，這個區塊會被 updateSkillPrerequisitesDisplay 隱藏
                         // 但在 renderSkillTree 結束後，updateSkillDetailsDisplay 會被呼叫，確保更新
 
@@ -1129,12 +1136,341 @@
                         }
 
                         skillItem.appendChild(descArea);
+                        const allWrap = document.createElement('div');
+                        allWrap.className = 'skill-all-wrap';
+                        allWrap.innerHTML = `<button type="button" class="show-all-btn" aria-expanded="false">顯示全部 ▾</button><div class="skill-all" hidden></div>`;
+                        allWrap.querySelector('.show-all-btn').addEventListener('click', function (ev) {
+                            ev.stopPropagation();
+                            const box = allWrap.querySelector('.skill-all');
+                            const open = box.hidden;
+                            box.hidden = !open;
+                            this.textContent = open ? '收起 ▴' : '顯示全部 ▾';
+                            this.setAttribute('aria-expanded', open ? 'true' : 'false');
+                            if (open && !box.dataset.built) { box.innerHTML = buildSkillAllHtml(skill); box.dataset.built = '1'; }
+                        });
+                        skillItem.appendChild(allWrap);
                         sectionDiv.appendChild(skillItem);
                     });
                     skillTreeDiv.appendChild(sectionDiv);
                 }
             });
             // updateUI(); // 渲染後更新一次UI狀態
+        }
+
+        // ================= 「顯示全部」：每個技能的所有數值折線圖 =================
+        const CH = { W: 440, H: 150, l: 52, r: 14, t: 16, b: 26 };
+        function parseNumVal(txt) {
+            const m = String(txt).replace(/,/g, '').match(/^\s*[+\-]?\d+(?:\.\d+)?/); // 只接受「以數字開頭」的值（避免「每超過1500額外增加1%」這種文字被當成數值）
+            if (!m) return null;
+            const n = parseFloat(m[0]);
+            const unit = String(txt).replace(/,/g, '').slice(m.index + m[0].length).trim();
+            return { n, unit };
+        }
+        function fmtNum(n) {
+            if (Math.abs(n) >= 100 || Number.isInteger(n)) return String(Math.round(n * 100) / 100);
+            return String(Math.round(n * 100) / 100);
+        }
+        // 把每一級的「效果」文字拆成「項目: 數值」，同一個項目跨等級串成一條線
+        function parseEffectSeries(skill) {
+            const map = new Map();
+            for (let lv = 1; lv < (skill.levels || []).length; lv++) {
+                const e = skill.levels[lv] && skill.levels[lv].effect; if (!e) continue;
+                const segs = String(e).replace(/｜/g, '，').split(/[，,]\s*/);
+                let last = null;
+                for (const seg of segs) {
+                    const m = seg.match(/^([^:：]{1,24})[:：]\s*(.+)$/);
+                    if (!m) { continue; }
+                    const label = m[1].replace(/^【魔改】/, '').trim(), pv = parseNumVal(m[2]);
+                    if (!pv) continue;
+                    if (!map.has(label)) map.set(label, { label, unit: pv.unit, xs: [], ys: [] });
+                    const s = map.get(label); s.xs.push(lv); s.ys.push(pv.n);
+                }
+            }
+            return [...map.values()].filter(s => s.xs.length >= 2);
+        }
+        function extraSeries(skill) {
+            const out = [];
+            for (const c of (skill.extraCharts || [])) {
+                for (const st of c.stats) {
+                    const xs = [], ys = []; let unit = '';
+                    st.after.forEach((v, k) => { const pv = parseNumVal(v); if (!pv) return; unit = unit || pv.unit; xs.push(c.from + k); ys.push(pv.n); });
+                    if (xs.length >= 2) out.push({ label: st.label, unit, xs, ys, group: c.title, axis: c.axis });
+                }
+            }
+            return out;
+        }
+        function chartHtml(s, curX, idx) {
+            const { W, H, l, r, t, b } = CH;
+            let ymin = Math.min(...s.ys), ymax = Math.max(...s.ys);
+            const flat = ymin === ymax; if (flat) { ymin -= 1; ymax += 1; }
+            const x0 = s.xs[0], x1 = s.xs[s.xs.length - 1];
+            const px = x => l + (x1 === x0 ? 0 : (x - x0) / (x1 - x0)) * (W - l - r);
+            const py = y => t + (1 - (y - ymin) / (ymax - ymin)) * (H - t - b);
+            const step = Math.max(1, Math.floor(s.xs.length / 600));
+            let d = ''; for (let i = 0; i < s.xs.length; i += step) d += (d ? 'L' : 'M') + px(s.xs[i]).toFixed(1) + ',' + py(s.ys[i]).toFixed(1);
+            const last = s.xs.length - 1; if ((last % step) !== 0) d += 'L' + px(s.xs[last]).toFixed(1) + ',' + py(s.ys[last]).toFixed(1);
+            const area = d + 'L' + px(x1).toFixed(1) + ',' + (H - b) + 'L' + px(x0).toFixed(1) + ',' + (H - b) + 'Z';
+            const xl = (s.axis === '角色INT') ? 'INT ' : (s.axis && s.axis !== '레벨' ? s.axis + ' ' : 'Lv.');
+            const u = s.unit || '';
+            let cur = '';
+            if (curX != null) { const k = s.xs.indexOf(curX); if (k >= 0) cur = `<circle class="ch-cur" cx="${px(curX).toFixed(1)}" cy="${py(s.ys[k]).toFixed(1)}" r="4.5"/>`; }
+            return `<div class="ch-card" data-i="${idx}">
+                <div class="ch-title"><span class="ch-dot"></span>${s.label}${u ? `<small>（${u}）</small>` : ''}${flat ? `<small class="ch-flat">固定 ${fmtNum(s.ys[0])}${u}</small>` : ''}</div>
+                <div class="ch-wrap"><svg viewBox="0 0 ${W} ${H}" class="ch-svg" role="img" aria-label="${s.label}折線圖">
+                    <line class="ch-axis" x1="${l}" y1="${H - b}" x2="${W - r}" y2="${H - b}"/><line class="ch-axis" x1="${l}" y1="${t}" x2="${l}" y2="${H - b}"/>
+                    <text class="ch-tick" x="${l - 6}" y="${t + 4}" text-anchor="end">${fmtNum(flat ? ymax - 1 : ymax)}${u}</text>
+                    <text class="ch-tick" x="${l - 6}" y="${H - b}" text-anchor="end">${fmtNum(flat ? ymin + 1 : ymin)}${u}</text>
+                    <text class="ch-tick" x="${l}" y="${H - 8}" text-anchor="start">${xl}${x0}</text>
+                    <text class="ch-tick" x="${W - r}" y="${H - 8}" text-anchor="end">${xl}${x1}</text>
+                    <path class="ch-area" d="${area}"/><path class="ch-line" d="${d}"/>${cur}
+                    <line class="ch-guide" x1="0" y1="${t}" x2="0" y2="${H - b}" style="display:none"/><circle class="ch-hover" r="4.5" style="display:none"/>
+                </svg><div class="ch-tip" style="display:none"></div></div></div>`;
+        }
+        function intMilestones(s) {
+            if (s.axis !== '角色INT' || s.unit !== '%') return '';
+            const lo = Math.ceil(Math.min(...s.ys)), hi = Math.floor(Math.max(...s.ys)); const chips = [];
+            for (let p = lo; p <= hi; p++) { const k = s.ys.findIndex(y => y >= p); if (k >= 0) chips.push(`<span class="ms-chip"><b>${p}%</b>INT ${s.xs[k]}</span>`); }
+            return `<div class="ms-box"><div class="ms-title">${s.label}：每個整數 % 需要的最低 INT</div><div class="ms-chips">${chips.join('')}</div></div>`;
+        }
+        function buildSkillAllHtml(skill) {
+            const main = parseEffectSeries(skill), extra = extraSeries(skill);
+            const all = main.concat(extra);
+            if (!all.length) return '<p class="ch-empty">這個技能沒有可畫成折線圖的逐級數值。</p>';
+            const cur = currentSkillLevels[skill.id] || null;
+            // 逐級數值表（等級 × 各項目）
+            let table = '';
+            if (main.length) {
+                const lvs = [...new Set(main.flatMap(s => s.xs))].sort((a, b) => a - b);
+                const head = main.map(s => `<th>${s.label}${s.unit ? '（' + s.unit + '）' : ''}</th>`).join('');
+                const rows = lvs.map(lv => `<tr><th>Lv.${lv}</th>${main.map(s => { const k = s.xs.indexOf(lv); return `<td>${k >= 0 ? fmtNum(s.ys[k]) : '-'}</td>`; }).join('')}</tr>`).join('');
+                table = `<details class="ch-table"><summary>逐級數值表</summary><div class="ch-table-scroll"><table><tr><th>等級</th>${head}</tr>${rows}</table></div></details>`;
+            }
+            const ms = extra.map(intMilestones).join('');
+            const charts = all.map((s, i) => chartHtml(s, s.group ? null : cur, i)).join('');
+            const box = document.createElement('div');
+            box._series = all;
+            window.__chartSeries = window.__chartSeries || {};
+            window.__chartSeries[skill.id] = all;
+            return `<div class="ch-hint">滑鼠移到線上（手機用手指按住）可看每一級的數值；每張圖是一個項目，標題就是這條線代表的意思。</div><div class="ch-grid" data-skill="${skill.id}">${charts}</div>${ms}${table}`;
+        }
+        // 折線圖的滑鼠／觸控互動（事件委派）
+        function chartPointer(e) {
+            const svg = e.target.closest && e.target.closest('.ch-svg'); if (!svg) return;
+            const grid = svg.closest('.ch-grid'), card = svg.closest('.ch-card');
+            const s = (window.__chartSeries[grid.dataset.skill] || [])[+card.dataset.i]; if (!s) return;
+            const rect = svg.getBoundingClientRect(), { W, l, r, t, b, H } = CH;
+            const vx = (e.clientX - rect.left) / rect.width * W;
+            const x0 = s.xs[0], x1 = s.xs[s.xs.length - 1];
+            const rel = Math.min(1, Math.max(0, (vx - l) / (W - l - r)));
+            const target = x0 + rel * (x1 - x0);
+            let k = 0, best = Infinity; // 最近的資料點
+            const guess = Math.round(rel * (s.xs.length - 1));
+            for (let i = Math.max(0, guess - 3); i <= Math.min(s.xs.length - 1, guess + 3); i++) { const dd = Math.abs(s.xs[i] - target); if (dd < best) { best = dd; k = i; } }
+            let ymin = Math.min(...s.ys), ymax = Math.max(...s.ys); if (ymin === ymax) { ymin -= 1; ymax += 1; }
+            const cx = l + (x1 === x0 ? 0 : (s.xs[k] - x0) / (x1 - x0)) * (W - l - r);
+            const cy = t + (1 - (s.ys[k] - ymin) / (ymax - ymin)) * (H - t - b);
+            const g = svg.querySelector('.ch-guide'), h = svg.querySelector('.ch-hover'), tip = card.querySelector('.ch-tip');
+            g.setAttribute('x1', cx); g.setAttribute('x2', cx); g.style.display = ''; h.setAttribute('cx', cx); h.setAttribute('cy', cy); h.style.display = '';
+            const xl = (s.axis === '角色INT') ? 'INT ' : (s.axis && s.axis !== '레벨' ? s.axis + ' ' : 'Lv.');
+            tip.textContent = `${xl}${s.xs[k]}：${s.label} ${fmtNum(s.ys[k])}${s.unit || ''}`;
+            tip.style.display = '';
+            const px = cx / W * rect.width; tip.style.left = Math.min(Math.max(px, 60), rect.width - 60) + 'px';
+        }
+        function chartLeave(e) {
+            const svg = e.target.closest && e.target.closest('.ch-svg'); if (!svg) return;
+            const card = svg.closest('.ch-card');
+            svg.querySelector('.ch-guide').style.display = 'none'; svg.querySelector('.ch-hover').style.display = 'none'; card.querySelector('.ch-tip').style.display = 'none';
+        }
+        document.addEventListener('pointermove', chartPointer);
+        document.addEventListener('pointerdown', chartPointer);
+        document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.ch-svg')) e.preventDefault(); });
+        document.addEventListener('selectstart', e => { if (e.target.closest && e.target.closest('.ch-svg')) e.preventDefault(); });
+        document.addEventListener('pointerup', e => { if (e.pointerType === 'touch' && e.target.closest && e.target.closest('.ch-svg')) setTimeout(() => chartLeave(e), 1500); });
+        document.addEventListener('pointerout', e => { if (e.target.closest && e.target.closest('.ch-svg') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.ch-svg') === e.target.closest('.ch-svg'))) chartLeave(e); });
+
+        // ================= 分享：複製連結／下載完整 HTML；打開分享的頁面可直接看到完整點法 =================
+        // --- 短分享碼：<職業代號>.<等級>.<各技能等級（base36，連續的 0 壓成 _數量）> ---
+        function skillOrderFor(jobKey) {
+            const job = allProfessionsData[jobKey];
+            const cur = job.jobStagesOrder.flatMap(st => (job.skills[st] || []).map(s => s.id));
+            const base = (typeof artaleCodes !== 'undefined' && artaleCodes[jobKey]) ? artaleCodes[jobKey].slice() : [];
+            cur.forEach(id => { if (!base.includes(id)) base.push(id); });
+            return base;
+        }
+        function encodeBuildCode(jobKey, levels) {
+            const order = skillOrderFor(jobKey);
+            let out = '', zeros = 0;
+            const flush = () => { while (zeros > 0) { if (zeros >= 3) { const n = Math.min(zeros, 35); out += '_' + n.toString(36); zeros -= n; } else { out += '0'.repeat(zeros); zeros = 0; } } };
+            order.forEach(id => { const v = Math.min(35, levels[id] || 0); if (v === 0) zeros++; else { flush(); out += v.toString(36); } });
+            return out; // 結尾的 0 直接省略
+        }
+        function decodeBuildCode(jobKey, code) {
+            const order = skillOrderFor(jobKey), map = {}; let k = 0;
+            for (let i = 0; i < code.length; i++) {
+                const c = code[i];
+                if (c === '_') { k += parseInt(code[i + 1], 36) || 0; i++; }
+                else { const v = parseInt(c, 36); if (v > 0 && order[k]) map[order[k]] = v; k++; }
+            }
+            return Object.entries(map).map(([id, v]) => id + ':' + v).join(',');
+        }
+        function buildShareParams() {
+            const eng = findEnglishKeyByMixedKey(currentProfessionKey);
+            if (!eng) return null;
+            const params = new URLSearchParams({ b: eng + '.' + currentLevel + '.' + encodeBuildCode(currentProfessionKey, currentSkillLevels) });
+            const note = getNoteText().trim();
+            if (note && note.length <= NOTE_MAX_IN_LINK) params.set('n', encodeNoteForLink(note));
+            if (specialCaseOn && currentProfessionData.specialCase) params.set('x', '1');
+            return params;
+        }
+        function shareBuild() {
+            let ov = document.getElementById('shareDialog');
+            if (!ov) {
+                ov = document.createElement('div');
+                ov.id = 'shareDialog'; ov.className = 'sd-overlay';
+                ov.innerHTML = `<div class="sd-card" role="dialog" aria-modal="true" aria-labelledby="sh-title"><h3 id="sh-title">分享我的配點</h3>
+                    <p class="sh-desc">對方打開後，會直接看到你現在完整的點法。</p>
+                    <button type="button" class="sh-opt" id="sh-link"><b>複製分享連結</b><span>很短的一串網址，朋友點開就是你的配點（需要網站在線上）</span></button>
+                    <button type="button" class="sh-opt" id="sh-file"><b>下載完整 HTML 檔</b><span>一個檔案，雙擊就能開，不用網路</span></button>
+                    <p class="sh-note" id="sh-note"></p><p class="sh-msg" id="sh-msg"></p><button type="button" class="sd-close sh-close" id="sh-close">關閉</button></div>`;
+                document.body.appendChild(ov);
+                const close = () => ov.classList.remove('show');
+                ov.addEventListener('click', e => { if (e.target === ov) close(); });
+                ov.querySelector('#sh-close').addEventListener('click', close);
+                ov.querySelector('#sh-link').addEventListener('click', async () => {
+                    const p = buildShareParams(), msg = ov.querySelector('#sh-msg');
+                    if (!p) { msg.textContent = '找不到職業代碼，無法產生連結。'; return; }
+                    const base = location.href.split('#')[0].split('?')[0];
+                    const url = base + '?' + p.toString();
+                    const local = !/^https?:$/.test(location.protocol) || /^(localhost|127\.|192\.168\.)/.test(location.hostname);
+                    try { await navigator.clipboard.writeText(url); msg.textContent = local ? '已複製。注意：目前是在本機開啟，這個連結只有這台電腦打得開；網站上線後再分享連結即可。' : '已複製連結，傳給朋友就能看到你的完整點法。'; }
+                    catch (e) { window.prompt('請手動複製這個連結：', url); }
+                });
+                ov.querySelector('#sh-file').addEventListener('click', async () => {
+                    ov.querySelector('#sh-msg').textContent = '產生中…'; await exportBuildHtml(); ov.querySelector('#sh-msg').textContent = '';
+                    close();
+                });
+            }
+            const nl = getNoteText().trim().length, nm = ov.querySelector('#sh-note');
+            nm.textContent = nl === 0 ? '提醒：你還沒寫「配點思路」，寫了的話對方也看得到。' : (nl <= NOTE_MAX_IN_LINK ? '配點思路 ' + nl + ' 字，連結會一併帶上。' : '配點思路 ' + nl + ' 字超過 ' + NOTE_MAX_IN_LINK + ' 字，連結不會帶上；要完整分享請用「下載完整 HTML 檔」。');
+            ov.querySelector('#sh-msg').textContent = '';
+            ov.classList.add('show');
+        }
+        function renderSharedSummary() {
+            const old = document.getElementById('sharedSummary'); if (old) old.remove();
+            const order = currentProfessionData.jobStagesOrder; let total = 0; const rows = [];
+            order.forEach(st => {
+                const items = (skillsData[st] || []).filter(s => (currentSkillLevels[s.id] || 0) > 0); if (!items.length) return;
+                const sum = items.reduce((a, s) => a + currentSkillLevels[s.id], 0); total += sum;
+                rows.push(`<div class="ss-stage"><div class="ss-h">${st}<small>${sum} 點</small></div><div class="ss-chips">${items.map(s => `<span class="ss-chip">${s.name}<b>${currentSkillLevels[s.id]}</b>${currentSkillLevels[s.id] >= s.maxLevel ? '<i>滿</i>' : ''}</span>`).join('')}</div></div>`);
+            });
+            if (!rows.length) return;
+            const card = document.createElement('section');
+            card.id = 'sharedSummary'; card.className = 'shared-summary';
+            card.innerHTML = `<div class="ss-top"><div><div class="ss-title">分享的配點</div><div class="ss-sub">${currentProfessionKey.split(' ')[0]}　Lv.${currentLevel}　共 ${total} 點</div></div><button type="button" class="ss-toggle">收起</button></div><div class="ss-body">${rows.join('')}</div>`;
+            card.querySelector('.ss-toggle').addEventListener('click', function () { const b = card.querySelector('.ss-body'); b.hidden = !b.hidden; this.textContent = b.hidden ? '展開' : '收起'; });
+            const anchor = document.querySelector('#simView .container') || document.querySelector('.container');
+            anchor.parentNode.insertBefore(card, anchor);
+        }
+
+        // ================= 配點思路（每個職業各存一份在瀏覽器，分享時一併帶出） =================
+        const NOTE_MAX_IN_LINK = 200; // 連結最多帶 200 字；超過請用「下載完整 HTML 檔」
+        function noteKey(jobKey) { return 'artale-note::' + jobKey; }
+        function getNoteText() { const el = document.getElementById('buildNoteInput'); return el ? el.value : ''; }
+        function updateNoteCount() { const el = document.getElementById('buildNoteInput'), c = document.getElementById('bnCount'); if (el && c) c.textContent = el.value.length.toLocaleString('en-US') + ' / ' + el.maxLength.toLocaleString('en-US'); }
+        function loadNoteForJob(jobKey) {
+            const el = document.getElementById('buildNoteInput'); if (!el) return;
+            let v = ''; try { v = localStorage.getItem(noteKey(jobKey)) || ''; } catch (e) { }
+            el.value = v; updateNoteCount();
+        }
+        function encodeNoteForLink(text) {
+            const bytes = new TextEncoder().encode(text); let bin = '';
+            bytes.forEach(b => bin += String.fromCharCode(b));
+            return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+        function decodeNoteFromLink(s) {
+            try {
+                s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '=';
+                const bin = atob(s), bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                return new TextDecoder().decode(bytes);
+            } catch (e) { return ''; }
+        }
+        (function initNoteBox() {
+            const el = document.getElementById('buildNoteInput'); if (!el) return;
+            el.addEventListener('input', () => {
+                updateNoteCount();
+                try { localStorage.setItem(noteKey(currentProfessionKey), el.value); } catch (e) { }
+            });
+        })();
+        // 0 轉（新手）技能只能用那 6 點，不能動用 1 轉以後的點數
+        function zeroCapBlocks(stageKey, add) {
+            const cap = currentProfessionData && currentProfessionData.beginnerSp;
+            if (!cap || !stageKey || !stageKey.startsWith('0轉')) return false;
+            return getSpentSpInJobStage(stageKey) + add > cap;
+        }
+        // ===== 特例（目前只有閃雷悍將）：1~3 轉技能全點滿也不到 4 轉需求時，可手動開啟「特例」 =====
+        let specialCaseOn = false;
+        function maxPointsStage1to3() {
+            const o = currentProfessionData.jobStagesOrder;
+            return [1, 2, 3].reduce((a, i) => a + (currentProfessionData.skills[o[i]] || []).reduce((x, s) => x + s.maxLevel, 0), 0);
+        }
+        // 實際使用的 4 轉需求：特例開啟時 = min(原需求, 1~3 轉全部點滿的總點數)
+        function effectiveReq4th() {
+            const req = currentProfessionData.spRequiredFor4thJob || 0;
+            return (specialCaseOn && currentProfessionData.specialCase) ? Math.min(req, maxPointsStage1to3()) : req;
+        }
+        function setSpecialCase(on) {
+            specialCaseOn = !!on;
+            const b = document.getElementById('specialCaseBtn');
+            if (b) { b.classList.toggle('on', specialCaseOn); b.setAttribute('aria-pressed', specialCaseOn ? 'true' : 'false'); }
+            updateUI();
+        }
+        (function initSpecialBtn() {
+            const b = document.getElementById('specialCaseBtn'); if (!b) return;
+            b.addEventListener('click', () => setSpecialCase(!specialCaseOn));
+        })();
+        function spent1stJobForFull(v) { return v; }
+
+        // --- 手機：滿足下一轉需求時跳窗通知 ---
+        let stageFullPrev = null; // null = 還沒有基準（載入職業／分享連結／重置後第一次更新不跳窗）
+        function isMobileLike() {
+            return window.matchMedia('(max-width: 768px)').matches ||
+                (window.matchMedia('(pointer: coarse)').matches && window.innerWidth <= 1024);
+        }
+        function showStageDialog(title, msg, nextStageKey) {
+            let ov = document.getElementById('stageDialog');
+            if (!ov) {
+                ov = document.createElement('div');
+                ov.id = 'stageDialog';
+                ov.innerHTML = '<div class="sd-card" role="dialog" aria-modal="true" aria-labelledby="sd-title"><div class="sd-icon">✓</div><h3 id="sd-title"></h3><p id="sd-msg"></p><div class="sd-actions"><button type="button" id="sd-go" class="sd-go"></button><button type="button" id="sd-close" class="sd-close">知道了</button></div></div>';
+                document.body.appendChild(ov);
+                const close = () => { ov.classList.remove('show'); };
+                ov.addEventListener('click', e => { if (e.target === ov) close(); });
+                ov.querySelector('#sd-close').addEventListener('click', close);
+                ov.querySelector('#sd-go').addEventListener('click', () => {
+                    close();
+                    const key = ov.dataset.next;
+                    const h = [...document.querySelectorAll('.skill-section > h2')].find(x => key && x.textContent.trim().startsWith(key.split(' ')[0]));
+                    if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+            ov.querySelector('#sd-title').textContent = title;
+            ov.querySelector('#sd-msg').textContent = msg;
+            ov.dataset.next = nextStageKey || '';
+            ov.querySelector('#sd-go').textContent = '前往' + (nextStageKey ? nextStageKey.split(' ')[0].replace(/^1/, '一').replace(/^2/, '二').replace(/^3/, '三').replace(/^4/, '四') : '下一轉');
+            ov.querySelector('#sd-go').style.display = nextStageKey ? '' : 'none';
+            ov.classList.add('show');
+        }
+        function checkStageFull(flags, spents, reqs) {
+            const names = ['一轉', '二轉', '三轉'], next = ['二轉', '三轉', '四轉'];
+            const order = currentProfessionData.jobStagesOrder;
+            if (stageFullPrev === null) { stageFullPrev = flags.slice(); return; }
+            for (let i = 0; i < 3; i++) {
+                if (flags[i] && !stageFullPrev[i] && isMobileLike()) {
+                    showStageDialog(names[i] + '點滿了', '累積點數 ' + spents[i] + ' / ' + reqs[i] + '，已滿足' + next[i] + '的需求，可以開始點' + next[i] + '技能。', order[i + 2]);
+                }
+            }
+            stageFullPrev = flags.slice();
         }
 
         // --- 更新 UI 顯示 ---
@@ -1158,9 +1494,26 @@
 
             const spentSp3rdJob = getSpentSpInJobStage(jobStagesOrder[3] || "");
             const spentSp3rdJobTotal = spentSp2ndJobTotal + spentSp3rdJob;
-            const reqSp4thJob = currentProfessionData.spRequiredFor4thJob || 0;
+            const specialBtn = document.getElementById('specialCaseBtn');
+            if (specialBtn) { specialBtn.hidden = !currentProfessionData.specialCase; specialBtn.classList.toggle('on', specialCaseOn && !!currentProfessionData.specialCase); }
+            const reqSp4thJob = effectiveReq4th();
             document.getElementById('spentSp_3rdJob_total').textContent = spentSp3rdJobTotal;
             document.getElementById('reqSp_4thJob').textContent = reqSp4thJob;
+
+            // --- 滿需求提示 ---
+            const setFull = (id, spent, req, text, nextName) => {
+                const el = document.getElementById(id); if (!el) return;
+                if (req > 0 && spent >= req) { el.textContent = text; el.classList.remove('sp-need'); }
+                else if (req > 0 && spent > 0) { el.textContent = '還差 ' + (req - spent) + ' 點，才能點' + nextName; el.classList.add('sp-need'); }
+                else { el.textContent = ''; el.classList.remove('sp-need'); }
+            };
+            setFull('full_1st', spent1stJobForFull(spentSp1stJob), reqSp2ndJob, '一轉滿（滿需求，請點二轉）', '二轉');
+            setFull('full_2nd', spentSp2ndJobTotal, reqSp3rdJob, '二轉滿（滿需求，請點三轉）', '三轉');
+            setFull('full_3rd', spentSp3rdJobTotal, reqSp4thJob, '三轉滿（滿需求，請點四轉）', '四轉');
+
+            checkStageFull(
+                [reqSp2ndJob > 0 && spentSp1stJob >= reqSp2ndJob, reqSp3rdJob > 0 && spentSp2ndJobTotal >= reqSp3rdJob, reqSp4thJob > 0 && spentSp3rdJobTotal >= reqSp4thJob],
+                [spentSp1stJob, spentSp2ndJobTotal, spentSp3rdJobTotal], [reqSp2ndJob, reqSp3rdJob, reqSp4thJob]);
 
             // --- 更新所有技能的按鈕狀態和詳情 ---
             currentProfessionData.jobStagesOrder.forEach(jobStageKey => {
@@ -1229,6 +1582,11 @@
                 }
             }
 
+            // 0 轉（新手）已用滿 6 點就不能再加
+            if (jobStageKeyOfSkill.startsWith('0轉') && currentProfessionData.beginnerSp && getSpentSpInJobStage(jobStageKeyOfSkill) >= currentProfessionData.beginnerSp) {
+                return false;
+            }
+
             // 3. 檢查轉職點數總和要求
             const currentJobIndex = currentProfessionData.jobStagesOrder.indexOf(jobStageKeyOfSkill);
 
@@ -1259,7 +1617,7 @@
                     totalSpentInPrevJobs += getSpentSpInJobStage(currentProfessionData.jobStagesOrder[i]);
                 }
                 // 使用 currentProfessionData 中定義的動態閾值 (spRequiredFor4thJob)
-                if (totalSpentInPrevJobs < currentProfessionData.spRequiredFor4thJob) {
+                if (totalSpentInPrevJobs < effectiveReq4th()) {
                     return false;
                 }
             }
@@ -1319,7 +1677,8 @@
             const canIncrease =
                 currentSkillLevels[skillId] < skill.maxLevel &&
                 remainingSp > 0 &&
-                checkOverallSkillConditions(skill, jobStageKey);
+                checkOverallSkillConditions(skill, jobStageKey) &&
+                !zeroCapBlocks(jobStageKey, 1);
 
             if (canIncrease) {
                 currentSkillLevels[skillId]++;
@@ -1386,32 +1745,79 @@
         }
 
         // --- 分享配點 ---
-        async function shareBuild() {
-            const baseUrl = window.location.origin + window.location.pathname;
-
-            const skillsToShare = [];
-            for (const skillId in currentSkillLevels) {
-                if (currentSkillLevels[skillId] > 0) {
-                    skillsToShare.push(`${skillId}:${currentSkillLevels[skillId]}`);
+        async function exportBuildHtml() {
+            // 分享 = 匯出「已點好的完整 HTML 檔」：把頁面、資料、樣式、圖片全部包進一個檔案，對方雙擊就能開
+            const btn = document.querySelector('.share-button');
+            const oldText = btn ? btn.textContent : '';
+            if (btn) { btn.disabled = true; btn.textContent = '產生中…'; }
+            try {
+                const skillsToShare = [];
+                for (const skillId in currentSkillLevels) {
+                    if (currentSkillLevels[skillId] > 0) skillsToShare.push(`${skillId}:${currentSkillLevels[skillId]}`);
                 }
+                const englishProfKey = findEnglishKeyByMixedKey(currentProfessionKey);
+                if (!englishProfKey) { alert('錯誤：找不到職業的英文代碼，無法匯出。'); return; }
+                const search = '?' + new URLSearchParams({ prof: englishProfKey, lvl: currentLevel, skills: skillsToShare.join(',') }).toString();
+
+                const getText = async (url) => { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) throw new Error(url + ' ' + r.status); return r.text(); };
+                const pageUrl = window.location.href.split('#')[0].split('?')[0];
+                let html = await getText(pageUrl);
+
+                // 1) 內嵌 JS / CSS
+                const inlineScript = async (re) => {
+                    const m = html.match(re); if (!m) return;
+                    const code = (await getText(m[1])).replace(/<\/script/gi, '<\\/script');
+                    html = html.replace(m[0], () => '<scr' + 'ipt>' + code + '</scr' + 'ipt>');
+                };
+                await inlineScript(/<script src="(official-data\.js[^"]*)"><\/script>/);
+
+
+                const cssM = html.match(/<link rel="stylesheet" href="(edward-style\.css[^"]*)">/);
+                if (cssM) { const css = await getText(cssM[1]); html = html.replace(cssM[0], () => '<sty' + 'le>' + css + '</sty' + 'le>'); }
+
+                // 2) 內嵌圖片（目前職業用到的技能圖＋介面圖；大圖先縮小）
+                const toDataUrl = async (path, maxW) => {
+                    try {
+                        const r = await fetch(path, { cache: 'force-cache' }); if (!r.ok) return null;
+                        const blob = await r.blob();
+                        if (!maxW) return await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(blob); });
+                        const bmp = await createImageBitmap(blob);
+                        const scale = Math.min(1, maxW / bmp.width);
+                        const c = document.createElement('canvas'); c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+                        c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+                        return c.toDataURL(path.endsWith('.png') && path.includes('title-icon') ? 'image/png' : 'image/jpeg', 0.8);
+                    } catch (e) { return null; }
+                };
+                const jobs = [];
+                for (const arr of Object.values(currentProfessionData.skills)) for (const s of arr) if (s.imageUrl) jobs.push([s.imageUrl, 0]);
+                jobs.push(['ui/title-icon.svg', 0]);
+                const seen = new Set();
+                const imgMap = {};
+                for (const [path, w] of jobs) {
+                    if (seen.has(path)) continue; seen.add(path);
+                    const du = await toDataUrl(path, w);
+                    if (!du) continue;
+                    if (path.includes('patch_') || path.includes('/c_')) imgMap[path] = du; else html = html.split(path).join(du);
+                }
+                html = html.replace(/<link rel="icon"[^>]*>/, '');
+
+                // 3) 寫入已點好的狀態；匯出檔內不再顯示分享鈕與回首頁連結
+                const inject = '<scr' + 'ipt>window.__SNAPSHOT_SEARCH=' + JSON.stringify(search) + ';window.__SNAPSHOT_NOTE=' + JSON.stringify(getNoteText().trim()).replace(/</g, '\\u003c') + ';window.__IMG=' + JSON.stringify(imgMap) + ';</scr' + 'ipt><style>.share-button{display:none!important}.title-link{pointer-events:none}</style>';
+                html = html.replace('<head>', () => '<head>' + inject).replace('href="official-index.html"', 'href="#"');
+
+                const jobName = professionNameMap[englishProfKey] || englishProfKey;
+                const fname = `Artale配點_${jobName}_Lv${currentLevel}.html`;
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+                a.download = fname; document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+                alert('已匯出：' + fname + '\n把這個檔案傳給朋友，雙擊即可開啟你點好的配點（不用網路）。');
+            } catch (e) {
+                console.error(e);
+                alert('匯出失敗：' + e.message + '\n請用本機伺服器或網站開啟本頁後再試。');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = oldText; }
             }
-
-            // --- 新增：從混合 key 中提取英文 key，確保分享連結使用標準格式 ---
-            const englishProfKey = findEnglishKeyByMixedKey(currentProfessionKey);
-            if (!englishProfKey) {
-                alert("錯誤：無法生成分享連結，找不到職業的英文代碼。");
-                return;
-            }
-
-            const params = new URLSearchParams({
-                prof: englishProfKey,
-                lvl: currentLevel,
-                skills: skillsToShare.join(',')
-            });
-
-            const shareUrl = `${baseUrl}?${params.toString()}`;
-            await navigator.clipboard.writeText(shareUrl);
-            alert('配點連結已複製到剪貼簿！\n現在可以將連結傳給朋友了。');
         }
         // --- 點滿技能函式 ---
         function maxSkill(skillId) {
@@ -1435,7 +1841,8 @@
                 spNeeded > 0 && // 還有點數可點
                 remainingSp >= spNeeded && // 剩餘SP足夠
                 currentLevel >= skill.requiredLevel && // 角色等級符合
-                checkOverallSkillConditions(skill, jobStageKey); // 其他條件也符合 (前置技能，轉職總SP等)
+                checkOverallSkillConditions(skill, jobStageKey) && // 其他條件也符合 (前置技能，轉職總SP等)
+                !zeroCapBlocks(jobStageKey, spNeeded); // 0 轉只有 6 點
 
             if (canMax) {
                 currentSkillLevels[skillId] = skill.maxLevel;
@@ -1445,7 +1852,8 @@
             } else {
                 // 如果不能點滿，可以在這裡添加一些提示（例如：點數不足、等級不足、前置技能未滿等）
                 // 為了簡潔，這裡暫時不顯示具體提示
-                alert(`無法點滿技能 ${skill.name}：點數不足、等級不足或前置條件未滿足。`);
+                if (spNeeded > 0 && zeroCapBlocks(jobStageKey, spNeeded)) alert(`0 轉（新手）技能最多只能點 ${currentProfessionData.beginnerSp} 點，${skill.name} 無法再點滿。`);
+                else alert(`無法點滿技能 ${skill.name}：點數不足、等級不足或前置條件未滿足。`);
             }
         }
 
@@ -1512,84 +1920,11 @@
             preReqsDiv.style.display = 'flex'; // 有前置技能時顯示
         }
 
-        // --- 新增：顯示推薦配點詳情 ---
-        function showBuildDetails(buildIndex) {
-            const container = document.getElementById('buildDetailsContainer');
-            const select = document.getElementById('recommendedBuildSelect');
 
-            if (buildIndex === "") {
-                container.style.display = 'none';
-                return;
-            }
 
-            const build = recommendedBuilds[currentProfessionKey][parseInt(buildIndex, 10)];
-            if (!build) return;
 
-            // 填充詳情內容
-            document.getElementById('buildDetailName').textContent = build.name;
-            document.getElementById('buildDetailDescription').textContent = build.description;
-            document.getElementById('buildDetailPriority').textContent = build.priority;
 
-            // 顯示詳情區塊
-            container.style.display = 'flex';
 
-            // 處理 "載入此配點" 按鈕的點擊事件
-            const loadBtn = document.getElementById('loadBuildBtn');
-            // 複製並取代按鈕以移除舊的監聽器，避免重複觸發
-            const newLoadBtn = loadBtn.cloneNode(true);
-            loadBtn.parentNode.replaceChild(newLoadBtn, loadBtn);
-
-            newLoadBtn.onclick = () => {
-                // 建立當前職業的技能名稱映射表
-                const skillNameMap = createSkillNameMap(currentProfessionKey);
-
-                // 載入配點指定的等級
-                currentLevel = build.level;
-                document.getElementById('levelInput').value = currentLevel;
-
-                // 重置技能點數並應用新配點
-                Object.keys(currentSkillLevels).forEach(id => currentSkillLevels[id] = 0);
-                build.skills.split(',').forEach(pair => {
-                    const [name, lvl] = pair.split(':');
-                    const skillId = skillNameMap[name.trim()]; // 使用映射表找到ID
-
-                    if (skillId && lvl && currentSkillLevels.hasOwnProperty(skillId)) {
-                        currentSkillLevels[skillId] = parseInt(lvl, 10);
-                    } else {
-                        console.warn(`警告：在推薦配點 "${build.name}" 中找不到技能名稱 "${name}" 或其ID "${skillId}"。`);
-                    }
-                });
-
-                // 重新計算SP並更新UI
-                spentSp = Object.values(currentSkillLevels).reduce((a, b) => a + b, 0);
-                remainingSp = calculateMaxSp(currentLevel) - spentSp;
-                updateUI();
-                closeBuildDetails(); // 載入後關閉詳情
-            };
-        }
-
-        // --- 新增：關閉推薦配點詳情 ---
-        function closeBuildDetails() {
-            document.getElementById('buildDetailsContainer').style.display = 'none';
-            document.getElementById('recommendedBuildSelect').value = "";
-        }
-
-        // --- 新增：開啟貢獻配點表單 ---
-        function openContributionForm() {
-            const instructions = `感謝您願意分享配點！
-
-操作教學：
-1. 在模擬器中完成您的配點。
-2. 點擊「分享」按鈕，配點連結將會自動複製。
-3. 在接下來開啟的表單中，將連結貼到對應的欄位即可。
-
-準備好要分享了嗎？ (點擊 "確定" 將會開啟表單)`;
-
-            if (confirm(instructions)) {
-                const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdgOrzO3ywc5gwFq1Si9gken-Da9QKephcJu8HHjMZru-TDMA/viewform?usp=preview';
-                window.open(formUrl, '_blank');
-            }
-        }
 
         // --- 新增：處理技能等級手動輸入 ---
         function getJobStageKeyForSkill(skillId) {
@@ -1631,6 +1966,11 @@
                     return;
                 }
                 const jobStageKey = getJobStageKeyForSkill(skillId);
+                if (zeroCapBlocks(jobStageKey, spChange)) {
+                    alert('0 轉（新手）技能最多只能點 ' + currentProfessionData.beginnerSp + ' 點。');
+                    inputElement.value = oldLevel;
+                    return;
+                }
                 if (!checkOverallSkillConditions(skill, jobStageKey)) {
                     alert("未滿足前置條件或等級需求！");
                     inputElement.value = oldLevel; // 還原
@@ -1644,8 +1984,8 @@
                     if (currentSkillLevels[skId] > 0) {
                         const otherSkill = getSkillById(skId);
                         const otherSkillJobStage = getJobStageKeyForSkill(skId);
-                        if (otherSkill && !checkOverallSkillConditions(otherSkill, otherSkillJobStage)) {
-                            isChangeValid = false; // 這裡的邏輯需要更精確，確保只在真正破壞前置時才阻止
+                        if (otherSkill && !checkOverallSkillConditions(otherSkill, otherSkillJobStage) && otherSkill.preRequisite && otherSkill.preRequisite.hasOwnProperty(skillId)) {
+                            isChangeValid = false; // 只有「真的把這個技能列為前置」的技能才會擋，不再誤怪別的技能
                             alert(`無法減少 ${skill.name} 的等級，因為技能 "${otherSkill.name}" 需要它作為前置條件。`);
                             break;
                         }
@@ -1681,7 +2021,12 @@
             const inputElement = document.getElementById('levelInput');
             let newLevel = parseInt(inputElement.value);
 
-            if (isNaN(newLevel) || newLevel < 1) {
+            // 只在輸入完成（按 Enter 或離開欄位）時才檢查；空白或不合法就退回目前等級，不再卡在 1
+            if (isNaN(newLevel)) {
+                inputElement.value = currentLevel;
+                return;
+            }
+            if (newLevel < 1) {
                 newLevel = 1;
                 inputElement.value = 1;
             }
@@ -1750,7 +2095,7 @@
         initializeSimulator();
         setupBackToTopButton();
     </script>
-<script src="edward-nav.js?v=r152"></script>
+<script src="edward-nav.js?v=r153"></script>
 </body>
 
 

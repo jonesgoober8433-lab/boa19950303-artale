@@ -135,6 +135,6 @@ $('swap').onclick=()=>{const t=$('from').value;$('from').value=$('to').value;$('
 ['from','to'].forEach(id=>{$(id).addEventListener('keydown',e=>{if(e.key==='Enter')show()});$(id).addEventListener('change',()=>{if($('from').value&&$('to').value)show()})});
 $('chips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const m=c.dataset.m;if(!$('from').value)$('from').value=m;else if(!$('to').value)$('to').value=m;else{$('from').value=m;$('to').value=''}syncOrig();if($('from').value&&$('to').value)show()});
 </script>
-<script src="edward-nav.js?v=r152"></script>
+<script src="edward-nav.js?v=r153"></script>
 </body>
 </html>

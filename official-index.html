@@ -4,9 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="ui/favicon.ico">
-    <title>Artale技能模擬器 - 首頁</title>
-    
+        <meta property="og:type" content="website">
+    <meta property="og:site_name" content="阿泰爾工具箱">
+    <meta property="og:title" content="阿泰爾工具箱｜技能模擬器、地圖指引、命中計算">
+    <meta property="og:description" content="阿泰爾（Artale）魔改版免費工具：技能模擬器、魔改存檔、地圖指引、命中計算、升級時間等 9 個工具。">
+    <meta property="og:image" content="https://jonesgoober8433-lab.github.io/boa19950303-artale/og-image.png?v=2">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="試點轉職技能點數，17 個職業（含皇家騎士團）。">
+    <link rel="icon" type="image/svg+xml" href="ui/title-icon.svg">
+    <title>Artale技能模擬器 - 首頁（正式版）</title>
+
     <script src="official-data.js"></script>
     <style>
         /* --- 借用 simulator.html 的基礎樣式 --- */
@@ -479,93 +486,33 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+    <link rel="stylesheet" href="edward-style.css?v=r134">
 </head>
 
 <body>
     <div class="page-container">
-        <h1><img src="ui/title-icon.png" alt="標題圖示" class="title-icon">Artale技能模擬器</h1>
+        <h1><img src="ui/title-icon.svg" alt="標題圖示" class="title-icon">Artale技能模擬器</h1>
 
         <div id="professionSelection" class="content-section">
             <h2>選擇職業</h2>
-            <div id="professionGrid" class="profession-selection-grid">
+            <div id="professionGrid" class="job-groups">
                 <!-- 職業卡片將由 JS 動態生成 -->
             </div>
         </div>
 
-        <div id="updateLog" class="content-section">
-            <h2>更新日誌</h2>
-            <ul>
-                  <li>
-                    <span class="date">2026-01-23</span>
-                    1.修正四轉全職業技能係數。<br>
-                    
-                
-                </li>
-                <li>
-                    <span class="date">2025-09-23</span>
-                    1.修正技能：妙手術、格擋技能係數。<br>
-                    2.增加技能等級減少需檢查前置的錯誤提示。<br>
-                
-                </li>
-                <li>
-                    <span class="date">2025-08-26</span>
-                    1.增加首頁、更新日誌。<br>
-                    2.返回最上按鈕
-                </li>
-                <li>
-                    <span class="date">2025-08-24</span>
-                    1.修正鷹之眼、詛咒術、隱身術、恢復術、吸血術、幸運術、影分身、喚化術、替身術等技能敘述與係數。<br>
-                    2.調整技能等級可手動輸入，操作更便利。
-                </li>
-                <li>
-                    <span class="date">2025-08-18</span>
-                    1.修正屬性攻擊、無形之箭、斷魂箭、致命暗襲、鬥神附體、蓄能激發、偽裝術<br>
-                    2.推薦配點功能開放<br>
-                    3.開放使用者撰寫推薦文表單(提交後1~2天會上傳)
-                </li>
-                <li>
-                    <span class="date">2025-08-16</span>
-                    1.開放4轉技能配點<br>
-                    2.修改分身術說明錯誤、二連箭、箭雨、替身術、冰雷合擊、落雷凝聚、自身強化、楓幣攻擊、偽裝術、偽裝射擊、緩降術、海鷗突擊隊、3連發<br>
-                    3.預設等級調整為200<br>
-                    4.優化職業徽章與背景展示
-                </li>
-                <li>
-                    <span class="date">2025-08-09</span>
-                    1.調整UI風格(WAP/PC端適用)<br>
-                    2.調整等級預設為100等<br>
-                    3.技能係數調整:二連箭、激勵、分身術、楓幣攻擊、幸運術。<br>
-                    4.刪除重複等級效果的文字說明<br>
-                    5.改善前置技能為預設顯示<br>
-                    6.增加"分享"功能，使用鏈結與好友分享配點。
-                </li>
-                <li>
-                    <span class="date">2025-08-04</span>
-                    1.調整120等四轉轉職成功獲得點數1→3點<br>
-                    2.修改騎士-寒冰之劍/棍、烈焰之劍/棍、雷鳴之劍/棍、屬性攻擊、反射盾技能係數。<br>
-                    3.網頁ICON添加
-                </li>
-            </ul>
-        </div>
-
         
 
-        <div id="recommendedBuilds" class="content-section">
-            <h2>推薦文列表</h2>
-            <div class="builds-filter-container">
-                <select id="professionFilter"></select>
-                <input type="text" id="buildsSearchInput" placeholder="搜尋標題或描述中的關鍵字...">
-            </div>
-            <div id="buildsList" class="builds-list">
-                <!-- 推薦配點將由 JS 動態生成 -->
-            </div>
-            <p id="noBuildsFound" class="no-results-message" style="display: none;">查無符合條件的推薦文</p>
+        <footer class="page-footer ig-footer">
+        <p class="intro-title">聰明理財，輕鬆生活</p>
+        <div class="intro">
+            <p><span class="ln">我是 Edward，本業是財務顧問。</span>
+                <span class="ln">每天做的事，就是打個阿泰爾以及幫人把關資產成長把錢算清楚、排整齊</span></p>
+            <p><span class="ln">這個模擬器是我遊戲之餘做的，免費給大家用</span>
+                <span class="ln">如果你也想把自己的財務理清楚，歡迎來找我聊</span></p>
         </div>
-
-        <footer class="page-footer">
-            <h2 class="footer-heading">Made by Jamox</h2> <!-- 使用 h2 並應用 class -->
-            <p>正式版（最初版）的資料與介面，原樣收錄自 <a href="https://jamox80.github.io/maplestory-skill-simulator/" target="_blank" rel="noopener noreferrer">Jamox 的 Artale 技能模擬器</a>。想看阿泰爾魔改版的新技能，請切換到上方的「測試版」。</p>
-        </footer>
+        <a class="ig-pill" href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>boa19950303</a>
+    </footer>
     </div>
 
     <!-- 回到頂部按鈕 -->
@@ -584,7 +531,12 @@
             "Shadower": "暗影神偷",
             "NightLord": "夜使者",
             "Buccaneer": "拳霸",
-            "Corsair": "槍神"
+            "Corsair": "槍神",
+            "SoulMaster": "聖魂劍士",
+            "FlameWizard": "烈焰巫師",
+            "WindBreaker": "破風使者",
+            "NightWalker": "暗夜行者",
+            "Striker": "閃雷悍將"
         };
 
         // 建立 key 的對照表，方便在不同格式間轉換
@@ -593,24 +545,42 @@
 
         // Function to generate profession selection grid
         function generateProfessionGrid() {
-            const grid = document.getElementById('professionGrid');
-            grid.innerHTML = '';
-            // 依照定義好的順序生成，確保排版一致
+            const root = document.getElementById('professionGrid');
+            root.innerHTML = '';
+            // 依職業資料的 group 分成「冒險家」「皇家騎士團」兩區；皇家騎士團是全新職業，特別標示
+            const groups = [
+                { name: '冒險家', cls: 'explorer', keys: [] },
+                { name: '皇家騎士團', cls: 'cygnus', keys: [], isNew: true, tip: '全新職業' }
+            ];
             for (const key of Object.keys(professionNameMap)) {
-                // 從英文 key (e.g., "Bishop") 找到 data.js 中的混合 key (e.g., "主教 (Bishop)")
                 const mixedKey = findMixedKeyByEnglishKey(key);
-                if (!mixedKey) continue; // 如果在 allProfessionsData 中找不到對應的資料，則跳過
-
-                const card = document.createElement('a');
-                card.className = 'profession-card';
-                // 連結到 simulator.html 並帶上職業參數
-                card.href = `official-simulator.html?prof=${encodeURIComponent(key)}`;
-                card.innerHTML = `
-                    <img src="emblems/${key.toLowerCase()}_color.png" alt="${key}" onerror="this.onerror=null;this.src='images/default.png';">
-                    <span>${professionNameMap[key]}</span>
-                `;
-                grid.appendChild(card);
+                if (!mixedKey) continue;
+                const g = (allProfessionsData[mixedKey].group === '皇家騎士團') ? groups[1] : groups[0];
+                g.keys.push({ key, mixedKey });
             }
+            groups.forEach(g => {
+                if (!g.keys.length) return;
+                const wrap = document.createElement('div');
+                wrap.className = 'job-group ' + g.cls;
+                wrap.innerHTML = `<h3 class="job-group-title">${g.name}<span class="job-group-count">${g.keys.length} 個職業</span>${g.isNew ? `<span class="new-badge">NEW ${g.tip}</span>` : ''}</h3>`;
+                const grid = document.createElement('div');
+                grid.className = 'profession-selection-grid';
+                g.keys.forEach(({ key, mixedKey }) => {
+                    const data = allProfessionsData[mixedKey];
+                    const card = document.createElement('a');
+                    card.className = 'profession-card' + (data.isNew ? ' is-new' : '');
+                    card.href = `official-simulator.html?prof=${encodeURIComponent(key)}`;
+                    const img = data.cardImage || `emblems/${key}_color.png`;
+                    card.innerHTML = `
+                        ${data.isNew ? '<em class="card-new">NEW</em>' : ''}
+                        <img src="${img}" alt="${key}" onerror="this.onerror=null;this.src='images/default.png';">
+                        <span>${professionNameMap[key]}</span>
+                    `;
+                    grid.appendChild(card);
+                });
+                wrap.appendChild(grid);
+                root.appendChild(wrap);
+            });
         }
 
         // Function to generate recommended builds list
@@ -853,16 +823,12 @@
                 try {
                     buildKeyMaps(); // 優先建立對照表
                     generateProfessionGrid();
-                    generateBuildsList();
-                    populateProfessionFilter(); // 填充職業篩選選單
                     setupUpdateLog(); // 初始化更新日誌顯示
                     setupBackToTopButton(); // 初始化回到頂部按鈕
-                    setupBuildsFilter(); // 初始化推薦文篩選功能
                 } catch (e) {
                     console.error("在生成頁面內容時發生錯誤:", e);
                     document.getElementById('professionGrid').innerHTML = `<p style="color: red; text-align: center;">頁面內容生成失敗，可能是 data.js 的資料格式有誤。<br>詳細錯誤請見瀏覽器開發者工具(F12)的 Console。</p>`;
                     // 清空推薦列表以防部分渲染
-                    document.getElementById('buildsList').innerHTML = '';
                 }
             } else {
                 const finalMessage = "錯誤：資料載入失敗！請檢查 data.js 檔案。\n" + errorMessages.join("\n");
@@ -871,7 +837,7 @@
             }
         });
     </script>
-<script src="edward-nav.js?v=r152"></script>
+<script src="edward-nav.js?v=r153"></script>
 </body>
 
 
