@@ -45,6 +45,7 @@ tbody tr:hover{background:var(--soft);cursor:pointer}
 tbody tr.me{background:#fdebd9;outline:2px solid #e0803a;outline-offset:-2px;font-weight:700}
 tbody td.l{font-weight:700;color:var(--accent)}
 .src{color:var(--muted);font-size:12.5px;margin:8px 0}
+.combo{display:flex;gap:8px}.combo input{flex:0 0 38%;min-width:0}.combo select{flex:1 1 0;min-width:0}
 .mrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.mrow input{width:90px}.mrow button{padding:2px 10px;font-size:13px}.mrow button.on{background:var(--accent);color:var(--accent-ink)}
 .pqinfo{background:var(--soft);border-radius:10px;padding:8px 12px;font-size:13.5px;margin-top:10px;line-height:1.7}.pqinfo b{color:var(--accent)}
 </style>
@@ -57,7 +58,7 @@ tbody td.l{font-weight:700;color:var(--accent)}
 <main>
   <section class="card">
     <div class="in">
-      <div><label for="lv">你的等級</label><select id="lv"></select></div>
+      <div><label for="lvIn">你的等級（可直接輸入，也可從右邊選）</label><div class="combo"><input id="lvIn" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 100"><select id="lv" aria-label="選擇你的等級"></select></div></div>
       <div><label for="pct">目前經驗進度 %（選填，沒填當 0%）</label><input id="pct" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>
     </div>
     <div class="tabs" role="tablist"><button type="button" class="tab" data-m="a">⚔️ 練功（每段時間拿多少經驗）</button><button type="button" class="tab" data-m="b">🎯 組隊任務（一場一場算）</button></div>
@@ -77,7 +78,7 @@ tbody td.l{font-weight:700;color:var(--accent)}
       <div class="in3" style="margin-top:10px">
         <div><label for="pmin">你實際一場多久（分鐘）</label><input id="pmin" type="text" inputmode="decimal" autocomplete="off" placeholder="例如 25"></div>
         <div><label for="pexp">一場獲得經驗（沒活動時的基本值）</label><input id="pexp" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 300000"></div>
-        <div><label for="tlv">想到的目標等級</label><select id="tlv"></select></div>
+        <div><label for="tlvIn">想到的目標等級（可直接輸入，也可從右邊選）</label><div class="combo"><input id="tlvIn" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 120"><select id="tlv" aria-label="選擇目標等級"></select></div></div>
       </div>
       <div class="in" style="margin-top:10px">
         <div><label for="pn">預計跑幾場（選填，算跑完會到幾級）</label><input id="pn" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 20"></div>
@@ -143,7 +144,8 @@ function state(){
   return {L,pct,remain:need(L)-done,abs:cum(L)+done};
 }
 // ---- 結果
-function calc(){
+function syncIn(){if(document.activeElement!==$('lvIn'))$('lvIn').value=$('lv').value;if(document.activeElement!==$('tlvIn'))$('tlvIn').value=$('tlv').value}
+function calc(){syncIn();
   const s=state(),L=s.L;let h='',col={t:'升級所需時間',f:null};
   if(MODE==='a'){
     const mins=num($('tmin').value),e=num($('e10').value),ok=mins>0&&e>0,N=mins>0?mins:10;
@@ -187,6 +189,11 @@ $('mult').addEventListener('input',()=>{store('mult',$('mult').value);document.q
 document.querySelectorAll('.mrow button').forEach(b=>b.addEventListener('click',()=>setMult(b.dataset.m)));
 $('lv').addEventListener('change',()=>{store('lv',$('lv').value);fillTarget();store('tlv',$('tlv').value);calc()});
 $('tlv').addEventListener('change',()=>{store('tlv',$('tlv').value);calc()});
+/* 等級可以輸入也可以選：打字時有效數字就即時計算，不改寫你打的字；離開欄位才整理 */
+$('lvIn').addEventListener('input',()=>{const v=parseInt($('lvIn').value.replace(/[^\d]/g,''),10);if(v>=1&&v<=199&&T.some(r=>r[0]===v)){$('lv').value=v;$('lv').dispatchEvent(new Event('change'))}});
+$('tlvIn').addEventListener('input',()=>{const v=parseInt($('tlvIn').value.replace(/[^\d]/g,''),10);if([...$('tlv').options].some(o=>+o.value===v)){$('tlv').value=v;$('tlv').dispatchEvent(new Event('change'))}});
+[['lvIn','lv'],['tlvIn','tlv']].forEach(x=>$(x[0]).addEventListener('blur',()=>{$(x[0]).value=$(x[1]).value}));
+['lvIn','tlvIn'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')$(id).blur()}));
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.m)));
 $('tb').addEventListener('click',e=>{const tr=e.target.closest('tr[data-l]');if(!tr)return;const l=+tr.dataset.l;if(l<=199){$('lv').value=l;store('lv',l);fillTarget();store('tlv',$('tlv').value);const y=$('tw').scrollTop;calc();$('tw').scrollTop=y}});
 function goMe(){const tr=document.querySelector('#tb tr.me');if(tr)$('tw').scrollTop=tr.offsetTop-$('tw').clientHeight/2+tr.clientHeight/2}
