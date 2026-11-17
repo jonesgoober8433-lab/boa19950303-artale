@@ -165,8 +165,8 @@ function calc(){syncIn();
     h=`<div class="res r3"><div><small>${L} 級升到 ${L+1} 級所需經驗</small><b>${nf(need(L))}</b></div><div><small>還差多少經驗${s.pct?`（已 ${s.pct}%）`:''}</small><b>${nf(s.remain)}</b></div><div><small>一場${mult!==1&&base>0?`（${nf(base)} × ${fx(mult,2)} 倍）`:''}</small><b>${ok?`${nf(e)} 經驗／${fx(mins,2)} 分`:'—'}</b></div></div>`;
     if(ok){
       const r1=s.remain/e,toT=cum(T2)-s.abs,r2=toT/e;
-      h+=`<div class="blk"><h3>① 升到下一級（${L} → ${L+1} 級）</h3><div class="res r3"><div><small>需要場數</small><b>${fx(r1,2)} 場</b></div><div class="big"><small>要跑滿幾場（進位）</small><b>${Math.ceil(r1-1e-9)} 場</b></div><div><small>總時間</small><b>${fmtTime(Math.ceil(r1-1e-9)*mins)}</b></div></div></div>`;
-      h+=`<div class="blk"><h3>② 到目標 ${T2} 級</h3><div class="res r3"><div><small>需要總經驗</small><b>${nf(toT)}</b></div><div class="big"><small>要跑幾場（進位）</small><b>${Math.ceil(r2-1e-9)} 場</b><small>約 ${fx(r2,2)} 場</small></div><div><small>總時間</small><b>${fmtTime(Math.ceil(r2-1e-9)*mins)}</b></div></div></div>`;
+      h+=`<div class="blk"><h3>① 升到下一級（${L} → ${L+1} 級）</h3><div class="res r3"><div><small>需要場數</small><b>${fx(r1,2)} 場</b></div><div class="big"><small>要跑滿幾場（進位）</small><b>${nf(Math.ceil(r1-1e-9))} 場</b></div><div><small>總時間</small><b>${fmtTime(Math.ceil(r1-1e-9)*mins)}</b></div></div></div>`;
+      h+=`<div class="blk"><h3>② 到目標 ${T2} 級</h3><div class="res r3"><div><small>需要總經驗</small><b>${nf(toT)}</b></div><div class="big"><small>要跑幾場（進位）</small><b>${nf(Math.ceil(r2-1e-9))} 場</b><small>約 ${fx(r2,2)} 場</small></div><div><small>總時間</small><b>${fmtTime(Math.ceil(r2-1e-9)*mins)}</b></div></div></div>`;
       if(n>0){const tot=s.abs+n*e;let lv=200;if(tot<cum(200)){lv=1;for(let l=1;l<=200;l++){if(cum(l)<=tot)lv=l;else break}}
         const where=lv>=200&&tot>=cum(200)?`已達 200 級（再多 ${nf(tot-cum(200))} 經驗）`:`${lv} 級 ${fx((tot-cum(lv))/need(lv)*100,2)}%`;
         h+=`<div class="blk"><h3>③ 跑 ${nf(n)} 場之後</h3><div class="res r3"><div><small>獲得經驗</small><b>${nf(n*e)}</b></div><div class="big"><small>會到</small><b>${where}</b></div><div><small>總時間</small><b>${fmtTime(n*mins)}</b></div></div></div>`}

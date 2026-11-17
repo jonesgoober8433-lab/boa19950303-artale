@@ -53,7 +53,7 @@ footer{color:var(--muted);font-size:12.5px;margin:20px 0 60px}
     <datalist id="dl"></datalist>
     <div class="row" id="origRow" hidden><label style="margin:0">🌏 <span id="origQ">這是世界導遊的目的地，你是從哪裡搭過來的？</span> </label><input type="hidden" id="orig"><span class="chips" id="origChips" style="margin:0"></span><span class="muted">在這裡只能搭回你來的地方。</span></div>
     <div class="row">
-      <label style="margin:0">最多走幾步 <input type="number" id="hop" value="8" min="1" max="15" style="width:72px;display:inline-block"></label>
+      
       <button class="p" id="go">查詢</button>
     </div>
     <div class="muted" style="margin-top:8px">點下面的地圖名稱，會填進目前空著的欄位（先填出發，再填目的地）：</div>
@@ -122,7 +122,7 @@ function show(){
   if(bad.length){el.innerHTML=`<div class="notice">資料裡沒有這些地圖：${bad.map(esc).join('、')}。請從下拉選單或下面的名稱挑選。</div>`;return}
   if(a===b){el.innerHTML='<span class="muted">出發和目的地是同一張地圖。</span>';return}
   if(ASK(a)&&!orig){el.innerHTML=`<div class="notice">「${esc(a)}」${DEST.includes(a)?'是搭世界導遊才到得了的地方':'是個幾乎獨立的地圖，要靠世界導遊離開'}。請先在上面選「從哪裡搭過來的」，這樣才知道你能搭回哪裡。</div>`;return}
-  const hop=Math.max(1,Math.min(15,+$('hop').value||8)),res=find(a,b,hop,60,orig);
+  const hop=8   /* 最多走幾步固定 8 步（使用者要求拿掉欄位） */,res=find(a,b,hop,60,orig);
   if(!res.length){el.innerHTML=`<div class="notice">找不到從「${esc(a)}」到「${esc(b)}」的路線（最多 ${hop} 步）。可能還沒填到這條路。</div>`;return}
   const best=res[0].length-1;
   const card=(p,i)=>`<div class="route"><div class="h">${i+1}．${p.length-1} 步 ${p.length-1===best?'<span class="tag t-ok">最短</span>':''}</div><div class="path">${p.map((n,k)=>`<span class="node">${esc(n)}</span>${k<p.length-1?`<span class="arr">${HOW[n+'|'+p[k+1]]?`<small>${ICO[HOW[n+'|'+p[k+1]]]||''}${esc(HOW[n+'|'+p[k+1]])}</small>`:''}→</span>`:''}`).join('')}</div>${stepsOf(p)}</div>`;
