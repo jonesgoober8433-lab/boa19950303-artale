@@ -834,7 +834,7 @@
         }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
-    <link rel="stylesheet" href="edward-style.css?v=r133">
+    <link rel="stylesheet" href="edward-style.css?v=r134">
 </head>
 
 <body>
@@ -1286,6 +1286,9 @@
         }
         document.addEventListener('pointermove', chartPointer);
         document.addEventListener('pointerdown', chartPointer);
+        document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.ch-svg')) e.preventDefault(); });
+        document.addEventListener('selectstart', e => { if (e.target.closest && e.target.closest('.ch-svg')) e.preventDefault(); });
+        document.addEventListener('pointerup', e => { if (e.pointerType === 'touch' && e.target.closest && e.target.closest('.ch-svg')) setTimeout(() => chartLeave(e), 1500); });
         document.addEventListener('pointerout', e => { if (e.target.closest && e.target.closest('.ch-svg') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.ch-svg') === e.target.closest('.ch-svg'))) chartLeave(e); });
 
         // ================= 分享：複製連結／下載完整 HTML；打開分享的頁面可直接看到完整點法 =================
@@ -1985,8 +1988,8 @@
                     if (currentSkillLevels[skId] > 0) {
                         const otherSkill = getSkillById(skId);
                         const otherSkillJobStage = getJobStageKeyForSkill(skId);
-                        if (otherSkill && !checkOverallSkillConditions(otherSkill, otherSkillJobStage)) {
-                            isChangeValid = false; // 這裡的邏輯需要更精確，確保只在真正破壞前置時才阻止
+                        if (otherSkill && !checkOverallSkillConditions(otherSkill, otherSkillJobStage) && otherSkill.preRequisite && otherSkill.preRequisite.hasOwnProperty(skillId)) {
+                            isChangeValid = false; // 只有「真的把這個技能列為前置」的技能才會擋，不再誤怪別的技能
                             alert(`無法減少 ${skill.name} 的等級，因為技能 "${otherSkill.name}" 需要它作為前置條件。`);
                             break;
                         }
