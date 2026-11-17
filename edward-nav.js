@@ -3,7 +3,7 @@
 (function(){
   if(location.protocol==='file:'||window.__IMG||window.__SNAPSHOT_SEARCH)return;
   var TOOLS=[
-    {id:'sim',name:'技能模擬器',href:'index.html',match:['','index.html','simulator.html'],icon:'<img src="ui/title-icon.svg" alt="">'},
+    {id:'sim',name:'技能模擬器',href:'index.html',match:['','index.html','simulator.html','official-index.html','official-simulator.html'],icon:'<img src="ui/title-icon.svg" alt="">'},
     {id:'archive',name:'魔改存檔',href:'archive.html',match:['archive.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5V21.5"/><path d="M9 8h6M9 12h6"/></svg>'},
     {id:'map',name:'地圖指引',href:'map.html',match:['map.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5z"/><path d="M9 4v14M15 6.5v14"/></svg>'},
     {id:'acc',name:'命中計算',href:'acc.html',match:['acc.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
@@ -103,6 +103,29 @@
     if(id==='sim'){var fit=function(){a.classList.remove('stack');var x=a.getBoundingClientRect(),y=h.getBoundingClientRect();if(x.left<y.right&&x.right>y.left&&x.top<y.bottom&&x.bottom>y.top)a.classList.add('stack')};fit();window.addEventListener('resize',fit);setTimeout(fit,400)}
   }
 
+
+  // ---- 技能模擬器兩個版本：正式版（最初版，收錄自 Jamox）／測試版（阿泰爾魔改資料，未來提供後會改成正式版）
+  function addVersion(){
+    var official=/^official-/.test(cur),isSim=['','index.html','simulator.html','official-index.html','official-simulator.html'].indexOf(cur)>=0;
+    if(!isSim||document.getElementById('ed-ver'))return;
+    var q=location.search,page=/simulator\.html$/.test(cur)?'simulator.html':'index.html';
+    var prof=(new URLSearchParams(q)).get('prof')||'';
+    var royal=/^(soulmaster|flamewizard|windbreaker|nightwalker|striker)/i.test(prof);
+    var offHref=(page==='simulator.html'&&q&&!royal)?'official-simulator.html'+q:'official-index.html';
+    var testHref=(page==='simulator.html'&&q)?'simulator.html'+q:'index.html';
+    var st=document.createElement('style');
+    st.textContent='#ed-ver{max-width:960px;margin:0 auto;padding:12px 16px 0;text-align:center;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:#3a2f25}'+
+     '#ed-ver .seg{display:inline-flex;border:1px solid #a4602a;border-radius:999px;overflow:hidden;background:#fffaf0}'+
+     '#ed-ver .seg a{padding:7px 18px;font-weight:700;font-size:15px;text-decoration:none;color:#a4602a;white-space:nowrap}'+
+     '#ed-ver .seg a.on{background:#a4602a;color:#fffaf0}'+
+     '#ed-ver p{margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#86745f}'+
+     '@media(max-width:700px){#ed-ver{padding-top:8px}#ed-ver .seg a{padding:6px 12px;font-size:14px}}';
+    document.head.appendChild(st);
+    var d=document.createElement('div');d.id='ed-ver';
+    d.innerHTML='<div class="seg"><a href="'+offHref+'" class="'+(official?'on':'')+'">正式版（最初版）</a><a href="'+testHref+'" class="'+(official?'':'on')+'">測試版</a></div>'+
+      '<p>'+(official?'目前是<b>正式版</b>：遊戲裡現在實際的技能資料（冒險家 12 職業），原樣收錄自 Jamox。':'目前是<b>測試版</b>：加入阿泰爾魔改資料與皇家騎士團 5 職業，未來官方正式提供後，這一版會改成正式版。')+'</p>';
+    document.body.insertBefore(d,document.body.firstChild);
+  }
   // ---- 手機版：左上角下拉選單（取代底部工具欄）＋右上角 Instagram
   function addTopbar(){
     if(document.getElementById('ed-top'))return;
@@ -130,6 +153,6 @@
     document.addEventListener('click',function(e){if(!list.contains(e.target))tog(false)});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')tog(false)});
   }
-  function add(){document.body.appendChild(nav);addTopbar();addChrome();addPromo();addRefs()}
+  function add(){document.body.appendChild(nav);addTopbar();addChrome();addVersion();addPromo();addRefs()}
   if(document.body)add();else document.addEventListener('DOMContentLoaded',add);
 })();
