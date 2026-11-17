@@ -122,9 +122,48 @@
      '@media(max-width:700px){#ed-ver{padding-top:8px}#ed-ver .seg a{padding:6px 12px;font-size:14px}}';
     document.head.appendChild(st);
     var d=document.createElement('div');d.id='ed-ver';
-    d.innerHTML='<div class="seg"><a href="'+offHref+'" class="'+(official?'on':'')+'">正式版（最初版）</a><a href="'+testHref+'" class="'+(official?'':'on')+'">測試版</a></div>'+
-      '<p>'+(official?'目前是<b>正式版</b>：遊戲裡現在實際的技能資料（冒險家 12 職業）。':'目前是<b>測試版</b>：加入阿泰爾魔改資料與皇家騎士團 5 職業，未來官方正式提供後，這一版會改成正式版。')+'</p>';
+    d.innerHTML='<div class="seg"><a href="'+offHref+'" class="'+(official?'on':'')+'">正式版（最初版）</a><a href="'+testHref+'" class="'+(official?'':'on')+'">Tespia v2 測試版</a></div>'+
+      '<p>'+(official?'目前是<b>正式版</b>：遊戲裡現在實際的技能資料（冒險家 12 職業）。':'目前是<b>Tespia v2 測試版</b>：加入阿泰爾魔改資料與皇家騎士團 5 職業，未來官方正式提供後，這一版會改成正式版。')+'</p>';
     document.body.insertBefore(d,document.body.firstChild);
+    var KEY='ed_ver_pick';
+    function picked(){try{return localStorage.getItem(KEY)}catch(e){return null}}
+    function setPick(v){try{localStorage.setItem(KEY,v)}catch(e){}}
+    d.querySelector('.seg').addEventListener('click',function(e){var a=e.target.closest('a');if(a)setPick(a===d.querySelector('.seg a:first-child')?'official':'test')});
+    // 還沒選過版本時，第一次要點技能點數就先問：用正式版，還是 Tespia v2 測試版
+    if(page!=='simulator.html')return;
+    var ms=document.createElement('style');
+    ms.textContent='#ed-vp{position:fixed;inset:0;z-index:20000;background:rgba(58,47,37,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}'+
+      '#ed-vp .box{background:#fffaf0;border:1px solid #e8dcc3;border-radius:16px;max-width:440px;width:100%;padding:22px 20px;color:#3a2f25;box-shadow:0 12px 40px rgba(0,0,0,.3)}'+
+      '#ed-vp h3{margin:0 0 6px;font:700 20px "Noto Serif TC","Songti TC",serif}#ed-vp p.s{margin:0 0 14px;color:#86745f;font-size:14px;line-height:1.55}'+
+      '#ed-vp button{display:block;width:100%;text-align:left;margin:8px 0 0;padding:12px 14px;border-radius:12px;border:1px solid #a4602a;background:#fffaf0;color:#3a2f25;cursor:pointer;font:inherit}'+
+      '#ed-vp button b{display:block;color:#a4602a;font-size:16px}#ed-vp button span{font-size:13px;color:#86745f;line-height:1.5}'+
+      '#ed-vp button.cur{background:#f4e8cf}#ed-vp button:hover{background:#f4e8cf}';
+    document.head.appendChild(ms);
+    var replaying=false;
+    function ask(resume){
+      if(document.getElementById('ed-vp'))return;
+      var m=document.createElement('div');m.id='ed-vp';
+      m.innerHTML='<div class="box" role="dialog" aria-modal="true"><h3>要使用哪一個版本？</h3><p class="s">第一次點配點，先選一個版本。之後會記住你的選擇，隨時可以用最上方的切換條換。</p>'+
+        '<button type="button" data-v="official" class="'+(official?'cur':'')+'"><b>正式版（最初版）</b><span>遊戲目前實際的技能資料，冒險家 12 職業。'+(official?'（你現在在這一版）':'')+'</span></button>'+
+        '<button type="button" data-v="test" class="'+(official?'':'cur')+'"><b>Tespia v2 測試版</b><span>加入阿泰爾魔改資料與皇家騎士團 5 職業，未來會改成正式版。'+(official?'':'（你現在在這一版）')+'</span></button></div>';
+      document.body.appendChild(m);
+      m.addEventListener('click',function(e){var b=e.target.closest('button[data-v]');if(!b)return;var v=b.dataset.v;setPick(v);
+        if((v==='official')===official){m.remove();resume()}
+        else{location.href=v==='official'?(royal||!q?'official-index.html':'official-simulator.html'+q):'simulator.html'+q}});
+    }
+    document.addEventListener('click',function(e){
+      if(replaying||picked())return;var b=e.target.closest&&e.target.closest('button[onclick]');if(!b)return;
+      if(!/^(increaseSkill|maxSkill)\(/.test(b.getAttribute('onclick')||''))return;
+      e.preventDefault();e.stopImmediatePropagation();
+      ask(function(){replaying=true;try{b.click()}finally{replaying=false}});
+    },true);
+    document.addEventListener('focusin',function(e){var i=e.target;if(i&&i.classList&&i.classList.contains('skill-level-input'))i.dataset.prev=i.value});
+    document.addEventListener('change',function(e){
+      var i=e.target;if(replaying||picked()||!i||!i.classList||!i.classList.contains('skill-level-input'))return;
+      var prev=+(i.dataset.prev||0),now=+i.value;if(!(now>prev))return;
+      e.stopImmediatePropagation();i.value=prev;
+      ask(function(){replaying=true;try{i.value=now;i.dispatchEvent(new Event('change',{bubbles:true}))}finally{replaying=false}});
+    },true);
   }
   // ---- 手機版：左上角下拉選單（取代底部工具欄）＋右上角 Instagram
   function addTopbar(){
