@@ -140,6 +140,8 @@
       '#ed-vp button.cur{background:#f4e8cf}#ed-vp button:hover{background:#f4e8cf}';
     document.head.appendChild(ms);
     var replaying=false;
+    // 皇家騎士團職業只有 Tespia v2 測試版有，不需要問；之後再有新改版再加進來
+    function isRoyalNow(){var sel=document.getElementById('professionSelect'),t=sel&&sel.selectedOptions[0]?sel.selectedOptions[0].text:'';return /聖魂劍士|烈焰巫師|破風使者|暗夜行者|閃雷悍將|SoulMaster|FlameWizard|WindBreaker|NightWalker|Striker/i.test(t)||(!sel&&royal)}
     function ask(resume){
       if(document.getElementById('ed-vp'))return;
       var m=document.createElement('div');m.id='ed-vp';
@@ -152,14 +154,14 @@
         else{location.href=v==='official'?(royal||!q?'official-index.html':'official-simulator.html'+q):'simulator.html'+q}});
     }
     document.addEventListener('click',function(e){
-      if(replaying||picked())return;var b=e.target.closest&&e.target.closest('button[onclick]');if(!b)return;
+      if(replaying||picked()||isRoyalNow())return;var b=e.target.closest&&e.target.closest('button[onclick]');if(!b)return;
       if(!/^(increaseSkill|maxSkill)\(/.test(b.getAttribute('onclick')||''))return;
       e.preventDefault();e.stopImmediatePropagation();
       ask(function(){replaying=true;try{b.click()}finally{replaying=false}});
     },true);
     document.addEventListener('focusin',function(e){var i=e.target;if(i&&i.classList&&i.classList.contains('skill-level-input'))i.dataset.prev=i.value});
     document.addEventListener('change',function(e){
-      var i=e.target;if(replaying||picked()||!i||!i.classList||!i.classList.contains('skill-level-input'))return;
+      var i=e.target;if(replaying||picked()||isRoyalNow()||!i||!i.classList||!i.classList.contains('skill-level-input'))return;
       var prev=+(i.dataset.prev||0),now=+i.value;if(!(now>prev))return;
       e.stopImmediatePropagation();i.value=prev;
       ask(function(){replaying=true;try{i.value=now;i.dispatchEvent(new Event('change',{bubbles:true}))}finally{replaying=false}});
