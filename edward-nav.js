@@ -125,10 +125,10 @@
     d.innerHTML='<div class="seg"><a href="'+offHref+'" class="'+(official?'on':'')+'">正式版（最初版）</a><a href="'+testHref+'" class="'+(official?'':'on')+'">Tespia v2 測試版</a></div>'+
       '<p>'+(official?'目前是<b>正式版</b>：遊戲裡現在實際的技能資料（冒險家 12 職業）。':'目前是<b>Tespia v2 測試版</b>：加入阿泰爾魔改資料與皇家騎士團 5 職業，未來官方正式提供後，這一版會改成正式版。')+'</p>';
     document.body.insertBefore(d,document.body.firstChild);
-    var KEY='ed_ver_pick';
-    function picked(){try{return localStorage.getItem(KEY)}catch(e){return null}}
-    function setPick(v){try{localStorage.setItem(KEY,v)}catch(e){}}
-    d.querySelector('.seg').addEventListener('click',function(e){var a=e.target.closest('a');if(a)setPick(a===d.querySelector('.seg a:first-child')?'official':'test')});
+    // 不用瀏覽器記憶（Chrome 會殘留舊紀錄）：每次打開技能頁，第一次點配點都會問；問過之後同一次瀏覽不再重複問
+    var answered=false;
+    function picked(){return answered}
+    function setPick(v){answered=true}
     // 還沒選過版本時，第一次要點技能點數就先問：用正式版，還是 Tespia v2 測試版
     if(page!=='simulator.html')return;
     var ms=document.createElement('style');
@@ -145,7 +145,7 @@
     function ask(resume){
       if(document.getElementById('ed-vp'))return;
       var m=document.createElement('div');m.id='ed-vp';
-      m.innerHTML='<div class="box" role="dialog" aria-modal="true"><h3>要使用哪一個版本？</h3><p class="s">第一次點配點，先選一個版本。之後會記住你的選擇，隨時可以用最上方的切換條換。</p>'+
+      m.innerHTML='<div class="box" role="dialog" aria-modal="true"><h3>要使用哪一個版本？</h3><p class="s">每次打開技能模擬器，第一次點配點都會先問一次。隨時可以用最上方的切換條換版本。</p>'+
         '<button type="button" data-v="official" class="'+(official?'cur':'')+'"><b>正式版（最初版）</b><span>遊戲目前實際的技能資料，冒險家 12 職業。'+(official?'（你現在在這一版）':'')+'</span></button>'+
         '<button type="button" data-v="test" class="'+(official?'':'cur')+'"><b>Tespia v2 測試版</b><span>加入阿泰爾魔改資料與皇家騎士團 5 職業，未來會改成正式版。'+(official?'':'（你現在在這一版）')+'</span></button></div>';
       document.body.appendChild(m);
