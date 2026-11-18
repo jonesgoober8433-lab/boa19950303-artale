@@ -172,6 +172,58 @@
       ask(function(){replaying=true;try{i.value=now;i.dispatchEvent(new Event('change',{bubbles:true}))}finally{replaying=false}});
     },true);
   }
+
+  // ---- 跟手機同步設定：把這台儲存在瀏覽器裡的設定（升級時間、命中計算、法師裝備、快捷指令、配點思路…）打包成連結，
+  //      在另一台裝置打開連結並按「套用」就一樣了。（網站沒有伺服器，所以是手動送一次，不是自動即時同步）
+  var SYNC_RE=/^(exp_|acc_|cmd_rows_|maple-calc-|artale-note::|artale-tt-)/;
+  function syncCollect(){var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(SYNC_RE.test(k))o[k]=localStorage.getItem(k)}}catch(e){}return o}
+  function b64u(buf){var s='',b=new Uint8Array(buf);for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+  function unb64u(t){t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';var s=atob(t),b=new Uint8Array(s.length);for(var i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
+  async function syncPack(obj){var raw=new TextEncoder().encode(JSON.stringify(obj));
+    if(window.CompressionStream){var cs=new CompressionStream('deflate-raw'),w=cs.writable.getWriter();w.write(raw);w.close();return 'z'+b64u(await new Response(cs.readable).arrayBuffer())}
+    return 'p'+b64u(raw)}
+  async function syncUnpack(t){var kind=t.charAt(0),b=unb64u(t.slice(1));
+    if(kind==='z'){var ds=new DecompressionStream('deflate-raw'),w=ds.writable.getWriter();w.write(b);w.close();b=new Uint8Array(await new Response(ds.readable).arrayBuffer())}
+    return JSON.parse(new TextDecoder().decode(b))}
+  function syncApply(o){var n=0;for(var k in o){if(SYNC_RE.test(k)&&typeof o[k]==='string'&&o[k].length<300000){try{localStorage.setItem(k,o[k]);n++}catch(e){}}}return n}
+  function syncModal(html){var old=document.getElementById('ed-sync-m');if(old)old.remove();
+    var st=document.getElementById('ed-sync-css');if(!st){st=document.createElement('style');st.id='ed-sync-css';
+      st.textContent='#ed-sync-m{position:fixed;inset:0;z-index:30000;background:rgba(58,47,37,.55);display:flex;align-items:center;justify-content:center;padding:14px;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:#3a2f25}'+
+      '#ed-sync-m .b{background:#fffaf0;border:1px solid #e8dcc3;border-radius:16px;max-width:460px;width:100%;max-height:88vh;overflow:auto;padding:18px;box-shadow:0 14px 44px rgba(0,0,0,.35)}'+
+      '#ed-sync-m h3{margin:0 0 6px;font:700 20px "Noto Serif TC","Songti TC",serif}#ed-sync-m p{margin:6px 0;font-size:14px;line-height:1.6;color:#6a5a48}'+
+      '#ed-sync-m textarea{width:100%;min-height:74px;border:1px solid #e8dcc3;background:#fdf6e6;border-radius:8px;padding:8px;font:12px/1.4 ui-monospace,Menlo,monospace;color:#3a2f25;word-break:break-all}'+
+      '#ed-sync-m .r{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}#ed-sync-m button{font:inherit;font-weight:700;border:1px solid #a4602a;background:#fffaf0;color:#a4602a;border-radius:999px;padding:8px 16px;cursor:pointer}#ed-sync-m button.p{background:#a4602a;color:#fffaf0}'+
+      '#ed-sync-m ul{margin:6px 0 0;padding-left:20px;font-size:13.5px;color:#6a5a48}';document.head.appendChild(st)}
+    var m=document.createElement('div');m.id='ed-sync-m';m.innerHTML='<div class="b">'+html+'</div>';
+    m.addEventListener('click',function(e){if(e.target===m)m.remove()});document.body.appendChild(m);return m}
+  var SYNC_NAMES=[['exp_','升級時間'],['acc_','命中計算'],['cmd_rows_','快捷指令'],['maple-calc-','法師裝備'],['artale-note::','配點思路'],['artale-tt-','時間神殿']];
+  function syncSummary(o){var seen={};Object.keys(o).forEach(function(k){SYNC_NAMES.forEach(function(x){if(k.indexOf(x[0])===0)seen[x[1]]=1})});var a=Object.keys(seen);return a.length?'<ul><li>'+a.join('</li><li>')+'</li></ul>':'<p>（這台還沒有任何儲存的設定）</p>'}
+  async function syncOpen(){
+    var data=syncCollect(),count=Object.keys(data).length;
+    var code=await syncPack(data),link=location.origin+location.pathname.replace(/[^\/]*$/,'')+'index.html#sync='+code;
+    var m=syncModal('<h3>🔄 跟手機同步設定</h3><p>把這台的設定送到另一台裝置：複製下面的連結，用 AirDrop、LINE 等傳到手機，在手機打開連結，按「套用」就會一樣。</p>'+syncSummary(data)+
+      '<p style="margin-top:10px"><b>同步連結</b>（含你輸入的數字，請只傳給自己）</p><textarea id="ed-sync-t" readonly>'+(count?link:'')+'</textarea>'+
+      '<div class="r"><button class="p" id="ed-sync-copy"'+(count?'':' disabled')+'>複製連結</button>'+(navigator.share&&count?'<button id="ed-sync-share">分享…</button>':'')+'<button id="ed-sync-paste">我要貼上同步碼</button><button id="ed-sync-x">關閉</button></div><p id="ed-sync-msg"></p>');
+    var msg=function(t){m.querySelector('#ed-sync-msg').textContent=t};
+    m.querySelector('#ed-sync-x').onclick=function(){m.remove()};
+    m.querySelector('#ed-sync-copy').onclick=async function(){var t=link;try{await navigator.clipboard.writeText(t);msg('✅ 已複製，傳到手機打開就可以了')}catch(e){var ta=m.querySelector('#ed-sync-t');ta.select();try{document.execCommand('copy');msg('✅ 已複製')}catch(_){msg('請手動複製上面的連結')}}};
+    var sh=m.querySelector('#ed-sync-share');if(sh)sh.onclick=function(){navigator.share({title:'阿泰爾工具箱設定',url:link}).catch(function(){})};
+    m.querySelector('#ed-sync-paste').onclick=function(){syncModal('<h3>貼上同步連結或同步碼</h3><p>把另一台複製的連結貼在這裡。</p><textarea id="ed-sync-in" placeholder="貼上連結…"></textarea><div class="r"><button class="p" id="ed-sync-go">檢查</button><button id="ed-sync-x2">取消</button></div><p id="ed-sync-msg2"></p>');
+      document.getElementById('ed-sync-x2').onclick=function(){document.getElementById('ed-sync-m').remove()};
+      document.getElementById('ed-sync-go').onclick=function(){var v=document.getElementById('ed-sync-in').value.trim(),i=v.indexOf('sync=');var t=i>=0?v.slice(i+5):v;syncImport(t,function(e){document.getElementById('ed-sync-msg2').textContent=e})}}
+  }
+  async function syncImport(code,onErr){var o;try{o=await syncUnpack(code.replace(/[^\w\-]/g,''))}catch(e){if(onErr)onErr('這個同步碼讀不懂，請確認有複製完整。');return}
+    var n=Object.keys(o).filter(function(k){return SYNC_RE.test(k)}).length;if(!n){if(onErr)onErr('這個同步碼裡沒有可用的設定。');return}
+    var m=syncModal('<h3>要套用另一台的設定嗎？</h3><p>這個連結帶了 '+n+' 項設定：</p>'+syncSummary(o)+'<p>套用後會<b>覆蓋</b>這台裝置上同名的設定。</p><div class="r"><button class="p" id="ed-sync-ok">套用</button><button id="ed-sync-no">先不要</button></div>');
+    m.querySelector('#ed-sync-no').onclick=function(){m.remove();if(/^#sync=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search)};
+    m.querySelector('#ed-sync-ok').onclick=function(){var k=syncApply(o);history.replaceState(null,'',location.pathname+location.search);m.querySelector('.b').innerHTML='<h3>✅ 已套用 '+k+' 項設定</h3><p>已經跟另一台一樣了。</p><div class="r"><button class="p" id="ed-sync-r">重新整理頁面</button></div>';document.getElementById('ed-sync-r').onclick=function(){location.reload()}}}
+  function addSync(){
+    if(document.getElementById('ed-sync-btn'))return;
+    var st=document.createElement('style');st.textContent='#ed-sync-btn{display:block;margin:18px auto 0;font:700 14px "Noto Sans TC","PingFang TC",system-ui,sans-serif;color:#a4602a;background:#fffaf0;border:1px solid #a4602a;border-radius:999px;padding:8px 18px;cursor:pointer}';document.head.appendChild(st);
+    var b=document.createElement('button');b.id='ed-sync-btn';b.type='button';b.textContent='🔄 跟手機同步設定';b.onclick=syncOpen;
+    var host=document.querySelector('.ig-footer');if(host)host.appendChild(b);else document.body.insertBefore(b,nav);
+    if(/^#sync=/.test(location.hash))syncImport(location.hash.slice(6));
+  }
   // ---- 手機版：左上角下拉選單（取代底部工具欄）＋右上角 Instagram
   function addTopbar(){
     if(document.getElementById('ed-top'))return;
@@ -199,6 +251,6 @@
     document.addEventListener('click',function(e){if(!list.contains(e.target))tog(false)});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')tog(false)});
   }
-  function add(){document.body.appendChild(nav);addTopbar();addChrome();addVersion();addPromo();addRefs()}
+  function add(){document.body.appendChild(nav);addTopbar();addChrome();addVersion();addPromo();addSync();addRefs()}
   if(document.body)add();else document.addEventListener('DOMContentLoaded',add);
 })();
