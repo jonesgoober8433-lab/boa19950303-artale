@@ -27,7 +27,7 @@ button.p{background:var(--accent);color:var(--accent-ink)}
 .chip.drag{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;outline:1px dashed var(--accent)}.chip.dragging{opacity:.55;background:var(--soft);border-color:var(--accent)}
 .sortbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.sortbar button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:3px 12px;cursor:pointer}.sortbar button.on{background:var(--accent);color:var(--accent-ink)}
 .maps-gal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}@media(max-width:620px){.maps-gal{grid-template-columns:repeat(2,1fr)}}
-.maps-gal figure{margin:0;cursor:zoom-in}.maps-gal img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:10px;background:var(--field)}.maps-gal figcaption{font-size:13px;font-weight:700;text-align:center;margin-top:4px}
+.maps-gal figure{margin:0;cursor:zoom-in}.maps-gal img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:10px;background:var(--field)}.maps-gal figcaption{font-size:14px;text-align:center;margin-top:5px;line-height:1.45;-webkit-user-select:none;user-select:none}.maps-gal figcaption small{font-size:12.5px;color:var(--muted);font-weight:400}
 #lb{position:fixed;inset:0;z-index:20000;background:rgba(40,30,20,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;gap:8px}#lb img{max-width:100%;max-height:84vh;border-radius:10px;touch-action:pinch-zoom}#lb span{color:#fffaf0;font-weight:700}
 .chip{border:1px solid var(--line);background:var(--field);border-radius:999px;padding:1px 12px;font-size:13px;cursor:pointer}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}.chip:hover{background:var(--soft)}.chip.npc{border-style:dashed}
@@ -124,9 +124,9 @@ $('chips').addEventListener('pointermove',e=>{if(!dragEl)return;if(!moved&&Math.
 function endDrag(){if(!dragEl)return;dragEl.classList.remove('dragging');if(moved){try{localStorage.setItem(ORDER_KEY,JSON.stringify(chipOrder()))}catch(e){}justDragged=true;setTimeout(()=>justDragged=false,50)}dragEl=null}
 $('chips').addEventListener('pointerup',endDrag);$('chips').addEventListener('pointercancel',endDrag);
 /* ===== 世界地圖圖片 + 放大 ===== */
-const GAL=[['world','楓之谷世界'],['victoria','維多利亞島'],['maple','楓之島'],['ice','冰原雪域山脈（天空之城、冰原雪域、水世界）'],['ludus','路德斯湖（玩具城、艾靈森林、童話村、地球防衛總部）'],['minar','米納爾森林（神木村）'],['temple','時間神殿'],['nahee','納希沙漠（瑪迦提亞城）'],['wuling','武陵桃園（桃花仙境、靈藥幻境）']];
-$('gal').innerHTML=GAL.map(([f,n])=>`<figure data-f="${f}" data-n="${esc(n)}"><img src="map-img/${f}.webp" alt="${esc(n)}" loading="lazy"><figcaption>${esc(n)}</figcaption></figure>`).join('');
-$('gal').addEventListener('click',e=>{const f=e.target.closest('figure');if(!f)return;const d=document.createElement('div');d.id='lb';d.innerHTML=`<img src="map-img/${f.dataset.f}.webp" alt=""><span>${esc(f.dataset.n)}（再點一下關閉）</span>`;d.onclick=()=>d.remove();document.body.appendChild(d)});
+const GAL=[['world','楓之谷世界',''],['victoria','維多利亞島',''],['maple','楓之島',''],['ice','冰原雪域山脈','天空之城、冰原雪域、水世界'],['ludus','路德斯湖','玩具城、艾靈森林、童話村、地球防衛總部'],['minar','米納爾森林','神木村'],['temple','時間神殿',''],['nahee','納希沙漠','瑪迦提亞城'],['wuling','武陵桃園','桃花仙境、靈藥幻境']];
+$('gal').innerHTML=GAL.map(([f,n,s])=>`<figure data-f="${f}" data-n="${esc(n)}" data-s="${esc(s)}"><img src="map-img/${f}.webp" alt="${esc(n)}" loading="lazy"><figcaption><b>${esc(n)}</b>${s?`<br><small>${esc(s)}</small>`:''}</figcaption></figure>`).join('');
+$('gal').addEventListener('click',e=>{const f=e.target.closest('figure');if(!f)return;const d=document.createElement('div');d.id='lb';d.innerHTML=`<img src="map-img/${f.dataset.f}.webp" alt=""><span>${esc(f.dataset.n)}</span>${f.dataset.s?`<span style="font-weight:400;font-size:14px">${esc(f.dataset.s)}</span>`:''}<span style="font-weight:400;font-size:13px;opacity:.8">再點一下關閉</span>`;d.style.textAlign='center';d.onclick=()=>d.remove();document.body.appendChild(d)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lb')?.remove()});
 const nm=s=>String(s).trim();
 // 依步數由少到多（廣度優先），同一條路線不重複經過同一張地圖
