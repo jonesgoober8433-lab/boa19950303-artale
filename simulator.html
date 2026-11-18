@@ -832,7 +832,22 @@
             text-decoration: none;
             /* 滑鼠懸停時移除底線 */
         }
-    </style>
+    
+        /* --- 配點總表（可存成圖片） --- */
+        .build-table-card { max-width: 1100px; margin: 24px auto 0; padding: 16px 18px; background: #fffaf0; border: 1px solid #e8dcc3; border-radius: 14px; }
+        .build-table-card .bt-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        .build-table-card h2 { margin: 0; font: 700 20px "Noto Serif TC","Songti TC",serif; color: #3a2f25; }
+        .build-table-card .bt-save { border: 1px solid #a4602a; background: #a4602a; color: #fffaf0; border-radius: 999px; padding: 6px 18px; font: 700 14px "Noto Sans TC",system-ui,sans-serif; cursor: pointer; }
+        .build-table-card .bt-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table.bt { border-collapse: collapse; width: 100%; min-width: 760px; background: #fff; color: #222; font: 14px/1.5 "Noto Serif TC","Songti TC","PingFang TC",serif; }
+        table.bt td { border: 1px solid #444; padding: 5px 8px; vertical-align: top; }
+        table.bt td.c { text-align: center; }
+        table.bt td.sk { padding: 6px 8px; }
+        table.bt .sr { display: flex; align-items: center; gap: 6px; padding: 2px 0; white-space: nowrap; }
+        table.bt .sr img { width: 22px; height: 22px; flex: none; object-fit: cover; }
+        table.bt .none { color: #999; }
+        .bt-note { margin: 8px 0 0; font-size: 12.5px; color: #86745f; }
+</style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
     <link rel="stylesheet" href="edward-style.css?v=r135">
 </head>
@@ -878,6 +893,13 @@
             <p>3轉/(4轉需求): <span id="spentSp_3rdJob_total">0</span> / <span id="reqSp_4thJob">0</span> <button type="button" id="specialCaseBtn" class="special-btn" hidden aria-pressed="false" title="特例：這個職業 1~3 轉技能全部點滿也不到 4 轉需求，按下後 4 轉需求改為「1~3 轉全部點滿」">★ 特例</button> <span class="sp-full" id="full_3rd"></span></p>
         </div>
     </div>
+
+
+    <section class="build-table-card" id="buildTableCard">
+        <div class="bt-head"><h2>配點總表</h2><button type="button" class="bt-save" id="btSave">儲存成圖片</button></div>
+        <div class="bt-scroll"><div id="buildTableWrap"></div></div>
+        <p class="bt-note">只列出有點的技能；按「儲存成圖片」可以下載成一張圖，方便轉貼給朋友討論。</p>
+    </section>
 
     <footer class="page-footer ig-footer">
         <p class="intro-title">聰明理財，輕鬆生活</p>
@@ -1476,6 +1498,58 @@
             stageFullPrev = flags.slice();
         }
 
+
+        // --- 配點總表 ---
+        function buildTableModel() {
+            const job = currentProfessionData, stages = (job.jobStagesOrder || []).filter(k => (skillsData[k] || []).length);
+            const cols = stages.map(k => {
+                const list = (skillsData[k] || []).filter(sk => (currentSkillLevels[sk.id] || 0) > 0).map(sk => ({ name: sk.name, lv: currentSkillLevels[sk.id], img: sk.imageUrl }));
+                const m = k.match(/^(\d+)轉\s*[（(]([^)）]*)[)）]/);
+                return { title: m ? m[1] + ' 轉：' + m[2] : k, pts: list.reduce((a, b) => a + b.lv, 0), list };
+            });
+            const prof = (document.getElementById('professionSelect') || {}).selectedOptions;
+            const profName = prof && prof[0] ? prof[0].text.replace(/\s*\(.*$/, '') : '';
+            const ver = /official-/.test(location.pathname) ? '正式版（最初版）' : 'Tespia v2 測試版';
+            const lvIn = document.getElementById('levelInput');
+            return { cols, ver, profName, level: lvIn ? lvIn.value : currentLevel, spent: spentSp, remain: remainingSp };
+        }
+        function renderBuildTable() {
+            const wrap = document.getElementById('buildTableWrap'); if (!wrap || !currentProfessionData) return;
+            const m = buildTableModel(), n = Math.max(m.cols.length, 1), esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+            const heads = [m.ver, '職業：' + m.profName, '當前等級：' + m.level, '已分配點數：' + m.spent, '剩餘點數：' + m.remain];
+            const spans = heads.map((_, i) => Math.floor(n / 5) + (i < n % 5 ? 1 : 0)).filter(x => x > 0);
+            let k = 0, row1 = '';
+            spans.forEach((sp, i) => { row1 += `<td class="c" colspan="${sp}">${esc(heads[i])}</td>`; });
+            if (n < 5) { row1 = `<td class="c" colspan="${n}">${esc(heads.slice(0, 3).join('　'))}</td>`; }
+            const row2 = m.cols.map(c => `<td class="c">${esc(c.title)}</td>`).join('');
+            const row3 = m.cols.map(c => `<td class="c">${c.pts} 點</td>`).join('');
+            const row4 = m.cols.map(c => `<td class="sk">${c.list.length ? c.list.map(x => `<div class="sr"><img src="${esc(x.img || '')}" alt="" onerror="this.style.visibility='hidden'">${esc(x.name)} ${x.lv}</div>`).join('') : '<span class="none">—</span>'}</td>`).join('');
+            wrap.innerHTML = `<table class="bt"><tr>${row1}</tr><tr>${row2}</tr><tr>${row3}</tr><tr>${row4}</tr></table>`;
+        }
+        function saveBuildTableImage() {
+            const m = buildTableModel(), n = Math.max(m.cols.length, 1), CW = 250, RH = 34, PAD = 24, W = CW * n + PAD * 2;
+            const maxRows = Math.max(1, ...m.cols.map(c => c.list.length));
+            const H = PAD * 2 + RH * 3 + RH * maxRows + 12;
+            const S = 2, cv = document.createElement('canvas'); cv.width = W * S; cv.height = H * S;
+            const g = cv.getContext('2d'); g.scale(S, S);
+            g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+            const font = '"Noto Serif TC","Songti TC","PingFang TC","Microsoft JhengHei",serif';
+            g.strokeStyle = '#444'; g.lineWidth = 1; g.fillStyle = '#222'; g.textBaseline = 'middle';
+            const heads = [m.ver, '職業：' + m.profName, '當前等級：' + m.level, '已分配點數：' + m.spent, '剩餘點數：' + m.remain];
+            const X0 = PAD, Y0 = PAD;
+            const cell = (x, y, w, h, text, center) => { g.strokeRect(x + .5, y + .5, w, h); g.font = '16px ' + font; g.textAlign = center ? 'center' : 'left'; g.fillText(text, center ? x + w / 2 : x + 8, y + h / 2); };
+            if (n >= 5) { let x = X0; heads.forEach((t, i) => { const sp = Math.floor(n / 5) + (i < n % 5 ? 1 : 0); cell(x, Y0, sp * CW, RH, t, true); x += sp * CW }); }
+            else cell(X0, Y0, n * CW, RH, heads.slice(0, 3).join('　'), true);
+            m.cols.forEach((c, i) => { const x = X0 + i * CW; cell(x, Y0 + RH, CW, RH, c.title, true); cell(x, Y0 + RH * 2, CW, RH, c.pts + ' 點', true); g.strokeRect(x + .5, Y0 + RH * 3 + .5, CW, RH * maxRows + 12); });
+            const imgs = [];
+            m.cols.forEach((c, i) => c.list.forEach((sk, j) => { imgs.push(new Promise(res => { const im = new Image(); im.onload = () => res([im, i, j, sk]); im.onerror = () => res([null, i, j, sk]); im.src = (window.__IMG && window.__IMG[sk.img]) || sk.img || ''; })); }));
+            Promise.all(imgs).then(arr => {
+                arr.forEach(([im, i, j, sk]) => { const x = X0 + i * CW + 8, y = Y0 + RH * 3 + 6 + j * RH; if (im) g.drawImage(im, x, y + 3, 26, 26); g.font = '16px ' + font; g.textAlign = 'left'; g.fillStyle = '#222'; g.fillText(sk.name + ' ' + sk.lv, x + 34, y + RH / 2); });
+                cv.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = '配點_' + m.profName + '_Lv' + m.level + '.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); });
+            });
+        }
+        document.addEventListener('click', e => { if (e.target && e.target.id === 'btSave') saveBuildTableImage(); });
+
         // --- 更新 UI 顯示 ---
         function updateUI() {
             document.getElementById('spentSp').textContent = spentSp;
@@ -1514,6 +1588,7 @@
             setFull('full_2nd', spentSp2ndJobTotal, reqSp3rdJob, '二轉滿（滿需求，請點三轉）', '三轉');
             setFull('full_3rd', spentSp3rdJobTotal, reqSp4thJob, '三轉滿（滿需求，請點四轉）', '四轉');
 
+            renderBuildTable();
             checkStageFull(
                 [reqSp2ndJob > 0 && spentSp1stJob >= reqSp2ndJob, reqSp3rdJob > 0 && spentSp2ndJobTotal >= reqSp3rdJob, reqSp4thJob > 0 && spentSp3rdJobTotal >= reqSp4thJob],
                 [spentSp1stJob, spentSp2ndJobTotal, spentSp3rdJobTotal], [reqSp2ndJob, reqSp3rdJob, reqSp4thJob]);
