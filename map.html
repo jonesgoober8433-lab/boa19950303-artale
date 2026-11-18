@@ -23,7 +23,7 @@ button.p{background:var(--accent);color:var(--accent-ink)}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .muted{color:var(--muted);font-size:13px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.cg{margin-top:10px}.cgt{font-size:13px;font-weight:700;color:var(--accent);border-left:3px solid var(--accent);padding-left:8px;margin-bottom:2px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;cursor:default}.cg .chips{margin-top:4px;min-height:30px}
+[hidden]{display:none!important}.cg{margin-top:10px}.cgt{font-size:13px;font-weight:700;color:var(--accent);border-left:3px solid var(--accent);padding-left:8px;margin-bottom:2px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;cursor:default}.cg .chips{margin-top:4px;min-height:30px}
 .chip.drag{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;outline:1px dashed var(--accent)}.chip.dragging{opacity:.55;background:var(--soft);border-color:var(--accent)}
 .sortbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.sortbar button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:3px 12px;cursor:pointer}.sortbar button.on{background:var(--accent);color:var(--accent-ink)}
 .maps-gal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}@media(max-width:620px){.maps-gal{grid-template-columns:repeat(2,1fr)}}
@@ -84,8 +84,8 @@ const elevTable=()=>{const cell=m=>`<tr><td>${String(m).padStart(2,'0')}</td><td
 $('dl').innerHTML=D.maps.map(m=>`<option value="${esc(m)}">`).join('');
 /* ===== 地圖名稱：依「世界地圖」的分類分組，可以自由拖曳（Edward 要求，之後會鎖定）=====
    分類來自遊戲世界地圖的各個區域；找不到分類的先放「海外旅行」。
-   LOCKED_ORDER：之後 Edward 決定好，就把整個分組陣列填在這裡，拖曳功能會自動關閉。 */
-const LOCKED_ORDER=null,ORDER_KEY='map_chip_groups_v3';
+   LOCKED：true＝固定用 DEF_GROUPS（已鎖定）。 */
+const LOCKED=true,ORDER_KEY='map_chip_groups_v3';   /* 2026-11-18 Edward 說「鎖定」：固定用 DEF_GROUPS，不能拖曳。要重新開放時把 LOCKED 改 false */
 const DEF_GROUPS=[   /* Edward 2026-11-18 指定的分類 */
  ['楓之島',[]],
  ['維多利亞島',['維多利亞港','弓箭手村','勇士之村','魔法森林','鯨魚號','墮落城市','奇幻村','黃金海岸']],
@@ -98,7 +98,7 @@ const DEF_GROUPS=[   /* Edward 2026-11-18 指定的分類 */
  ['新葉城',['新葉城']]];
 const OVERSEAS='海外旅行';
 function orderedGroups(){
-  let g=LOCKED_ORDER;if(!g){try{g=JSON.parse(localStorage.getItem(ORDER_KEY)||'null')}catch(e){}}
+  let g=null;if(!LOCKED){try{g=JSON.parse(localStorage.getItem(ORDER_KEY)||'null')}catch(e){}}
   if(!Array.isArray(g)||!g.every(x=>x&&Array.isArray(x.m)))g=DEF_GROUPS.map(([n,m])=>({n,m:m.slice()}));
   const all=new Set(D.maps),seen=new Set();
   g=g.map(x=>({n:x.n,m:x.m.filter(m=>all.has(m)&&!seen.has(m)&&seen.add(m))}));
@@ -111,7 +111,7 @@ let EDIT=false,dragEl=null,sx=0,sy=0,moved=false,justDragged=false;
 renderChips();
 function chipOrder(){return [...$('chips').querySelectorAll('.cg')].map(g=>({n:g.dataset.g,m:[...g.querySelectorAll('.chip')].map(c=>c.dataset.m)}))}
 function setEdit(on){EDIT=on;$('sortBtn').classList.toggle('on',on);$('sortBtn').textContent=on?'✔ 完成排序':'✋ 調整排序';$('sortTools').hidden=!on;$('sortNote').textContent=on?'拖曳地圖名稱就能換位置，也可以拖到別的分類（這時點名稱不會填入欄位）':'';renderChips()}
-if(LOCKED_ORDER)document.querySelector('.sortbar').hidden=true;
+if(LOCKED)document.querySelector('.sortbar').hidden=true;
 $('sortBtn').onclick=()=>setEdit(!EDIT);
 $('sortReset').onclick=()=>{try{localStorage.removeItem(ORDER_KEY)}catch(e){}renderChips()};
 $('sortCopy').onclick=async()=>{const t=JSON.stringify(chipOrder());try{await navigator.clipboard.writeText(t);$('sortNote').textContent='✅ 已複製順序，貼給 Claude 就可以鎖定了'}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');$('sortNote').textContent='✅ 已複製順序'}catch(_){$('sortNote').textContent='複製失敗'}ta.remove()}};
