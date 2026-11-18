@@ -844,6 +844,9 @@
         table.bt .sr { display: flex; align-items: center; gap: 6px; padding: 2px 0; white-space: nowrap; }
         table.bt .sr img { width: 22px; height: 22px; flex: none; object-fit: cover; }
         table.bt .none { color: #999; }
+        .build-table-card .bt-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .build-table-card .bt-save.alt { background: #fffaf0; color: #a4602a; }
+        .build-table-card .bt-msg { min-height: 20px; margin: -4px 0 6px; font-size: 13.5px; font-weight: 700; }
         .bt-note { margin: 8px 0 0; font-size: 12.5px; color: #86745f; }
 </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
@@ -894,9 +897,10 @@
 
 
     <section class="build-table-card" id="buildTableCard">
-        <div class="bt-head"><h2>配點總表</h2><button type="button" class="bt-save" id="btSave">儲存成圖片</button></div>
+        <div class="bt-head"><h2>配點總表</h2><div class="bt-btns"><button type="button" class="bt-save" id="btCopy">📋 一鍵複製圖片</button><button type="button" class="bt-save alt" id="btSave">💾 儲存成檔案</button></div></div>
+        <div class="bt-msg" id="btMsg" role="status"></div>
         <div class="bt-scroll"><div id="buildTableWrap"></div></div>
-        <p class="bt-note">只列出有點的技能；按「儲存成圖片」可以下載成一張圖，方便轉貼給朋友討論。</p>
+        <p class="bt-note">只列出有點的技能。「一鍵複製圖片」複製後可直接貼到 Discord、Line；「儲存成檔案」會下載成 PNG。</p>
     </section>
 
     <footer class="page-footer ig-footer">
@@ -1524,7 +1528,7 @@
             const row4 = m.cols.map(c => `<td class="sk">${c.list.length ? c.list.map(x => `<div class="sr"><img src="${esc(x.img || '')}" alt="" onerror="this.style.visibility='hidden'">${esc(x.name)} ${x.lv}</div>`).join('') : '<span class="none">—</span>'}</td>`).join('');
             wrap.innerHTML = `<table class="bt"><tr>${row1}</tr><tr>${row2}</tr><tr>${row3}</tr><tr>${row4}</tr></table>`;
         }
-        function saveBuildTableImage() {
+        function makeBuildImage() {
             const m = buildTableModel(), n = Math.max(m.cols.length, 1), CW = 250, RH = 34, PAD = 24, W = CW * n + PAD * 2;
             const maxRows = Math.max(1, ...m.cols.map(c => c.list.length));
             const H = PAD * 2 + RH * 3 + RH * maxRows + 12;
@@ -1541,12 +1545,30 @@
             m.cols.forEach((c, i) => { const x = X0 + i * CW; cell(x, Y0 + RH, CW, RH, c.title, true); cell(x, Y0 + RH * 2, CW, RH, c.pts + ' 點', true); g.strokeRect(x + .5, Y0 + RH * 3 + .5, CW, RH * maxRows + 12); });
             const imgs = [];
             m.cols.forEach((c, i) => c.list.forEach((sk, j) => { imgs.push(new Promise(res => { const im = new Image(); im.onload = () => res([im, i, j, sk]); im.onerror = () => res([null, i, j, sk]); im.src = (window.__IMG && window.__IMG[sk.img]) || sk.img || ''; })); }));
-            Promise.all(imgs).then(arr => {
+            return Promise.all(imgs).then(arr => {
                 arr.forEach(([im, i, j, sk]) => { const x = X0 + i * CW + 8, y = Y0 + RH * 3 + 6 + j * RH; if (im) g.drawImage(im, x, y + 3, 26, 26); g.font = '16px ' + font; g.textAlign = 'left'; g.fillStyle = '#222'; g.fillText(sk.name + ' ' + sk.lv, x + 34, y + RH / 2); });
-                cv.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = '配點_' + m.profName + '_Lv' + m.level + '.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); });
+                return new Promise(res => cv.toBlob(b => res({ blob: b, name: '配點_' + m.profName + '_Lv' + m.level + '.png' })));
             });
         }
-        document.addEventListener('click', e => { if (e.target && e.target.id === 'btSave') saveBuildTableImage(); });
+        function btMsg(t, ok) { const el = document.getElementById('btMsg'); if (!el) return; el.textContent = t; el.style.color = ok ? '#4d7a36' : '#a4602a'; clearTimeout(btMsg.h); btMsg.h = setTimeout(() => { el.textContent = ''; }, 4000); }
+        function saveBuildTableImage() {
+            makeBuildImage().then(({ blob, name }) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); btMsg('已儲存成檔案', true); });
+        }
+        async function copyBuildTableImage() {
+            const p = makeBuildImage();
+            try {
+                if (!(navigator.clipboard && window.ClipboardItem)) throw new Error('no-clipboard');
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': p.then(r => r.blob) })]);
+                btMsg('已複製圖片，到 Discord／Line 直接貼上（Ctrl+V／長按貼上）', true);
+            } catch (e) {
+                try {   // 不支援複製圖片時（常見於手機）：改開系統分享，可直接選 Line／Discord
+                    const { blob, name } = await p, f = new File([blob], name, { type: 'image/png' });
+                    if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); btMsg('已開啟分享', true); return; }
+                } catch (e2) { if (e2 && e2.name === 'AbortError') return; }
+                btMsg('這個瀏覽器不能直接複製圖片，請改按「儲存成檔案」', false);
+            }
+        }
+        document.addEventListener('click', e => { const id = e.target && e.target.id; if (id === 'btSave') saveBuildTableImage(); else if (id === 'btCopy') copyBuildTableImage(); });
 
         // --- 更新 UI 顯示 ---
         function updateUI() {
