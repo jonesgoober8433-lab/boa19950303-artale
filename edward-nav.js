@@ -83,7 +83,8 @@
       if(sec.querySelector('#eb-h').value)return;   // 機器人欄位被填就丟掉
       if(Date.now()-last<30000){m.style.color='#a4602a';m.textContent='請稍等一下再送出下一則';return}
       b.disabled=true;last=Date.now();
-      var info='\n\n———\n頁面：'+location.pathname.split('/').pop()+'｜螢幕：'+innerWidth+'×'+innerHeight+'｜'+(navigator.userAgent.match(/(iPhone|iPad|Android|Windows|Macintosh|Linux)/)||[''])[0];
+      var ua=navigator.userAgent,dev=/iPhone/.test(ua)?'iPhone 手機':/iPad/.test(ua)?'iPad 平板':/Android/.test(ua)?'Android '+(/Mobile/.test(ua)?'手機':'平板'):/Windows/.test(ua)?'Windows 電腦':/Macintosh/.test(ua)?'Mac 電腦（或 iPad）':/Linux/.test(ua)?'Linux 電腦':'未知裝置';
+      var info='\n\n———\n留言頁面：'+document.title.split('｜')[0]+'｜螢幕大小：'+innerWidth+'×'+innerHeight+'｜裝置：'+dev;
       var fd=new FormData();fd.append(BOARD.entry,v+info);
       fetch(BOARD.form,{method:'POST',mode:'no-cors',body:fd}).then(function(){
         t.value='';n.textContent='0';m.style.color='#4d7a36';m.textContent='謝謝你幫我抓 Bug！我收到了，會盡快處理 🙏';
