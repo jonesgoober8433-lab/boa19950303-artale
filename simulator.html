@@ -838,7 +838,8 @@
         .build-table-card .bt-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
         .build-table-card h2 { margin: 0; font: 700 20px "Noto Serif TC","Songti TC",serif; color: #3a2f25; }
         .build-table-card .bt-save { border: 1px solid #a4602a; background: #a4602a; color: #fffaf0; border-radius: 999px; padding: 6px 18px; font: 700 14px "Noto Sans TC",system-ui,sans-serif; cursor: pointer; }
-        .build-table-card .bt-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .build-table-card { width: calc(100% - 24px); box-sizing: border-box; min-width: 0; }
+        .build-table-card .bt-scroll { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y pinch-zoom; }
         table.bt { border-collapse: collapse; width: 100%; min-width: 760px; background: #fff; color: #222; font: 14px/1.5 "Noto Serif TC","Songti TC","PingFang TC",serif; }
         table.bt td { border: 1px solid #444; padding: 5px 8px; vertical-align: top; }
         table.bt td.c { text-align: center; }
@@ -901,7 +902,7 @@
     <section class="build-table-card" id="buildTableCard">
         <div class="bt-head"><h2>配點總表</h2><div class="bt-btns"><button type="button" class="bt-save" id="btCopy">📋 一鍵複製圖片</button><button type="button" class="bt-save alt" id="btSave">💾 儲存成檔案</button></div></div>
         <div class="bt-msg" id="btMsg" role="status"></div>
-        <div class="bt-scroll"><div id="buildTableWrap"></div></div>
+        <div class="bt-scroll" style="overflow-x:auto"><div id="buildTableWrap"></div></div>
         <p class="bt-note">只列出有點的技能。「一鍵複製圖片」複製後可直接貼到 Discord、Line；「儲存成檔案」會下載成 PNG。</p>
     </section>
 
