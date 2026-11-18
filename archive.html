@@ -18,8 +18,8 @@ h1{margin:0 0 4px;font:700 26px "Noto Serif TC","Songti TC",serif;letter-spacing
 .tab{border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:5px 18px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
 .tab.on{background:var(--accent);color:var(--accent-ink)}
 .pills{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}@media(max-width:560px){.pills{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.pill{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:6px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12.5px;font-weight:700;text-align:center}
-.pill img{width:min(64px,100%);aspect-ratio:1;height:auto;object-fit:cover;border-radius:10px}
+.pills{gap:15px!important}.pill{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:16px 10px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:"Noto Serif TC","Songti TC",serif;font-size:20px;font-weight:700;text-align:center}
+.pill img{width:min(190px,100%);aspect-ratio:1;height:auto;object-fit:cover;border-radius:12px}@media(max-width:700px){.pill{font-size:15px;padding:10px 4px 8px}.pill img{width:min(110px,100%)}}
 .pill.on{border-color:var(--accent);background:var(--soft)}
 .grp{font:700 13px inherit;color:var(--muted);margin:10px 0 4px}
 .bar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
@@ -99,7 +99,7 @@ const num=t=>{if(t==null)return null;const m=String(t).replace(/,/g,'').match(/^
 let VER=0,JOB=0,Q='';
 function tabs(){document.getElementById('tabs').innerHTML=DATA.map((v,i)=>`<button class="tab ${i===VER?'on':''}" data-v="${i}">${esc(v.name)}</button>`).join('');
   document.getElementById('vnote').innerHTML=DATA[VER].note}
-function pills(){const v=DATA[VER];const gs=[];v.jobs.forEach((j,i)=>{let g=gs.find(x=>x.g===j.group);if(!g){g={g:j.group,it:[]};gs.push(g)}g.it.push([j,i])});
+function pills(){const v=DATA[VER];const gs=[];const ORD=['主教','火毒','冰雷','英雄','聖騎士','黑騎士','箭神','神射手','暗影神偷','夜使者','拳霸','槍神'];const rk=j=>{const k=ORD.findIndex(n=>j.name.indexOf(n)===0);return k<0?99:k};const jl=v.jobs.map((j,i)=>[j,i]);jl.sort((a,b)=>(a[0].group===b[0].group&&a[0].group==='冒險家')?rk(a[0])-rk(b[0]):0);jl.forEach(([j,i])=>{let g=gs.find(x=>x.g===j.group);if(!g){g={g:j.group,it:[]};gs.push(g)}g.it.push([j,i])});
   document.getElementById('pills').innerHTML=gs.map(g=>`<div class="grp">${esc(g.g)}</div><div class="pills">${g.it.map(([j,i])=>`<div class="pill ${i===JOB&&!Q?'on':''}" data-j="${i}"><img src="${IMG[j.face]||''}" alt="">${esc(j.name)}</div>`).join('')}</div>`).join('')}
 function tagCls(t){return t==='新增'?'t-new':t==='刪除'?'t-del':(t==='調整'||t==='特效調整'||t==='名稱變更')?'t-adj':'t-oth'}
 function tbl(rows){ // 變更表：第一列常是表頭
