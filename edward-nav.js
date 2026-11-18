@@ -45,13 +45,15 @@
   '#edward-rail .tx{display:block;max-width:100%;overflow:hidden;text-wrap:balance}'+
   'body{padding-left:76px!important;box-sizing:border-box}'+
   'html{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}body{overflow-x:clip;overscroll-behavior-x:none;max-width:100%}html,body{touch-action:pan-y pinch-zoom}.tw,.list,.table-wrap,table,pre,[style*="overflow"]{touch-action:pan-x pan-y pinch-zoom}'+
+  /* 統一版面寬度（2026-11-18 Edward：有的頁面寬、有的窄、沒對齊）：所有頁面的內容欄一律最寬 1200px、置中 */
+  '@media(min-width:701px){body{box-sizing:border-box!important;padding-left:76px!important;padding-right:76px!important}header.ed-host,header.tt-header,body>header,body>main,main.tt-main,.bar-in,#ed-sub,.ig-footer,#edward-board,#edward-refs,.page-container,#buildNotes,body>.container,#buildTableCard{width:100%;max-width:1200px!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}header.tt-header{max-width:none!important;width:auto}}'+
   '@media(max-height:640px){#edward-rail a{font-size:10px}#edward-rail .tx{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}}'+
   '@media(max-height:520px){#edward-rail .tx{display:none}}'+
   '@media(max-width:700px){#edward-rail{display:none}body{padding-left:0!important;padding-top:60px!important}}';
   var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
   // 手機版：導覽列不佔左邊空間，但頁面自己的左右留白要一樣（之前左邊被清成 0，內容會偏一邊）
   var mq=window.matchMedia('(max-width:700px)');
-  function fixPad(){var b=document.body;if(mq.matches){b.style.removeProperty('padding-left');b.style.setProperty('padding-left',getComputedStyle(b).paddingRight,'important')}else b.style.removeProperty('padding-left')}
+  function fixPad(){document.body.style.removeProperty('padding-left')}   /* 左右留白改由 CSS 統一處理（桌機 76／76，不再互相蓋掉） */
   fixPad();if(mq.addEventListener)mq.addEventListener('change',fixPad);
   var nav=document.createElement('nav');nav.id='edward-rail';nav.setAttribute('aria-label','選擇工具');
   nav.innerHTML=TOOLS.filter(function(t){return !t.hide}).map(function(t){return '<a href="'+t.href+'" title="'+t.name+'" class="'+(t.match.indexOf(cur)>=0?'on':'')+'"><span class="ic">'+t.icon+'</span><span class="tx">'+t.name+'</span></a>'}).join('');
