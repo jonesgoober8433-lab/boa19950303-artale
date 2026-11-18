@@ -177,7 +177,7 @@ function noteOf(p){const n=(D.notes||{});const r=p.filter(x=>n[x]).map(x=>`<div 
    現在的分鐘剛好等於發車的分鐘，已經來不及上車，要搭下一班。計程車、直接傳送、世界導遊視為 0 分鐘；走路、搭電梯時間不計入。 */
 const VEH={'飛機':'飛機','搭船':'船','地鐵':'車'};
 const isElev=i=>i.mode==='搭電梯'&&!!i.top;   /* 電梯依赫爾奧斯塔時間表：樓下每 4 分鐘 03 分、樓上 01 分出發，搭乘 1 分鐘 */
-const cleanTm=t=>String(t||'').replace(/[，,、]?\s*(?:計程車|海豚|駱駝)?瞬間到/g,'').replace(/^[，,、\s]+|[，,、\s]+$/g,'');   /* 不顯示「瞬間到」 */
+const cleanTm=t=>String(t||'').replace(/[，,、]?\s*(?:(?:計程車|海豚|駱駝)?瞬間到|馬上到)/g,'').replace(/^[，,、\s]+|[，,、\s]+$/g,'');   /* 不顯示「瞬間到」 */
 const hm=t=>{t=((t%1440)+1440)%1440;return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
 function schedOf(i){if(!VEH[i.mode])return null;if(/隨時/.test(i.dep||'')&&i.ride)return{any:1,ride:i.ride};let dep=(i.dep||'').split(/[,，、\s]+/).filter(x=>x!=='').map(Number).filter(x=>x>=0&&x<60),ride=i.ride;if(i.mode==='搭船'){if(!dep.length)dep=[0,10,20,30,40,50];if(!ride)ride=6}if(!dep.length||!ride)return null;return{dep:dep.sort((a,b)=>a-b),ride}}
 function timeline(p,now){let t=now,broken=false,any=false,skip=false;const out=[];
