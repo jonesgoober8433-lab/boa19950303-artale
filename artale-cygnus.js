@@ -109,6 +109,7 @@ const artaleCygnusSpec = {"SoulMaster":{"zh":"聖魂劍士","slug":"soulmaster",
 // 1) 先用測試版（v2）冒險家資料裡「同名且最高等級相同」的技能；2) 正式版資料與 1) 的同名技能相同，沒有額外來源；
 // 3) 同名技能在不同職業的效果不一致，或找不到的，不補（保持空白，列在待確認清單）。補上的技能會標 _effectFrom。
 (function fillCygnusEffectsFromExplorers() {
+    const PREF = { 'WindBreaker|替身術': 'Bowmaster', 'Striker|衝鋒': 'Buccaneer' };
     const royal = [], explorers = [];
     for (const [jn, j] of Object.entries(allProfessionsData)) {
         for (const arr of Object.values(j.skills)) for (const s of arr) (j.group === '皇家騎士團' ? royal : explorers).push([jn, s]);
@@ -117,8 +118,12 @@ const artaleCygnusSpec = {"SoulMaster":{"zh":"聖魂劍士","slug":"soulmaster",
     const sigOf = s => JSON.stringify((s.levels || []).map(l => (l && l.effect) || ''));
     royal.forEach(([jn, s]) => {
         if (has(s)) return;
-        const c = explorers.filter(([, e]) => e.name === s.name && e.maxLevel === s.maxLevel && has(e));
-        if (!c.length || new Set(c.map(([, e]) => sigOf(e))).size !== 1) return;
+        let c = explorers.filter(([, e]) => e.name === s.name && e.maxLevel === s.maxLevel && has(e));
+        if (c.length && new Set(c.map(([, e]) => sigOf(e))).size !== 1) {   // 同名技能在冒險家各職業數值不同：依 Edward 指定「用既有資料補」，改用同武器系的冒險家職業（弓→箭神、拳套→拳霸）
+            const pref = PREF[jn.split(' (')[1].replace(')', '') + '|' + s.name];
+            c = pref ? c.filter(([n]) => n.indexOf('(' + pref + ')') >= 0) : [];
+        }
+        if (!c.length) return;
         const src = c[0][1], desc = (s.description || '').split('\n')[0];
         s.levels = s.levels.map((l, i) => { if (i === 0) return null; const eff = (src.levels[i] && src.levels[i].effect) || ''; return { effect: eff, fullDescription: (desc ? desc + ' ' : '') + (eff ? '等級' + i + '效果：' + eff + '。' : '') }; });
         s._effectFrom = c.map(([n]) => n.split(' ')[0]).join('/');
