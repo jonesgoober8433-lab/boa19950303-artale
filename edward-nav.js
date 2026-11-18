@@ -6,12 +6,12 @@
     {id:'sim',name:'技能模擬器',href:'index.html',match:['','index.html','simulator.html','official-index.html','official-simulator.html'],icon:'<img src="ui/title-icon.svg" alt="">'},
     {id:'archive',name:'魔改存檔',href:'archive.html',match:['archive.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5V21.5"/><path d="M9 8h6M9 12h6"/></svg>'},
     {id:'map',name:'地圖指引',href:'map.html',match:['map.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5z"/><path d="M9 4v14M15 6.5v14"/></svg>'},
-    {id:'acc',name:'命中計算',href:'acc.html',match:['acc.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
+    {id:'acc',name:'練功計算',href:'acc.html',match:['acc.html','exp.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
     ,{id:'magic',name:'法師裝備模擬器',href:'magic.html',match:['magic.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 15 9"/><path d="M15 9l2-2"/><path d="M16 3l.8 2.2L19 6l-2.2.8L16 9l-.8-2.2L13 6l2.2-.8z"/><path d="M6 5l.5 1.3L8 7l-1.5.7L6 9l-.5-1.3L4 7l1.5-.7z"/></svg>'}
-    ,{id:'exp',name:'升級時間',href:'exp.html',match:['exp.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2"/><path d="M9 2h6"/></svg>'}
-    ,{id:'cmd',name:'快捷指令',href:'cmd.html',match:['cmd.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10l3 2-3 2M12 15h5"/></svg>'}
+    ,{id:'exp',name:'升級時間',href:'exp.html',match:['exp.html'],hide:1,g:'acc',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2"/><path d="M9 2h6"/></svg>'}
+    ,{id:'cmd',name:'小工具',href:'cmd.html',match:['cmd.html','fx.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10l3 2-3 2M12 15h5"/></svg>'}
     ,{id:'temple',name:'時間神殿',href:'temple.html',match:['temple.html'],icon:''}
-    ,{id:'fx',name:'匯率換算',href:'fx.html',match:['fx.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 10h8l-2-2M16 14H8l2 2"/></svg>'}
+    ,{id:'fx',name:'匯率換算',href:'fx.html',match:['fx.html'],hide:1,g:'cmd',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 10h8l-2-2M16 14H8l2 2"/></svg>'}
   ];
   // ---- 圖示（彩色方章：每個工具一個顏色）
   var G={
@@ -54,7 +54,7 @@
   function fixPad(){var b=document.body;if(mq.matches){b.style.removeProperty('padding-left');b.style.setProperty('padding-left',getComputedStyle(b).paddingRight,'important')}else b.style.removeProperty('padding-left')}
   fixPad();if(mq.addEventListener)mq.addEventListener('change',fixPad);
   var nav=document.createElement('nav');nav.id='edward-rail';nav.setAttribute('aria-label','選擇工具');
-  nav.innerHTML=TOOLS.map(function(t){return '<a href="'+t.href+'" title="'+t.name+'" class="'+(t.match.indexOf(cur)>=0?'on':'')+'"><span class="ic">'+t.icon+'</span><span class="tx">'+t.name+'</span></a>'}).join('');
+  nav.innerHTML=TOOLS.filter(function(t){return !t.hide}).map(function(t){return '<a href="'+t.href+'" title="'+t.name+'" class="'+(t.match.indexOf(cur)>=0?'on':'')+'"><span class="ic">'+t.icon+'</span><span class="tx">'+t.name+'</span></a>'}).join('');
 
   // 每個頁面最下面都放「聰明理財」介紹與 IG（頁面本身已經有就不重複放）
   function addPromo(){
@@ -108,6 +108,19 @@
     if(id==='sim'){var fit=function(){a.classList.remove('stack');var x=a.getBoundingClientRect(),y=h.getBoundingClientRect();if(x.left<y.right&&x.right>y.left&&x.top<y.bottom&&x.bottom>y.top)a.classList.add('stack')};fit();window.addEventListener('resize',fit);setTimeout(fit,400)}
   }
 
+
+
+  // ---- 合併的工具：頁內分頁（練功計算＝命中計算＋升級時間；小工具＝快捷指令＋匯率換算）
+  var SUBTABS={'acc.html':'acc','exp.html':'acc','cmd.html':'cmd','fx.html':'cmd'};
+  var SUBGROUPS={acc:[['命中計算','acc.html'],['升級時間','exp.html']],cmd:[['快捷指令','cmd.html'],['匯率換算','fx.html']]};
+  function addSubTabs(){
+    var g=SUBTABS[cur];if(!g||document.getElementById('ed-sub'))return;
+    var h=document.querySelector('h1');if(!h)return;var anchor=h.closest('header')||h;
+    var st=document.createElement('style');st.textContent='#ed-sub{max-width:1050px;margin:10px auto 0;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}#ed-sub a{border:1px solid #a4602a;background:#fffaf0;color:#a4602a;border-radius:999px;padding:6px 20px;font-weight:700;font-size:15px;text-decoration:none}#ed-sub a.on{background:#a4602a;color:#fffaf0}@media(max-width:700px){#ed-sub{padding:0 12px;margin-top:8px}}';document.head.appendChild(st);
+    var d=document.createElement('div');d.id='ed-sub';
+    d.innerHTML=SUBGROUPS[g].map(function(t){return '<a href="'+t[1]+'" class="'+(t[1]===cur?'on':'')+'">'+t[0]+'</a>'}).join('');
+    anchor.parentNode.insertBefore(d,anchor);
+  }
 
   // ---- 技能模擬器兩個版本：正式版（最初版，收錄自 Jamox）／測試版（阿泰爾魔改資料，未來提供後會改成正式版）
   function addVersion(){
@@ -176,7 +189,7 @@
   // ---- 手機版：左上角下拉選單（取代底部工具欄）＋右上角 Instagram
   function addTopbar(){
     if(document.getElementById('ed-top'))return;
-    var id=null,name='選擇工具';TOOLS.forEach(function(x){if(x.match.indexOf(cur)>=0){id=x.id;name=x.name}});
+    var id=null,name='選擇工具';TOOLS.forEach(function(x){if(x.match.indexOf(cur)>=0){var gt=x.g?TOOLS.filter(function(y){return y.id===x.g})[0]:x;id=gt.id;name=gt.name}});
     var s=document.createElement('style');
     s.textContent='#ed-top,#ed-menu-list{display:none}@media(max-width:700px){'+
      '#ed-top{position:fixed;left:0;right:0;top:0;height:52px;z-index:10000;background:#f5ecdb;border-bottom:1px solid #e8dcc3;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}'+
@@ -192,7 +205,7 @@
     bar.innerHTML='<button type="button" id="ed-menu" aria-expanded="false" aria-haspopup="true" aria-controls="ed-menu-list"><span class="mi">'+(cur2?cur2.icon.split('ni_'+cur2.id).join('nt_'+cur2.id):'')+'</span><span class="mt">'+name+'</span><svg class="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'+
      '<a class="edig" href="https://www.instagram.com/boa19950303/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>boa19950303</a>';
     var list=document.createElement('div');list.id='ed-menu-list';list.setAttribute('role','menu');
-    list.innerHTML=TOOLS.map(function(x){return '<a role="menuitem" href="'+x.href+'" class="'+(x.id===id?'on':'')+'"><span class="mi">'+x.icon.split('ni_'+x.id).join('nm_'+x.id)+'</span>'+x.name+'</a>'}).join('');
+    list.innerHTML=TOOLS.filter(function(x){return !x.hide}).map(function(x){return '<a role="menuitem" href="'+x.href+'" class="'+(x.id===id?'on':'')+'"><span class="mi">'+x.icon.split('ni_'+x.id).join('nm_'+x.id)+'</span>'+x.name+'</a>'}).join('');
     document.body.appendChild(bar);document.body.appendChild(list);
     var btn=bar.querySelector('#ed-menu');
     function tog(o){list.classList.toggle('open',o);btn.setAttribute('aria-expanded',String(o))}
@@ -200,6 +213,6 @@
     document.addEventListener('click',function(e){if(!list.contains(e.target))tog(false)});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')tog(false)});
   }
-  function add(){document.body.appendChild(nav);addTopbar();addChrome();addVersion();addPromo();addRefs()}
+  function add(){document.body.appendChild(nav);addTopbar();addChrome();addSubTabs();addVersion();addPromo();addRefs()}
   if(document.body)add();else document.addEventListener('DOMContentLoaded',add);
 })();
