@@ -69,7 +69,7 @@
 
   // ---- 留言板（只有 Edward 看得到）：訪客留言送到 Edward 自己的 Google 表單回覆，頁面上不顯示任何人的留言。
   // 設定：BOARD.form＝Google 表單的 formResponse 網址，BOARD.entry＝留言欄位代號（entry.數字）。兩者都有填才會顯示留言板。
-  var BOARD={form:'',entry:''};
+  var BOARD={form:'https://docs.google.com/forms/d/e/1FAIpQLSeFwQM2pY0lXhuirRuxnwsNovmVlfXw3zQN_pBJP2PGaZ455g/formResponse',entry:'entry.1549621807'};
   function addBoard(){
     if(!BOARD.form||!BOARD.entry||document.getElementById('edward-board'))return;
     var st=document.createElement('style');st.textContent='#edward-board{max-width:1080px;margin:0 auto 24px;padding:18px 16px 0;border-top:1px solid #e8dcc3;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:#3a2f25}#edward-board h3{margin:0 0 4px;font:700 20px "Noto Serif TC","Songti TC",serif}#edward-board .sub{margin:0 0 10px;color:#86745f;font-size:13px}#edward-board textarea{width:100%;min-height:96px;box-sizing:border-box;font:inherit;font-size:15px;background:#fdf6e6;border:1px solid #e8dcc3;border-radius:10px;padding:10px 12px;color:#3a2f25;resize:vertical}#edward-board .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}#edward-board button{border:1px solid #a4602a;background:#a4602a;color:#fffaf0;border-radius:999px;padding:8px 24px;font:700 15px inherit;cursor:pointer}#edward-board button[disabled]{opacity:.5;cursor:default}#edward-board .cnt{margin-left:auto;color:#86745f;font-size:12.5px}#edward-board .msg{margin-top:8px;font-weight:700;font-size:14.5px;color:#4d7a36}#edward-board .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}';document.head.appendChild(st);
