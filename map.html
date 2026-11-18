@@ -198,7 +198,10 @@ function stepsOf(p,tl){let rows='',elev=false;
     if(i.mode||txt)rows+=`<li><b>${esc(u)} → ${esc(v)}</b>：${i.mode?(ICO[i.mode]||'')+' '+esc(i.mode):''}${fl}${txt?(i.mode?'，':'')+esc(txt):''}${tline}</li>`}
   return (rows?`<ul class="steps">${rows}</ul>`:'')+(elev?elevTable():'')}
 function timeSum(tl,now){if(!tl.any)return '';if(tl.end==null)return `<span class="muted">⏱ 以現在 ${hm(now)} 推算，部分交通的時間表還沒補</span>`;return `<span class="tag t-ok">⏱ 預計 ${hm(tl.end)} 抵達</span><span class="muted"> 以現在 ${hm(now)} 推算${tl.skip?'（走路、電梯時間不計入）':''}</span>`}
-function show(){showInner();$('resModal').hidden=false;document.documentElement.style.overflow='hidden'}
+function origPicker(a){const cur=$('orig').value,q=DEST.includes(a)?'這是世界導遊的目的地，你是從哪裡搭過來的？':'這裡只有搭世界導遊才方便離開，你上一次搭世界導遊是從哪裡過來的？';
+  return `<div class="po"><div class="muted" style="margin-bottom:4px">🌏 ${q}</div><div class="chips" style="margin:0 0 10px">${origOpts(a).map(o=>`<span class="chip${o[0]===cur?' on':''}" data-po="${esc(o[0])}">${esc(o[1])}</span>`).join('')}</div></div>`}
+function show(){showInner();const a=nm($('from').value);if(ASK(a)&&a in adj)$('out').insertAdjacentHTML('afterbegin',origPicker(a));$('resModal').hidden=false;document.documentElement.style.overflow='hidden'}
+$('out').addEventListener('click',e=>{const c=e.target.closest('.chip[data-po]');if(!c)return;$('orig').value=c.dataset.po;syncOrig();show()});
 function closeRes(){$('resModal').hidden=true;document.documentElement.style.overflow=''}
 function showInner(){
   syncOrig();
