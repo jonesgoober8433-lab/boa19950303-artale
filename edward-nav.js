@@ -112,13 +112,13 @@
 
   // ---- 合併的工具：頁內分頁（練功計算＝命中計算＋升級時間；小工具＝快捷指令＋匯率換算）
   var SUBTABS={'acc.html':'acc','exp.html':'acc','cmd.html':'cmd','fx.html':'cmd'};
-  var SUBGROUPS={acc:[['命中計算','acc.html'],['升級時間','exp.html']],cmd:[['快捷指令','cmd.html'],['匯率換算','fx.html']]};
+  var SUBGROUPS={acc:[['命中計算','acc.html','acc'],['升級時間','exp.html','exp']],cmd:[['快捷指令','cmd.html','cmd'],['匯率換算','fx.html','fx']]};
   function addSubTabs(){
     var g=SUBTABS[cur];if(!g||document.getElementById('ed-sub'))return;
     var h=document.querySelector('h1');if(!h)return;var anchor=h.closest('header')||h;
-    var st=document.createElement('style');st.textContent='#ed-sub{max-width:1050px;margin:10px auto 0;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}#ed-sub a{border:1px solid #a4602a;background:#fffaf0;color:#a4602a;border-radius:999px;padding:6px 20px;font-weight:700;font-size:15px;text-decoration:none}#ed-sub a.on{background:#a4602a;color:#fffaf0}@media(max-width:700px){#ed-sub{padding:0 12px;margin-top:8px}}';document.head.appendChild(st);
+    var st=document.createElement('style');st.textContent='#ed-sub{max-width:1050px;margin:12px auto 0;padding:0 16px;display:flex;gap:12px;flex-wrap:wrap;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}#ed-sub a{display:flex;align-items:center;gap:10px;flex:1 1 220px;max-width:340px;border:2px solid #a4602a;background:#fffaf0;color:#a4602a;border-radius:16px;padding:10px 18px;font-weight:800;font-size:19px;text-decoration:none;box-shadow:0 3px 10px -4px rgba(120,88,48,.45);transition:transform .15s}#ed-sub a:hover{transform:translateY(-2px)}#ed-sub a.on{background:#a4602a;color:#fffaf0;box-shadow:0 6px 14px -6px rgba(120,88,48,.7)}#ed-sub .si{width:34px;height:34px;flex:none;display:inline-flex}#ed-sub .si svg,#ed-sub .si img{width:100%;height:100%;display:block}#ed-sub a.on .si{background:#fffaf0;border-radius:9px;padding:2px}@media(max-width:700px){#ed-sub{padding:0 12px;margin-top:10px;gap:8px}#ed-sub a{flex:1 1 0;min-width:0;padding:8px 10px;font-size:16px;gap:8px;max-width:none}#ed-sub .si{width:28px;height:28px}}';document.head.appendChild(st);
     var d=document.createElement('div');d.id='ed-sub';
-    d.innerHTML=SUBGROUPS[g].map(function(t){return '<a href="'+t[1]+'" class="'+(t[1]===cur?'on':'')+'">'+t[0]+'</a>'}).join('');
+    d.innerHTML=SUBGROUPS[g].map(function(t){var tl=TOOLS.filter(function(x){return x.id===t[2]})[0];var ic=tl?tl.icon.split('ni_'+t[2]).join('nt_'+t[2]):'';return '<a href="'+t[1]+'" class="'+(t[1]===cur?'on':'')+'"><span class="si">'+ic+'</span>'+t[0]+'</a>'}).join('');
     anchor.parentNode.insertBefore(d,anchor);
   }
 
