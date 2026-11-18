@@ -1469,7 +1469,7 @@
             const order = currentProfessionData.jobStagesOrder;
             if (stageFullPrev === null) { stageFullPrev = flags.slice(); return; }
             for (let i = 0; i < 3; i++) {
-                if (flags[i] && !stageFullPrev[i] && isMobileLike()) {
+                if (flags[i] && !stageFullPrev[i]) {
                     showStageDialog(names[i] + '點滿了', '累積點數 ' + spents[i] + ' / ' + reqs[i] + '，已滿足' + next[i] + '的需求，可以開始點' + next[i] + '技能。', order[i + 2]);
                 }
             }
