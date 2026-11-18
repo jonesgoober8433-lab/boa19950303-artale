@@ -23,6 +23,11 @@ button.p{background:var(--accent);color:var(--accent-ink)}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .muted{color:var(--muted);font-size:13px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip.drag{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;outline:1px dashed var(--accent)}.chip.dragging{opacity:.55;background:var(--soft);border-color:var(--accent)}
+.sortbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.sortbar button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:3px 12px;cursor:pointer}.sortbar button.on{background:var(--accent);color:var(--accent-ink)}
+.maps-gal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}@media(max-width:620px){.maps-gal{grid-template-columns:repeat(2,1fr)}}
+.maps-gal figure{margin:0;cursor:zoom-in}.maps-gal img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:10px;background:var(--field)}.maps-gal figcaption{font-size:13px;font-weight:700;text-align:center;margin-top:4px}
+#lb{position:fixed;inset:0;z-index:20000;background:rgba(40,30,20,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;gap:8px}#lb img{max-width:100%;max-height:84vh;border-radius:10px;touch-action:pinch-zoom}#lb span{color:#fffaf0;font-weight:700}
 .chip{border:1px solid var(--line);background:var(--field);border-radius:999px;padding:1px 12px;font-size:13px;cursor:pointer}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}.chip:hover{background:var(--soft)}.chip.npc{border-style:dashed}
 .route{border:1px solid var(--line);border-radius:12px;background:var(--field);padding:8px 12px;margin:8px 0}
@@ -57,7 +62,11 @@ footer{color:var(--muted);font-size:12.5px;margin:20px 0 60px}
     </div>
     <div class="muted" style="margin-top:8px">點下面的地圖名稱，會填進目前空著的欄位（先填出發，再填目的地）：</div>
     <div class="chips" id="chips"></div>
+    <div class="sortbar"><button type="button" id="sortBtn">✋ 調整排序</button><span id="sortTools" hidden><button type="button" id="sortCopy">📋 複製目前順序</button><button type="button" id="sortReset">↺ 還原預設</button></span><span class="muted" id="sortNote"></span></div>
   </section>
+  <details class="card" id="galBox" open><summary style="cursor:pointer;font-weight:700;color:var(--accent)">🗺 世界地圖（點一下放大）</summary>
+    <div class="maps-gal" id="gal"></div>
+  </details>
   <section class="card" id="out"><span class="muted">還沒有查詢。</span></section>
   <footer>路線依玩家整理的地圖連結計算，可能有漏填或錯誤，僅供參考。標在箭頭上的「世界導遊」代表那一段搭乘世界旅行導遊，不算一個站。搭世界導遊到泰國、西門町、日本之後，在那邊只能搭回原本出發的地方，不能再連搭去別處。</footer>
 </main>
@@ -72,7 +81,31 @@ const ICO={'走路':'🚶','飛機':'✈️','地鐵':'🚇','搭船':'⛵','搭
 const ELEV=['在99樓等待(開門)','從99樓出發(搭乘)','在1樓等待(開門)','從1樓出發(搭乘)'];
 const elevTable=()=>{const cell=m=>`<tr><td>${String(m).padStart(2,'0')}</td><td>${ELEV[m%4]}</td></tr>`;let l='',r='';for(let m=0;m<30;m++){l+=cell(m);r+=cell(m+30)}return `<details class="elev"><summary>🛗 赫爾奧斯塔電梯時間表（每 4 分鐘一輪）</summary><div class="elevg"><table>${l}</table><table>${r}</table></div></details>`};
 $('dl').innerHTML=D.maps.map(m=>`<option value="${esc(m)}">`).join('');
-$('chips').innerHTML=D.maps.slice().sort((a,b)=>a.localeCompare(b,'zh-Hant')).map(m=>`<span class="chip" data-m="${esc(m)}">${esc(m)}</span>`).join('');
+/* ===== 地圖名稱的排序：可以自由拖曳（Edward 要求，之後會鎖定）=====
+   LOCKED_ORDER：之後 Edward 決定好順序，就把陣列填在這裡，拖曳功能會自動關閉。 */
+const LOCKED_ORDER=null,ORDER_KEY='map_chip_order_v1';
+const defOrder=()=>D.maps.slice().sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+function orderedMaps(){const def=defOrder();let o=LOCKED_ORDER;if(!o){try{o=JSON.parse(localStorage.getItem(ORDER_KEY)||'null')}catch(e){}}if(!Array.isArray(o))return def;return o.filter(m=>D.maps.includes(m)).concat(def.filter(m=>!o.includes(m)))}
+function renderChips(){$('chips').innerHTML=orderedMaps().map(m=>`<span class="chip${EDIT?' drag':''}" data-m="${esc(m)}">${esc(m)}</span>`).join('')}
+let EDIT=false,dragEl=null,sx=0,sy=0,moved=false,justDragged=false;
+renderChips();
+function chipOrder(){return [...$('chips').children].map(c=>c.dataset.m)}
+function setEdit(on){EDIT=on;$('sortBtn').classList.toggle('on',on);$('sortBtn').textContent=on?'✔ 完成排序':'✋ 調整排序';$('sortTools').hidden=!on;$('sortNote').textContent=on?'拖曳地圖名稱就能換位置（這時點名稱不會填入欄位）':'';renderChips()}
+if(LOCKED_ORDER)document.querySelector('.sortbar').hidden=true;
+$('sortBtn').onclick=()=>setEdit(!EDIT);
+$('sortReset').onclick=()=>{try{localStorage.removeItem(ORDER_KEY)}catch(e){}renderChips()};
+$('sortCopy').onclick=async()=>{const t=JSON.stringify(chipOrder());try{await navigator.clipboard.writeText(t);$('sortNote').textContent='✅ 已複製順序，貼給 Claude 就可以鎖定了'}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');$('sortNote').textContent='✅ 已複製順序'}catch(_){$('sortNote').textContent='複製失敗'}ta.remove()}};
+$('chips').addEventListener('pointerdown',e=>{if(!EDIT)return;const c=e.target.closest('.chip');if(!c)return;dragEl=c;sx=e.clientX;sy=e.clientY;moved=false;try{c.setPointerCapture(e.pointerId)}catch(_){}});
+$('chips').addEventListener('pointermove',e=>{if(!dragEl)return;if(!moved&&Math.hypot(e.clientX-sx,e.clientY-sy)<6)return;moved=true;dragEl.classList.add('dragging');
+  const prev=dragEl.style.pointerEvents;dragEl.style.pointerEvents='none';const under=document.elementFromPoint(e.clientX,e.clientY);dragEl.style.pointerEvents=prev;
+  const t=under&&under.closest&&under.closest('#chips .chip');if(t&&t!==dragEl){const r=t.getBoundingClientRect(),after=e.clientX>r.left+r.width/2;$('chips').insertBefore(dragEl,after?t.nextSibling:t)}});
+function endDrag(){if(!dragEl)return;dragEl.classList.remove('dragging');if(moved){try{localStorage.setItem(ORDER_KEY,JSON.stringify(chipOrder()))}catch(e){}justDragged=true;setTimeout(()=>justDragged=false,50)}dragEl=null}
+$('chips').addEventListener('pointerup',endDrag);$('chips').addEventListener('pointercancel',endDrag);
+/* ===== 世界地圖圖片 + 放大 ===== */
+const GAL=[['world','楓之谷世界'],['victoria','維多利亞島'],['maple','楓之島'],['ice','冰原雪域山脈（天空之城、冰原雪域、水世界）'],['ludus','路德斯湖（玩具城、艾靈森林、童話村、地球防衛總部）'],['minar','米納爾森林（神木村）'],['temple','時間神殿'],['nahee','納希沙漠（瑪迦提亞城）'],['wuling','武陵桃園（桃花仙境、靈藥幻境）']];
+$('gal').innerHTML=GAL.map(([f,n])=>`<figure data-f="${f}" data-n="${esc(n)}"><img src="map-img/${f}.webp" alt="${esc(n)}" loading="lazy"><figcaption>${esc(n)}</figcaption></figure>`).join('');
+$('gal').addEventListener('click',e=>{const f=e.target.closest('figure');if(!f)return;const d=document.createElement('div');d.id='lb';d.innerHTML=`<img src="map-img/${f.dataset.f}.webp" alt=""><span>${esc(f.dataset.n)}（再點一下關閉）</span>`;d.onclick=()=>d.remove();document.body.appendChild(d)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lb')?.remove()});
 const nm=s=>String(s).trim();
 // 依步數由少到多（廣度優先），同一條路線不重複經過同一張地圖
 // 世界導遊的目的地（只有導遊能到的地方，例如泰國、西門町、日本）：選它當出發地時，要問你是從哪裡搭過來的
@@ -156,10 +189,10 @@ function show(){
   el.innerHTML=`<b>${esc(a)} → ${esc(b)}</b><div class="muted">最短 ${best} 步；以下是最短的 ${top.length} 條走法。</div>`+top.map(card).join('')+
    (rest.length?`<details class="more"><summary>其他走法（${res.length>=60?'至少 ':''}${rest.length} 條）</summary>${rest.map((p,i)=>card(p,i+3)).join('')}</details>`:'')}
 $('go').onclick=show;
-$('from').addEventListener('input',syncOrig);$('from').addEventListener('change',syncOrig);$('chips').addEventListener('click',syncOrig);$('origChips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;$('orig').value=c.dataset.o;[...$('origChips').children].forEach(x=>x.classList.toggle('on',x===c));if($('from').value&&$('to').value)show()});
+$('from').addEventListener('input',syncOrig);$('from').addEventListener('change',syncOrig);$('chips').addEventListener('click',()=>{if(!EDIT)syncOrig()});$('origChips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;$('orig').value=c.dataset.o;[...$('origChips').children].forEach(x=>x.classList.toggle('on',x===c));if($('from').value&&$('to').value)show()});
 $('swap').onclick=()=>{const t=$('from').value;$('from').value=$('to').value;$('to').value=t;syncOrig();show()};
 ['from','to'].forEach(id=>{$(id).addEventListener('keydown',e=>{if(e.key==='Enter')show()});$(id).addEventListener('change',()=>{if($('from').value&&$('to').value)show()})});
-$('chips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const m=c.dataset.m;if(!$('from').value)$('from').value=m;else if(!$('to').value)$('to').value=m;else{$('from').value=m;$('to').value=''}syncOrig();if($('from').value&&$('to').value)show()});
+$('chips').addEventListener('click',e=>{if(EDIT||justDragged)return;const c=e.target.closest('.chip');if(!c)return;const m=c.dataset.m;if(!$('from').value)$('from').value=m;else if(!$('to').value)$('to').value=m;else{$('from').value=m;$('to').value=''}syncOrig();if($('from').value&&$('to').value)show()});
 </script>
 <script src="edward-nav.js?v=r158"></script>
 </body>
