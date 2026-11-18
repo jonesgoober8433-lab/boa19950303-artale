@@ -104,3 +104,23 @@ const artaleCygnusSpec = {"SoulMaster":{"zh":"聖魂劍士","slug":"soulmaster",
     const job = allProfessionsData['閃雷悍將 (Striker)'];
     if (job) job.specialCase = true;
 })();
+
+// ===== 皇家騎士團「等級效果」空白的補法（Edward 2026-11-18 指定）=====
+// 1) 先用測試版（v2）冒險家資料裡「同名且最高等級相同」的技能；2) 正式版資料與 1) 的同名技能相同，沒有額外來源；
+// 3) 同名技能在不同職業的效果不一致，或找不到的，不補（保持空白，列在待確認清單）。補上的技能會標 _effectFrom。
+(function fillCygnusEffectsFromExplorers() {
+    const royal = [], explorers = [];
+    for (const [jn, j] of Object.entries(allProfessionsData)) {
+        for (const arr of Object.values(j.skills)) for (const s of arr) (j.group === '皇家騎士團' ? royal : explorers).push([jn, s]);
+    }
+    const has = s => (s.levels || []).some(l => l && l.effect && l.effect.trim());
+    const sigOf = s => JSON.stringify((s.levels || []).map(l => (l && l.effect) || ''));
+    royal.forEach(([jn, s]) => {
+        if (has(s)) return;
+        const c = explorers.filter(([, e]) => e.name === s.name && e.maxLevel === s.maxLevel && has(e));
+        if (!c.length || new Set(c.map(([, e]) => sigOf(e))).size !== 1) return;
+        const src = c[0][1], desc = (s.description || '').split('\n')[0];
+        s.levels = s.levels.map((l, i) => { if (i === 0) return null; const eff = (src.levels[i] && src.levels[i].effect) || ''; return { effect: eff, fullDescription: (desc ? desc + ' ' : '') + (eff ? '等級' + i + '效果：' + eff + '。' : '') }; });
+        s._effectFrom = c.map(([n]) => n.split(' ')[0]).join('/');
+    });
+})();
