@@ -23,7 +23,11 @@ button.p{background:var(--accent);color:var(--accent-ink)}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .muted{color:var(--muted);font-size:13px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-[hidden]{display:none!important}.cg{margin-top:10px}.cgt{font-size:13px;font-weight:700;color:var(--accent);border-left:3px solid var(--accent);padding-left:8px;margin-bottom:2px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;cursor:default}.cg .chips{margin-top:4px;min-height:30px}
+[hidden]{display:none!important}#resModal{position:fixed;inset:0;z-index:15000;background:rgba(58,47,37,.55);display:flex;align-items:center;justify-content:center;padding:14px}
+#resModal .rbox{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;width:min(920px,100%);max-height:88vh;overflow:auto;padding:16px 16px 18px;box-shadow:0 16px 48px rgba(0,0,0,.35);overscroll-behavior:contain}
+#resModal .rx{position:sticky;top:0;float:right;z-index:2;margin:-4px -4px 0 8px;width:34px;height:34px;border-radius:50%;border:1px solid var(--accent);background:var(--card);color:var(--accent);font-size:16px;font-weight:700;cursor:pointer;line-height:1;padding:0}
+@media(max-width:700px){#resModal{padding:62px 8px 8px;align-items:flex-start}#resModal .rbox{max-height:calc(100vh - 72px)}}
+.cg{margin-top:10px}.cgt{font-size:13px;font-weight:700;color:var(--accent);border-left:3px solid var(--accent);padding-left:8px;margin-bottom:2px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;cursor:default}.cg .chips{margin-top:4px;min-height:30px}
 .chip.drag{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;outline:1px dashed var(--accent)}.chip.dragging{opacity:.55;background:var(--soft);border-color:var(--accent)}
 .sortbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.sortbar button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:3px 12px;cursor:pointer}.sortbar button.on{background:var(--accent);color:var(--accent-ink)}
 .maps-gal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}@media(max-width:620px){.maps-gal{grid-template-columns:repeat(2,1fr)}}
@@ -68,7 +72,7 @@ footer{color:var(--muted);font-size:12.5px;margin:20px 0 60px}
   <details class="card" id="galBox" open><summary style="cursor:pointer;font-weight:700;color:var(--accent)">🗺 世界地圖（點一下放大）</summary>
     <div class="maps-gal" id="gal"></div>
   </details>
-  <section class="card" id="out"><span class="muted">還沒有查詢。</span></section>
+  <div id="resModal" hidden role="dialog" aria-modal="true" aria-label="查詢結果"><div class="rbox"><button type="button" class="rx" id="resClose" aria-label="關閉">✕</button><div id="out"></div></div></div>
   <footer>路線依玩家整理的地圖連結計算，可能有漏填或錯誤，僅供參考。標在箭頭上的「世界導遊」代表那一段搭乘世界旅行導遊，不算一個站。搭世界導遊到泰國、西門町、日本之後，在那邊只能搭回原本出發的地方，不能再連搭去別處。</footer>
 </main>
 <script>
@@ -194,7 +198,9 @@ function stepsOf(p,tl){let rows='',elev=false;
     if(i.mode||txt)rows+=`<li><b>${esc(u)} → ${esc(v)}</b>：${i.mode?(ICO[i.mode]||'')+' '+esc(i.mode):''}${fl}${txt?(i.mode?'，':'')+esc(txt):''}${tline}</li>`}
   return (rows?`<ul class="steps">${rows}</ul>`:'')+(elev?elevTable():'')}
 function timeSum(tl,now){if(!tl.any)return '';if(tl.end==null)return `<span class="muted">⏱ 以現在 ${hm(now)} 推算，部分交通的時間表還沒補</span>`;return `<span class="tag t-ok">⏱ 預計 ${hm(tl.end)} 抵達</span><span class="muted"> 以現在 ${hm(now)} 推算${tl.skip?'（走路、電梯時間不計入）':''}</span>`}
-function show(){
+function show(){showInner();$('resModal').hidden=false;document.documentElement.style.overflow='hidden'}
+function closeRes(){$('resModal').hidden=true;document.documentElement.style.overflow=''}
+function showInner(){
   syncOrig();
   const a=nm($('from').value),b=nm($('to').value),el=$('out'),orig=ASK(a)?$('orig').value:'';
   if(!a||!b){el.innerHTML='<span class="muted">請填出發與目的地。</span>';return}
@@ -210,10 +216,10 @@ function show(){
   const top=res.slice(0,3),rest=res.slice(3);
   el.innerHTML=`<b>${esc(a)} → ${esc(b)}</b><div class="muted">最短 ${best} 步；以下是最短的 ${top.length} 條走法。</div>`+top.map(card).join('')+
    (rest.length?`<details class="more"><summary>其他走法（${res.length>=60?'至少 ':''}${rest.length} 條）</summary>${rest.map((p,i)=>card(p,i+3)).join('')}</details>`:'')}
-$('go').onclick=show;
+$('go').onclick=show;$('resClose').onclick=closeRes;$('resModal').addEventListener('click',e=>{if(e.target===$('resModal'))closeRes()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeRes()});
 $('from').addEventListener('input',syncOrig);$('from').addEventListener('change',syncOrig);$('chips').addEventListener('click',()=>{if(!EDIT)syncOrig()});$('origChips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;$('orig').value=c.dataset.o;[...$('origChips').children].forEach(x=>x.classList.toggle('on',x===c));if($('from').value&&$('to').value)show()});
 $('swap').onclick=()=>{const t=$('from').value;$('from').value=$('to').value;$('to').value=t;syncOrig();show()};
-['from','to'].forEach(id=>{$(id).addEventListener('keydown',e=>{if(e.key==='Enter')show()});$(id).addEventListener('change',()=>{if($('from').value&&$('to').value)show()})});
+['from','to'].forEach(id=>{$(id).addEventListener('keydown',e=>{if(e.key==='Enter')show()});$(id).addEventListener('change',()=>{/* 輸入框改完不自動跳視窗，要按「查詢」或 Enter */})});
 $('chips').addEventListener('click',e=>{if(EDIT||justDragged)return;const c=e.target.closest('.chip');if(!c)return;const m=c.dataset.m;if(!$('from').value)$('from').value=m;else if(!$('to').value)$('to').value=m;else{$('from').value=m;$('to').value=''}syncOrig();if($('from').value&&$('to').value)show()});
 </script>
 <script src="edward-nav.js?v=r158"></script>
