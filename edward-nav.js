@@ -66,6 +66,31 @@
 
   // ---- 最下面的「參考資訊」：用過的網站，用圖示集中，點了就開該網站
   var REFS=[["楓情報 Artale 資料站", "https://kafuffu20.com/artale/", "kafuffu20.com.png", "命中計算（新葉城與 6 隻缺命中的怪物）、時間神殿裝備合成"], ["楓之谷圖鑑", "https://www.artalemaplestory.com/zh/monsters", "www.artalemaplestory.com.jpg", "命中計算：怪物命中需求、血量、經驗"], ["楓之谷掉落物查詢", "https://a2983456456.github.io/artale-drop/", "", "命中計算：怪物圖片與命中需求"], ["Maple-ACC-calculator", "https://a2983456456.github.io/Maple-ACC-calculator/", "", "命中率計算方式"], ["jamox80 技能模擬器", "https://jamox80.github.io/maplestory-skill-simulator/", "", "技能模擬器的原始版本"], ["阿泰爾 artale.live", "https://artale.live/tw/balance-patch", "artale.live.png", "魔改存檔（各職業調整第一、二版，官方已下架）、組隊任務教學"], ["冒險島世界 mapleartale", "https://mapleartale.com/exp-table/", "mapleartale.com.png", "升級時間：1～200 級經驗表"], ["Artale 經驗計算機", "https://artale-tools.archie-design.app/tools/exp-calculator", "", "升級時間：核對 1～12 級經驗"], ["MapleStory Wiki", "https://maplestorywiki.net/w/Ellin_Forest", "maplestorywiki.net.png", "地圖指引：艾靈森林、鯨魚號、瑪迦提亞城的名稱對照"]];
+
+  // ---- 留言板（只有 Edward 看得到）：訪客留言送到 Edward 自己的 Google 表單回覆，頁面上不顯示任何人的留言。
+  // 設定：BOARD.form＝Google 表單的 formResponse 網址，BOARD.entry＝留言欄位代號（entry.數字）。兩者都有填才會顯示留言板。
+  var BOARD={form:'',entry:''};
+  function addBoard(){
+    if(!BOARD.form||!BOARD.entry||document.getElementById('edward-board'))return;
+    var st=document.createElement('style');st.textContent='#edward-board{max-width:1080px;margin:0 auto 24px;padding:18px 16px 0;border-top:1px solid #e8dcc3;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:#3a2f25}#edward-board h3{margin:0 0 4px;font:700 20px "Noto Serif TC","Songti TC",serif}#edward-board .sub{margin:0 0 10px;color:#86745f;font-size:13px}#edward-board textarea{width:100%;min-height:96px;box-sizing:border-box;font:inherit;font-size:15px;background:#fdf6e6;border:1px solid #e8dcc3;border-radius:10px;padding:10px 12px;color:#3a2f25;resize:vertical}#edward-board .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}#edward-board button{border:1px solid #a4602a;background:#a4602a;color:#fffaf0;border-radius:999px;padding:8px 24px;font:700 15px inherit;cursor:pointer}#edward-board button[disabled]{opacity:.5;cursor:default}#edward-board .cnt{margin-left:auto;color:#86745f;font-size:12.5px}#edward-board .msg{margin-top:8px;font-weight:700;font-size:14.5px;color:#4d7a36}#edward-board .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}';document.head.appendChild(st);
+    var sec=document.createElement('section');sec.id='edward-board';
+    sec.innerHTML='<h3>留言板</h3><p class="sub">發現 Bug、數字不對、或有想要的功能，都可以留言給我。只有我看得到，不會公開顯示。</p><textarea id="eb-t" maxlength="500" placeholder="請寫下遇到的問題（例如：哪個頁面、做了什麼、看到什麼）…"></textarea><input class="hp" id="eb-h" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="row"><button type="button" id="eb-s">送出留言</button><span class="cnt"><span id="eb-n">0</span> / 500</span></div><div class="msg" id="eb-m" role="status"></div>';
+    document.body.insertBefore(sec,nav);
+    var t=sec.querySelector('#eb-t'),b=sec.querySelector('#eb-s'),m=sec.querySelector('#eb-m'),n=sec.querySelector('#eb-n'),last=0;
+    t.addEventListener('input',function(){n.textContent=t.value.length;m.textContent=''});
+    b.addEventListener('click',function(){
+      var v=t.value.trim();if(!v){m.style.color='#a4602a';m.textContent='請先寫下留言內容';return}
+      if(sec.querySelector('#eb-h').value)return;   // 機器人欄位被填就丟掉
+      if(Date.now()-last<30000){m.style.color='#a4602a';m.textContent='請稍等一下再送出下一則';return}
+      b.disabled=true;last=Date.now();
+      var info='\n\n———\n頁面：'+location.pathname.split('/').pop()+'｜螢幕：'+innerWidth+'×'+innerHeight+'｜'+(navigator.userAgent.match(/(iPhone|iPad|Android|Windows|Macintosh|Linux)/)||[''])[0];
+      var fd=new FormData();fd.append(BOARD.entry,v+info);
+      fetch(BOARD.form,{method:'POST',mode:'no-cors',body:fd}).then(function(){
+        t.value='';n.textContent='0';m.style.color='#4d7a36';m.textContent='謝謝你幫我抓 Bug！我收到了，會盡快處理 🙏';
+      }).catch(function(){m.style.color='#a4602a';m.textContent='送出失敗，請稍後再試一次';last=0}).then(function(){b.disabled=false});
+    });
+  }
+
   function addRefs(){
     if(document.getElementById('edward-refs'))return;
     var st3=document.createElement('style');st3.textContent='#edward-refs{max-width:1080px;margin:0 auto 70px;padding:18px 16px 0;border-top:1px solid #e8dcc3;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:#86745f;font-size:13px;line-height:1.6}#edward-refs h3{margin:0 0 4px;font:700 17px "Noto Serif TC","Songti TC",serif;color:#3a2f25;letter-spacing:.06em}#edward-refs .sub{margin:0 0 12px;font-size:12.5px}#edward-refs .g{display:flex;flex-direction:column;gap:10px;align-items:center}#edward-refs .rw{display:flex;justify-content:center;gap:10px}#edward-refs a.r{display:flex;flex-direction:column;align-items:center;gap:6px;width:104px;padding:10px 6px 8px;border:1px solid #e8dcc3;border-radius:14px;background:#fffaf0;color:#3a2f25;text-decoration:none;text-align:center;font-size:12px;font-weight:700;line-height:1.3}#edward-refs a.r:hover{border-color:#a4602a;box-shadow:0 3px 10px rgba(58,47,37,.15)}#edward-refs a.r .ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f4e8cf;overflow:hidden;font:700 18px "Noto Serif TC",serif;color:#a4602a}#edward-refs a.r .ico img{width:30px;height:30px;object-fit:contain}';document.head.appendChild(st3);
@@ -213,6 +238,6 @@
     document.addEventListener('click',function(e){if(!list.contains(e.target))tog(false)});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')tog(false)});
   }
-  function add(){document.body.appendChild(nav);addTopbar();addChrome();addSubTabs();addVersion();addPromo();addRefs()}
+  function add(){document.body.appendChild(nav);addTopbar();addChrome();addSubTabs();addVersion();addPromo();addBoard();addRefs()}
   if(document.body)add();else document.addEventListener('DOMContentLoaded',add);
 })();
