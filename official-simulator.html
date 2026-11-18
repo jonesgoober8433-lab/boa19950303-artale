@@ -1506,8 +1506,9 @@
             const job = currentProfessionData, stages = (job.jobStagesOrder || []).filter(k => (skillsData[k] || []).length);
             const cols = stages.map(k => {
                 const list = (skillsData[k] || []).filter(sk => (currentSkillLevels[sk.id] || 0) > 0).map(sk => ({ name: sk.name, lv: currentSkillLevels[sk.id], img: sk.imageUrl }));
-                const m = k.match(/^(\d+)轉\s*[（(]([^)）]*)[)）]/);
-                return { title: m ? m[1] + ' 轉：' + m[2] : k, pts: list.reduce((a, b) => a + b.lv, 0), list };
+                const m = k.match(/^(\d+)轉\s*[（(]([^)）]*)[)）]/), n0 = k.match(/^(\d+)轉/);
+                const NAMEFIX = { '新手': '初心者', '魔法師': '法師' };   // 職業名稱用遊戲轉職表的寫法
+                return { title: m ? m[1] + ' 轉：' + (NAMEFIX[m[2]] || m[2]) : (n0 ? n0[1] + ' 轉' : k), pts: list.reduce((a, b) => a + b.lv, 0), list };
             });
             const prof = (document.getElementById('professionSelect') || {}).selectedOptions;
             const profName = prof && prof[0] ? prof[0].text.replace(/\s*\(.*$/, '') : '';
