@@ -93,7 +93,7 @@
     'body h1.has-ic{display:flex;align-items:center;gap:12px}.hic{flex:0 0 auto;width:44px;height:44px;display:inline-flex}.hic svg{width:100%;height:100%;display:block}'+
     '.ed-ig{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;border:1px solid #a4602a;color:#a4602a;background:#fffaf0;font:700 15px "Noto Sans TC","PingFang TC",system-ui,sans-serif;text-decoration:none;white-space:nowrap}.ed-ig:hover{background:#f4e8cf}.ed-ig svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}'+
     '.ed-host{position:relative}@media(min-width:701px){.ed-host{padding-right:210px!important}.ed-host>.ed-ig{position:absolute;right:16px;top:20px}}'+
-    '.ed-sim{position:relative}.ed-sim>.ed-ig{display:flex;width:fit-content;margin:0 0 10px auto}@media(min-width:1000px){.ed-sim>.ed-ig:not(.stack){position:absolute;right:16px;top:20px;margin:0}}'+
+    '.ed-sim>.ed-ig{display:flex;width:fit-content;align-self:flex-end;margin:0 0 10px auto}@media(min-width:1000px){.ed-sim{position:static!important}.ed-sim>.ed-ig{position:absolute;right:20px;top:20px;margin:0}}'+
     '@media(max-width:700px){body h1{font-size:24px}.hic{width:36px;height:36px}.ed-host>.ed-ig{display:flex;width:fit-content;margin:0 0 10px auto;padding:6px 12px;font-size:13px}}';
     document.head.appendChild(st);
     var h=document.querySelector('h1');if(!h)return;
