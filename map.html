@@ -23,6 +23,7 @@ button.p{background:var(--accent);color:var(--accent-ink)}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .muted{color:var(--muted);font-size:13px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cg{margin-top:10px}.cgt{font-size:13px;font-weight:700;color:var(--accent);border-left:3px solid var(--accent);padding-left:8px;margin-bottom:2px}.cg .chips{margin-top:4px;min-height:30px}
 .chip.drag{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;outline:1px dashed var(--accent)}.chip.dragging{opacity:.55;background:var(--soft);border-color:var(--accent)}
 .sortbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.sortbar button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:3px 12px;cursor:pointer}.sortbar button.on{background:var(--accent);color:var(--accent-ink)}
 .maps-gal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}@media(max-width:620px){.maps-gal{grid-template-columns:repeat(2,1fr)}}
@@ -61,7 +62,7 @@ footer{color:var(--muted);font-size:12.5px;margin:20px 0 60px}
       <button class="p" id="go">查詢</button>
     </div>
     <div class="muted" style="margin-top:8px">點下面的地圖名稱，會填進目前空著的欄位（先填出發，再填目的地）：</div>
-    <div class="chips" id="chips"></div>
+    <div id="chips"></div>
     <div class="sortbar"><button type="button" id="sortBtn">✋ 調整排序</button><span id="sortTools" hidden><button type="button" id="sortCopy">📋 複製目前順序</button><button type="button" id="sortReset">↺ 還原預設</button></span><span class="muted" id="sortNote"></span></div>
   </section>
   <details class="card" id="galBox" open><summary style="cursor:pointer;font-weight:700;color:var(--accent)">🗺 世界地圖（點一下放大）</summary>
@@ -81,16 +82,35 @@ const ICO={'走路':'🚶','飛機':'✈️','地鐵':'🚇','搭船':'⛵','搭
 const ELEV=['在99樓等待(開門)','從99樓出發(搭乘)','在1樓等待(開門)','從1樓出發(搭乘)'];
 const elevTable=()=>{const cell=m=>`<tr><td>${String(m).padStart(2,'0')}</td><td>${ELEV[m%4]}</td></tr>`;let l='',r='';for(let m=0;m<30;m++){l+=cell(m);r+=cell(m+30)}return `<details class="elev"><summary>🛗 赫爾奧斯塔電梯時間表（每 4 分鐘一輪）</summary><div class="elevg"><table>${l}</table><table>${r}</table></div></details>`};
 $('dl').innerHTML=D.maps.map(m=>`<option value="${esc(m)}">`).join('');
-/* ===== 地圖名稱的排序：可以自由拖曳（Edward 要求，之後會鎖定）=====
-   LOCKED_ORDER：之後 Edward 決定好順序，就把陣列填在這裡，拖曳功能會自動關閉。 */
-const LOCKED_ORDER=null,ORDER_KEY='map_chip_order_v1';
+/* ===== 地圖名稱：依「世界地圖」的分類分組，可以自由拖曳（Edward 要求，之後會鎖定）=====
+   分類來自遊戲世界地圖的各個區域；找不到分類的先放「海外旅行」。
+   LOCKED_ORDER：之後 Edward 決定好，就把整個分組陣列填在這裡，拖曳功能會自動關閉。 */
+const LOCKED_ORDER=null,ORDER_KEY='map_chip_groups_v2';
+const DEF_GROUPS=[
+ ['維多利亞島',['維多利亞港','弓箭手村','勇士之村','魔法森林','鯨魚號','墮落城市','奇幻村','黃金海岸']],
+ ['水世界',['水世界']],
+ ['冰原雪域山脈',['天空之城','冰原雪域']],
+ ['路德斯湖',['玩具城','艾靈森林','童話村','地球防衛總部']],
+ ['米納爾森林',['神木村']],
+ ['時間神殿',['時間神殿']],
+ ['納希沙漠',['納希沙漠','瑪迦提亞城']],
+ ['武陵桃園',['桃花仙境','靈藥幻境']],
+ ['海外旅行',[]]];
+const OVERSEAS='海外旅行';
+function orderedGroups(){
+  let g=LOCKED_ORDER;if(!g){try{g=JSON.parse(localStorage.getItem(ORDER_KEY)||'null')}catch(e){}}
+  if(!Array.isArray(g)||!g.every(x=>x&&Array.isArray(x.m)))g=DEF_GROUPS.map(([n,m])=>({n,m:m.slice()}));
+  const all=new Set(D.maps),seen=new Set();
+  g=g.map(x=>({n:x.n,m:x.m.filter(m=>all.has(m)&&!seen.has(m)&&seen.add(m))}));
+  const lost=defOrder().filter(m=>!seen.has(m));   // 沒有分類的（新加的地圖、泰國、日本、西門町、101…）→ 海外旅行
+  let o=g.find(x=>x.n===OVERSEAS);if(!o){o={n:OVERSEAS,m:[]};g.push(o)}o.m=o.m.concat(lost);
+  return g}
 const defOrder=()=>D.maps.slice().sort((a,b)=>a.localeCompare(b,'zh-Hant'));
-function orderedMaps(){const def=defOrder();let o=LOCKED_ORDER;if(!o){try{o=JSON.parse(localStorage.getItem(ORDER_KEY)||'null')}catch(e){}}if(!Array.isArray(o))return def;return o.filter(m=>D.maps.includes(m)).concat(def.filter(m=>!o.includes(m)))}
-function renderChips(){$('chips').innerHTML=orderedMaps().map(m=>`<span class="chip${EDIT?' drag':''}" data-m="${esc(m)}">${esc(m)}</span>`).join('')}
+function renderChips(){$('chips').innerHTML=orderedGroups().filter(x=>x.m.length||EDIT).map(x=>`<div class="cg" data-g="${esc(x.n)}"><div class="cgt">${esc(x.n)}</div><div class="chips">${x.m.map(m=>`<span class="chip${EDIT?' drag':''}" data-m="${esc(m)}">${esc(m)}</span>`).join('')}</div></div>`).join('')}
 let EDIT=false,dragEl=null,sx=0,sy=0,moved=false,justDragged=false;
 renderChips();
-function chipOrder(){return [...$('chips').children].map(c=>c.dataset.m)}
-function setEdit(on){EDIT=on;$('sortBtn').classList.toggle('on',on);$('sortBtn').textContent=on?'✔ 完成排序':'✋ 調整排序';$('sortTools').hidden=!on;$('sortNote').textContent=on?'拖曳地圖名稱就能換位置（這時點名稱不會填入欄位）':'';renderChips()}
+function chipOrder(){return [...$('chips').querySelectorAll('.cg')].map(g=>({n:g.dataset.g,m:[...g.querySelectorAll('.chip')].map(c=>c.dataset.m)}))}
+function setEdit(on){EDIT=on;$('sortBtn').classList.toggle('on',on);$('sortBtn').textContent=on?'✔ 完成排序':'✋ 調整排序';$('sortTools').hidden=!on;$('sortNote').textContent=on?'拖曳地圖名稱就能換位置，也可以拖到別的分類（這時點名稱不會填入欄位）':'';renderChips()}
 if(LOCKED_ORDER)document.querySelector('.sortbar').hidden=true;
 $('sortBtn').onclick=()=>setEdit(!EDIT);
 $('sortReset').onclick=()=>{try{localStorage.removeItem(ORDER_KEY)}catch(e){}renderChips()};
@@ -98,7 +118,9 @@ $('sortCopy').onclick=async()=>{const t=JSON.stringify(chipOrder());try{await na
 $('chips').addEventListener('pointerdown',e=>{if(!EDIT)return;const c=e.target.closest('.chip');if(!c)return;dragEl=c;sx=e.clientX;sy=e.clientY;moved=false;try{c.setPointerCapture(e.pointerId)}catch(_){}});
 $('chips').addEventListener('pointermove',e=>{if(!dragEl)return;if(!moved&&Math.hypot(e.clientX-sx,e.clientY-sy)<6)return;moved=true;dragEl.classList.add('dragging');
   const prev=dragEl.style.pointerEvents;dragEl.style.pointerEvents='none';const under=document.elementFromPoint(e.clientX,e.clientY);dragEl.style.pointerEvents=prev;
-  const t=under&&under.closest&&under.closest('#chips .chip');if(t&&t!==dragEl){const r=t.getBoundingClientRect(),after=e.clientX>r.left+r.width/2;$('chips').insertBefore(dragEl,after?t.nextSibling:t)}});
+  const t=under&&under.closest&&under.closest('#chips .chip');
+  if(t&&t!==dragEl){const r=t.getBoundingClientRect(),after=e.clientX>r.left+r.width/2;t.parentNode.insertBefore(dragEl,after?t.nextSibling:t)}
+  else if(!t){const g=under&&under.closest&&under.closest('#chips .cg');if(g){const box=g.querySelector('.chips');if(dragEl.parentNode!==box)box.appendChild(dragEl)}}});
 function endDrag(){if(!dragEl)return;dragEl.classList.remove('dragging');if(moved){try{localStorage.setItem(ORDER_KEY,JSON.stringify(chipOrder()))}catch(e){}justDragged=true;setTimeout(()=>justDragged=false,50)}dragEl=null}
 $('chips').addEventListener('pointerup',endDrag);$('chips').addEventListener('pointercancel',endDrag);
 /* ===== 世界地圖圖片 + 放大 ===== */
