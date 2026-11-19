@@ -232,6 +232,6 @@ $('swap').onclick=()=>{const t=$('from').value;$('from').value=$('to').value;$('
 ['from','to'].forEach(id=>{$(id).addEventListener('keydown',e=>{if(e.key==='Enter')show()});$(id).addEventListener('change',()=>{/* 輸入框改完不自動跳視窗，要按「查詢」或 Enter */})});
 $('chips').addEventListener('click',e=>{if(EDIT||justDragged)return;const c=e.target.closest('.chip');if(!c)return;const m=c.dataset.m;if(!$('from').value)$('from').value=m;else if(!$('to').value)$('to').value=m;else{$('from').value=m;$('to').value=''}syncOrig();if($('from').value&&$('to').value)show()});
 </script>
-<script src="edward-nav.js?v=r177"></script>
+<script src="edward-nav.js?v=r178"></script>
 </body>
 </html>
