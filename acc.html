@@ -145,7 +145,7 @@ function renderList(){
 // ---- 結果
 function renderOut(){
   const el=$('out');
-  if(SEL<0){el.innerHTML='<b>③ 結果</b><p class="muted">先從左邊選一隻怪物。</p>';return}
+  if(SEL<0){el.innerHTML='<b>③ 結果</b><p class="muted">先選一隻怪物</p>';return}
   const m=D[SEL],lv=lvNow(),ac=acNow(),c=calc(m,lv,ac);
   let h=`<b>③ 結果</b><div class="hero" style="margin-top:8px"><div class="pic">${m.img?`<img src="${imgSrc(m)}" alt="">`:'<span class="muted">缺圖</span>'}</div><div><h2>${esc(m.n)}</h2><div class="stat"><span>等級 <b>${m.lv==null?'暫無':m.lv}</b></span><span>血量 <b>${nz(m.hp)}</b></span><span>經驗 <b>${nz(m.exp)}</b></span></div></div></div>`;
   if(m.req==null){h+=`<div class="notice">這隻怪物的等級、命中需求、經驗目前暫無，所以還不能算命中率。</div>`}
