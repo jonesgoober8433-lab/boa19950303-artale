@@ -863,9 +863,14 @@
         #specialCaseBtn.special-btn.on { background: #a4602a; color: #fffaf0; border-color: #a4602a; animation: none; }
         @keyframes spPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(217,130,43,.55); } 50% { box-shadow: 0 0 0 7px rgba(217,130,43,0); } }
 
-        .summary .sp-btn-row { text-align: center; margin-top: 22px; padding-top: 14px; border-top: 1px dashed #e0cfa8; }
+        .summary .sp-btn-row { text-align: center; margin-top: 14px; padding-top: 10px; border-top: 1px dashed #e0cfa8; }
         .summary .sp-btn-row:has(#specialCaseBtn[hidden]) { display: none; }
         .summary .sp-btn-row .special-btn { margin: 0; }
+
+        /* 點數總結的底邊要對齊最後一個技能（Edward 2026-11-19）：技能樹底部不留空白，空白改放在整塊下方 */
+        #skillTree { padding-bottom: 0 !important; }
+        #skillTree .skill-section:last-child, #skillTree .skill-item:last-child { margin-bottom: 0 !important; }
+        body > .container { margin-bottom: 40px; }
 </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
     <link rel="stylesheet" href="edward-style.css?v=r135">
@@ -2228,7 +2233,7 @@
         initializeSimulator();
         setupBackToTopButton();
     </script>
-<script src="edward-nav.js?v=r175"></script>
+<script src="edward-nav.js?v=r176"></script>
 </body>
 
 
