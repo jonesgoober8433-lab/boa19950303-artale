@@ -11,6 +11,7 @@
     ,{id:'exp',name:'升級時間',href:'exp.html',match:['exp.html'],hide:1,g:'acc',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2"/><path d="M9 2h6"/></svg>'}
     ,{id:'cmd',name:'小工具',href:'cmd.html',match:['cmd.html','fx.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10l3 2-3 2M12 15h5"/></svg>'}
     ,{id:'temple',name:'時間神殿',href:'temple.html',match:['temple.html'],icon:''}
+    ,{id:'start',name:'小號必去',href:'starter.html',match:['starter.html'],icon:''}
     ,{id:'fx',name:'匯率換算',href:'fx.html',match:['fx.html'],hide:1,g:'cmd',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 10h8l-2-2M16 14H8l2 2"/></svg>'}
   ];
   // ---- 圖示（彩色方章：每個工具一個顏色）
@@ -23,9 +24,10 @@
    exp:[['m','M50 30a27 27 0 1 0 .01 0z'],['m','M43 17h14v8H43z'],['d','M50 57V42M50 57l11 7'],['l','M72 28l5-5']],
    cmd:[['m','M18 26h64a8 8 0 0 1 8 8v34a8 8 0 0 1-8 8H18a8 8 0 0 1-8-8V34a8 8 0 0 1 8-8z'],['d','M26 42l12 9-12 9M46 62h18']],
    temple:[['m','M28 18h44v8H28z'],['m','M28 74h44v8H28z'],['m','M34 26c0 14 10 18 16 24c-6 6-16 10-16 24h32c0-14-10-18-16-24c6-6 16-10 16-24z'],['d','M42 34h16M44 70h12']],
-   fx:[['m','M50 22a28 28 0 1 0 .01 0z'],['d','M35 43h27l-6-6M65 57H38l6 6']]
+   fx:[['m','M50 22a28 28 0 1 0 .01 0z'],['d','M35 43h27l-6-6M65 57H38l6 6']],
+   start:[['m','M50 56C32 58 22 46 22 30c18 0 28 8 28 26z'],['m','M50 48C50 30 62 18 80 18c0 20-12 32-30 30z'],['d','M50 82V46'],['l','M28 82h44']]
   };
-  var PAL={sim:['#e6c48e','#a4602a'],archive:['#c9a27a','#7a4a2a'],map:['#9bbf7a','#4d7a36'],acc:['#e59a6b','#a8392b'],magic:['#b99ae0','#6b3f86'],exp:['#8fc3d8','#2f5f8a'],cmd:['#a8a39a','#4f4a43'],temple:['#7fc2b4','#2f6f68'],fx:['#e6c860','#9a7a1c']};
+  var PAL={sim:['#e6c48e','#a4602a'],archive:['#c9a27a','#7a4a2a'],map:['#9bbf7a','#4d7a36'],acc:['#e59a6b','#a8392b'],magic:['#b99ae0','#6b3f86'],exp:['#8fc3d8','#2f5f8a'],cmd:['#a8a39a','#4f4a43'],temple:['#7fc2b4','#2f6f68'],fx:['#e6c860','#9a7a1c'],start:['#b8d98a','#4f7f2a']};
   function ICON(id){
     var c=PAL[id],gid='ni_'+id;
     var g=G[id].map(function(x){var r=x[0],d=x[1];
