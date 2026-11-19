@@ -902,6 +902,16 @@
             .summary::-webkit-scrollbar { width: 6px; }
             .summary::-webkit-scrollbar-thumb { background: #d9b98a; border-radius: 6px; }
         }
+
+        /* 電腦版版面：技能樹自動吃剩餘寬度，點數總結固定夠寬（文字不換行、不被切掉），太高時卡片內可滑動 */
+        @media (min-width: 769px) {
+            body > .container { gap: 22px; }
+            body > .container .skill-tree { width: auto !important; flex: 1 1 0; min-width: 0; }
+            body > .container .summary { width: clamp(236px, 24%, 330px) !important; flex: 0 0 auto; padding: 18px 18px !important; }
+            .summary p { font-size: 15px; line-height: 1.5; margin: 0.55em 0; }
+            .summary p, .summary .sp-full { overflow-wrap: normal; word-break: keep-all; }
+            .summary h2 { font-size: 1.35em; }
+        }
 </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
     <link rel="stylesheet" href="edward-style.css?v=r135">
