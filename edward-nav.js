@@ -180,7 +180,7 @@
     var id=null;TOOLS.forEach(function(t){if(t.match.indexOf(cur)>=0)id=t.id});
     if(id&&id!=='sim'&&!h.querySelector('img,svg')){h.classList.add('has-ic');var s=document.createElement('span');s.className='hic';s.innerHTML=ICON(id);h.insertBefore(s,h.firstChild)}
     var host=h.parentElement;
-    if(document.querySelector('header .ig-pill,.toolbar .ig-pill'))return; // 頁面自己已有（法師裝備模擬器）
+    var own=document.querySelectorAll('header .ig-pill,.toolbar .ig-pill');for(var oi=0;oi<own.length;oi++)own[oi].style.display='none'; // 頁面自己的改用統一位置
     host.classList.add(id==='sim'?'ed-sim':'ed-host');
     var a=document.createElement('a');a.className='ed-ig';a.href='https://www.instagram.com/boa19950303/';a.target='_blank';a.rel='noopener noreferrer';
     a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>boa19950303';
