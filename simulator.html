@@ -871,6 +871,22 @@
         #skillTree { padding-bottom: 0 !important; }
         #skillTree .skill-section:last-child, #skillTree .skill-item:last-child { margin-bottom: 0 !important; }
         body > .container { margin-bottom: 40px; }
+
+        /* --- 手機版：點數總結改成右側「預覽」式側邊分頁（Edward 2026-11-19） --- */
+        #sumTab, #sumBackdrop { display: none; }
+        @media (max-width: 768px) {
+            .summary { position: fixed !important; right: 0; top: 74px; bottom: auto; width: min(88vw, 340px) !important; max-height: calc(100vh - 96px); overflow-y: auto; z-index: 9990; margin: 0 !important; border-radius: 18px 0 0 18px !important; transform: translateX(108%) !important; transition: transform .28s ease; box-shadow: -10px 0 30px -12px rgba(0,0,0,.45) !important; }
+            body.sum-open .summary { transform: translateX(0) !important; }
+            #sumBackdrop { display: block; position: fixed; inset: 0; background: rgba(40,28,18,.38); z-index: 9980; opacity: 0; pointer-events: none; transition: opacity .25s; }
+            body.sum-open #sumBackdrop { opacity: 1; pointer-events: auto; }
+            #sumTab { display: flex; position: fixed; right: 0; top: 42%; z-index: 9995; flex-direction: column; align-items: center; gap: 6px; width: 46px; padding: 12px 0 10px; border: 0; border-radius: 16px 0 0 16px; background: #5d4037; color: #fffaf0; font: 800 15px/1.1 "Noto Sans TC", system-ui, sans-serif; letter-spacing: .08em; box-shadow: -6px 6px 16px -8px rgba(0,0,0,.6); cursor: pointer; transition: right .28s ease; -webkit-tap-highlight-color: transparent; }
+            body.sum-open #sumTab { right: min(88vw, 340px); }
+            #sumTab svg { width: 22px; height: 22px; }
+            #sumTab .vt { writing-mode: vertical-rl; text-orientation: upright; }
+            #sumTab .bd { min-width: 30px; padding: 1px 6px; border-radius: 999px; background: #fffaf0; color: #5d4037; font: 800 12px/1.5 "Noto Sans TC", sans-serif; letter-spacing: 0; text-align: center; }
+            .summary .sum-close { display: block; }
+        }
+        .summary .sum-close { display: none; margin: 0 0 4px auto; border: 1px solid #a4602a; background: #fffaf0; color: #a4602a; border-radius: 999px; padding: 2px 14px; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; }
 </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
     <link rel="stylesheet" href="edward-style.css?v=r135">
@@ -914,7 +930,10 @@
         <div class="skill-tree" id="skillTree">
         </div>
 
+        <button type="button" id="sumTab" aria-label="開啟點數總結" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="vt">點數總結</span><span class="bd" id="sumBd">0</span></button>
+        <div id="sumBackdrop"></div>
         <div class="summary">
+            <button type="button" class="sum-close" id="sumClose">關閉 ✕</button>
             <h2>點數總結</h2>
             <p>總已分配點數: <span id="spentSp">0</span></p>
             <p>剩餘點數: <span id="remainingSp">0</span></p>
@@ -1602,6 +1621,22 @@
             }
         }
         document.addEventListener('click', e => { const id = e.target && e.target.id; if (id === 'btSave') saveBuildTableImage(); else if (id === 'btCopy') copyBuildTableImage(); });
+
+
+        // --- 手機版：點數總結側邊分頁 ---
+        (function initSumDrawer() {
+            const tab = document.getElementById('sumTab'), bd = document.getElementById('sumBd');
+            if (!tab) return;
+            const set = on => { document.body.classList.toggle('sum-open', on); tab.setAttribute('aria-expanded', on ? 'true' : 'false'); tab.setAttribute('aria-label', on ? '關閉點數總結' : '開啟點數總結'); };
+            tab.addEventListener('click', () => set(!document.body.classList.contains('sum-open')));
+            document.getElementById('sumBackdrop').addEventListener('click', () => set(false));
+            document.getElementById('sumClose').addEventListener('click', () => set(false));
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+            const rem = document.getElementById('remainingSp');
+            const upd = () => { bd.textContent = rem ? rem.textContent : '0'; };
+            if (rem) { new MutationObserver(upd).observe(rem, { childList: true, characterData: true, subtree: true }); }
+            upd();
+        })();
 
         // --- 更新 UI 顯示 ---
         function updateUI() {
