@@ -49,7 +49,7 @@
     /* 置頂按鈕：箭頭用 SVG 置中，右邊對齊內容欄（Edward 2026-11-19） */
   '#backToTopBtn{font-size:0!important;width:52px!important;height:52px!important;bottom:28px!important}#backToTopBtn::before{content:"";width:22px;height:22px;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23fffaf0\' stroke-width=\'2.6\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M12 19V6M6 12l6-6 6 6\'/%3E%3C/svg%3E")}'+
   '@media(min-width:701px){#backToTopBtn,.fab{right:calc(max(76px,(100vw - 1200px)/2) + 16px)!important}}'+
-'@media(min-width:701px){body{box-sizing:border-box!important;padding-left:76px!important;padding-right:76px!important}header.ed-host,header.tt-header,body>header,body>main,main.tt-main,.bar-in,#ed-sub,.ig-footer,#edward-board,#edward-refs,.page-container,#buildNotes,body>.container,#buildTableCard{width:100%;max-width:1200px!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}header.tt-header{max-width:none!important;width:auto}}'+
+'@media(min-width:701px){body{box-sizing:border-box!important;padding-left:76px!important;padding-right:76px!important}header.ed-host,header.tt-header,body>header,body>main,main.tt-main,.bar-in,#ed-sub,.ig-footer,#edward-updates,#edward-board,#edward-refs,.page-container,#buildNotes,body>.container,#buildTableCard{width:100%;max-width:1200px!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}header.tt-header{max-width:none!important;width:auto}}'+
   '@media(max-height:640px){#edward-rail a{font-size:10px}#edward-rail .tx{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}}'+
   '@media(max-height:520px){#edward-rail .tx{display:none}}'+
   '@media(max-width:700px){#edward-rail{display:none}body{padding-left:0!important;padding-top:60px!important}}';
@@ -101,6 +101,48 @@
         t.value='';n.textContent='0';m.style.color='#4d7a36';m.textContent='謝謝你幫我抓 Bug！我收到了，會盡快處理 🙏';
       }).catch(function(){m.style.color='#a4602a';m.textContent='送出失敗，請稍後再試一次';last=0}).then(function(){b.disabled=false});
     });
+  }
+
+
+  // ---- 公開修改紀錄（純文字 updates.txt）：一排工具圖示，按下去看該工具「用戶回報了什麼」＋「這次修了什麼」。找不到 updates.txt 就不顯示。
+  function addUpdates(){
+    if(document.getElementById('edward-updates'))return;
+    var xhr=new XMLHttpRequest();xhr.open('GET','updates.txt?v=r175&t='+Math.floor(Date.now()/600000));
+    xhr.onload=function(){if(xhr.status!==200||!/^##\s/m.test(xhr.responseText))return;build(xhr.responseText)};xhr.send();
+    function build(txt){
+      var list=[],cur2=null;
+      txt.split(/\r?\n/).forEach(function(l){
+        var m=l.match(/^##\s*(\d{4}-\d{1,2}-\d{1,2})\s*\|\s*(.+)$/);
+        if(m){cur2={date:m[1],tools:m[2].split(/[,，、\s]+/).filter(Boolean),ask:'',fix:'',st:'done'};list.push(cur2);return}
+        if(!cur2)return;
+        var a=l.match(/^(回報|修正|狀態)\s*[：:]\s*(.*)$/);if(!a)return;
+        if(a[1]==='回報')cur2.ask=a[2];else if(a[1]==='修正')cur2.fix=a[2];else cur2.st=/處理|進行|待/.test(a[2])?'doing':'done'});
+      list=list.filter(function(x){return x.ask||x.fix}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0});
+      if(!list.length)return;
+      var IDS=['sim','archive','map','acc','exp','magic','cmd','fx','temple'];
+      var NAMES={sim:'技能模擬器',archive:'魔改存檔',map:'地圖指引',acc:'命中計算',exp:'升級時間',magic:'法師裝備模擬器',cmd:'快捷指令',fx:'匯率換算',temple:'時間神殿'};
+      var curId=null;TOOLS.forEach(function(t){if(t.match.indexOf(cur)>=0)curId=t.id});if(!curId||IDS.indexOf(curId)<0)curId='sim';
+      var sel=curId,showAll=false;
+      var tl={};IDS.forEach(function(id){tl[id]=TOOLS.filter(function(t){return t.id===id})[0]});
+      var st=document.createElement('style');st.textContent='#edward-updates{max-width:1080px;margin:0 auto 24px;padding:18px 16px 0;border-top:1px solid #e8dcc3;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:#3a2f25}#edward-updates h3{margin:0 0 4px;font:700 20px "Noto Serif TC","Songti TC",serif}#edward-updates .sub{margin:0 0 12px;color:#86745f;font-size:13px}'+
+        '#edward-updates .ic{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}#edward-updates .it{flex:none;position:relative;width:62px;height:62px;border-radius:18px;border:2px solid transparent;background:#fffaf0;cursor:pointer;padding:6px;box-shadow:0 4px 10px -6px rgba(120,88,48,.6);transition:transform .12s,border-color .12s}#edward-updates .it:hover{transform:translateY(-2px)}#edward-updates .it.on{border-color:#a4602a;background:#f4e8cf;box-shadow:0 8px 16px -8px rgba(164,96,42,.8)}#edward-updates .it .svg{display:block;width:100%;height:100%}#edward-updates .it .svg svg,#edward-updates .it .svg img{width:100%;height:100%;display:block}#edward-updates .it .n{position:absolute;right:-6px;top:-6px;min-width:20px;height:20px;border-radius:10px;background:#a4602a;color:#fffaf0;font:800 11.5px/20px "Noto Sans TC",sans-serif;text-align:center;padding:0 5px}#edward-updates .it.z{opacity:.55}'+
+        '#edward-updates .cur{display:flex;align-items:center;gap:10px;margin:6px 0 10px;font:800 18px "Noto Serif TC",serif}#edward-updates .cur .svg{width:34px;height:34px;display:inline-flex}#edward-updates .cur .svg svg,#edward-updates .cur .svg img{width:100%;height:100%}#edward-updates .cur small{font:500 13px "Noto Sans TC",sans-serif;color:#86745f}'+
+        '#edward-updates .card{background:#fffaf0;border:1px solid #e8dcc3;border-radius:14px;padding:12px 16px;margin:0 0 10px}#edward-updates .card .hd{display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:13px;color:#86745f}#edward-updates .badge{border-radius:999px;padding:0 10px;font-size:12px;font-weight:800;line-height:1.8}#edward-updates .b-done{background:#e3efd8;color:#4d7a36}#edward-updates .b-doing{background:#fde9d2;color:#b3541a}#edward-updates .tag{background:#f4e8cf;border-radius:999px;padding:0 9px;font-size:12px;color:#6b5636}'+
+        '#edward-updates .row{display:grid;grid-template-columns:62px 1fr;gap:4px 10px;font-size:14.5px;line-height:1.7;margin-top:2px}#edward-updates .row b{color:#a4602a}#edward-updates .empty{padding:18px;text-align:center;color:#86745f;background:#fffaf0;border:1px dashed #e0cfa8;border-radius:14px}#edward-updates .more{border:1px solid #a4602a;background:#fffaf0;color:#a4602a;border-radius:999px;padding:6px 20px;font:700 14px inherit;cursor:pointer}@media(max-width:700px){#edward-updates .row{grid-template-columns:1fr}}';
+      document.head.appendChild(st);
+      var sec=document.createElement('section');sec.id='edward-updates';document.body.insertBefore(sec,document.getElementById('edward-board')||document.getElementById('edward-refs')||nav);
+      function icon(id,k){var t=tl[id];return t?t.icon.split('ni_'+id).join('nu'+k+'_'+id):''}
+      function cnt(id){return list.filter(function(x){return x.tools.indexOf(id)>=0||x.tools.indexOf('all')>=0}).length}
+      function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+      function render(){
+        var items=list.filter(function(x){return x.tools.indexOf(sel)>=0||x.tools.indexOf('all')>=0});var shown=showAll?items:items.slice(0,5);
+        sec.innerHTML='<h3>📢 公開回覆：回報了什麼、這次修了什麼</h3><p class="sub">這裡公開整理大家回報的問題和我的修正（只寫問題摘要，不放名字或 Email）。點上面的圖示，看那個工具的紀錄。</p>'+
+          '<div class="ic">'+IDS.map(function(id){var n=cnt(id);return '<button type="button" class="it '+(id===sel?'on':'')+(n?'':' z')+'" data-id="'+id+'" title="'+NAMES[id]+'"><span class="svg">'+icon(id,'a')+'</span>'+(n?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</div>'+
+          '<div class="cur"><span class="svg">'+icon(sel,'b')+'</span>'+NAMES[sel]+'<small>共 '+items.length+' 則</small></div>'+
+          (shown.length?shown.map(function(x){var d=x.date.split('-');return '<div class="card"><div class="hd"><span>'+d[1]+'/'+d[2]+'</span><span class="badge '+(x.st==='doing'?'b-doing':'b-done')+'">'+(x.st==='doing'?'處理中':'已修正 ✓')+'</span>'+(x.tools.indexOf('all')>=0?'<span class="tag">全站</span>':x.tools.length>1?x.tools.filter(function(t){return t!==sel&&NAMES[t]}).map(function(t){return '<span class="tag">'+NAMES[t]+'</span>'}).join(''):'')+'</div>'+(x.ask?'<div class="row"><b>回報</b><span>'+esc(x.ask)+'</span></div>':'')+(x.fix?'<div class="row"><b>這次修了</b><span>'+esc(x.fix)+'</span></div>':'')+'</div>'}).join(''):'<div class="empty">這個工具目前還沒有公開紀錄。</div>')+
+          (items.length>5&&!showAll?'<div style="text-align:center;margin-top:6px"><button type="button" class="more" data-more="1">顯示全部 '+items.length+' 則</button></div>':'')}
+      sec.addEventListener('click',function(e){var b=e.target.closest('.it');if(b){sel=b.dataset.id;showAll=false;render();return}if(e.target.closest('.more')){showAll=true;render()}});
+      render()}
   }
 
   function addRefs(){
@@ -250,6 +292,6 @@
     document.addEventListener('click',function(e){if(!list.contains(e.target))tog(false)});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')tog(false)});
   }
-  function add(){document.body.appendChild(nav);addTopbar();addChrome();addSubTabs();addVersion();addPromo();addBoard();addRefs()}
+  function add(){document.body.appendChild(nav);addTopbar();addChrome();addSubTabs();addVersion();addPromo();addUpdates();addBoard();addRefs()}
   if(document.body)add();else document.addEventListener('DOMContentLoaded',add);
 })();
