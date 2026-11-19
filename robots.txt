@@ -26,3 +26,8 @@ User-agent: YouBot
 User-agent: DuckAssistBot
 User-agent: MistralAI-User
 Disallow: /
+
+# 後台管理頁（不需要被收錄）
+User-agent: *
+Disallow: /boa19950303-artale/admin-updates.html
+Disallow: /admin-updates.html

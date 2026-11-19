@@ -35,7 +35,7 @@
       return '<path d="'+d+'" fill="none" stroke="#fffaf0" stroke-width="3.2" stroke-linecap="round"/>'}).join('');
     return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient></defs><rect x="3" y="3" width="94" height="94" rx="24" fill="url(#'+gid+')"/><rect x="9" y="9" width="82" height="82" rx="19" fill="none" stroke="#fffaf0" stroke-opacity=".5" stroke-width="2"/>'+g+'</svg>';
   }
-  TOOLS.forEach(function(t){t.icon=ICON(t.id)});
+  TOOLS.forEach(function(t){t.icon=ICON(t.id)});window.__EDWARD_TOOLS={};TOOLS.forEach(function(t){window.__EDWARD_TOOLS[t.id]=t.icon});
   var cur=location.pathname.split('/').pop();
   // 側邊欄：不捲動，全部工具平均分配整個高度；螢幕矮就自動縮小圖示、再矮就只留圖示
   var css='#edward-rail{position:fixed;left:0;top:0;bottom:0;width:76px;z-index:9999;background:#f4e8cf;border-right:1px solid #e8dcc3;display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:8px 5px;overflow:hidden;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}'+

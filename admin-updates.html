@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>修改紀錄管理｜阿泰爾工具箱</title>
+<style>
+:root{--bg:#f5ecdb;--card:#fffaf0;--fg:#3a2f25;--muted:#86745f;--line:#e8dcc3;--accent:#a4602a;--accent-ink:#fffaf0;--soft:#f4e8cf;--field:#fdf6e6;--ok:#4d7a36;--okbg:#e3efd8;--warn:#b3541a;--warnbg:#fde9d2;--blue:#2a5ea8;--bluebg:#e6eefa;--red:#b3341a}
+*{box-sizing:border-box}html{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+header{max-width:1000px;margin:0 auto;padding:22px 16px 8px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.logo{width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,#c7843f,#8f4f1d);display:grid;place-items:center;font-size:26px;box-shadow:0 8px 18px -8px rgba(120,70,20,.7)}
+h1{margin:0;font:800 26px/1.2 "Noto Serif TC","Songti TC",serif}
+.sub{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+main{max-width:1000px;margin:0 auto;padding:6px 16px 90px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 14px;font-size:13.5px;color:var(--muted)}
+.stat b{color:var(--fg)}
+button,.btn{font:inherit;font-weight:700;border:1px solid var(--accent);background:var(--card);color:var(--accent);border-radius:999px;padding:7px 16px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+button:hover{background:var(--soft)}
+button.p{background:var(--accent);color:var(--accent-ink)}button.p:hover{background:#8d5122}
+button.danger{border-color:var(--red);color:var(--red)}
+button[disabled]{opacity:.5;cursor:default}
+.ib{width:40px;height:40px;padding:0;justify-content:center;font-size:18px;border-radius:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 18px;margin:0 0 12px;box-shadow:0 8px 20px -16px rgba(120,88,48,.7)}
+.card.dr{border-style:dashed;border-color:#d9a65c;background:#fffdf5}
+.hd{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.badge{border-radius:999px;padding:0 10px;font-size:12px;font-weight:800;line-height:1.8}
+.b-live{background:var(--okbg);color:var(--ok)}.b-dr{background:var(--warnbg);color:var(--warn)}.b-doing{background:#fde9d2;color:var(--warn)}.b-done{background:var(--okbg);color:var(--ok)}.b-edit{background:var(--bluebg);color:var(--blue)}
+.tm{font-weight:700;color:#6b5636;font-size:13.5px}
+.tag{display:inline-flex;align-items:center;gap:4px;background:var(--soft);border-radius:999px;padding:1px 10px 1px 4px;font-size:12.5px}
+.tag i{width:20px;height:20px;display:inline-flex}.tag i svg,.tag i img{width:100%;height:100%}
+.line{display:grid;grid-template-columns:70px 1fr;gap:2px 10px;margin-top:3px;font-size:14.5px}
+.line b{color:var(--accent)}
+.acts{display:flex;gap:8px;margin-top:10px;justify-content:flex-end;flex-wrap:wrap}
+.empty{text-align:center;padding:40px 16px;color:var(--muted)}
+details.set{background:var(--bluebg);border-radius:14px;padding:10px 14px;margin-bottom:12px}
+details.set summary{cursor:pointer;font-weight:800;color:var(--blue)}
+details.set ol{margin:8px 0 6px;padding-left:20px;font-size:14px}
+input[type=text],input[type=password],input[type=datetime-local],textarea,select{width:100%;font:inherit;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:9px 12px;color:var(--fg)}
+textarea{min-height:92px;resize:vertical}
+label.f{display:block;font-weight:800;margin:14px 0 5px}
+label.f small{font-weight:400;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:620px){.row2{grid-template-columns:1fr}}
+.modal{position:fixed;inset:0;background:rgba(58,47,37,.5);display:none;align-items:flex-start;justify-content:center;padding:20px 12px;overflow:auto;z-index:50}
+.modal.show{display:flex}
+.sheet{background:var(--card);border-radius:20px;max-width:720px;width:100%;padding:20px 22px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+.sheet h2{margin:0 0 4px;font:800 21px "Noto Serif TC",serif}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tl{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);background:#fff;border-radius:14px;padding:3px 12px 3px 5px;cursor:pointer;font-size:13.5px;font-weight:700;user-select:none}
+.tl i{width:28px;height:28px;display:inline-flex}.tl i svg,.tl i img{width:100%;height:100%}
+.tl.on{border-color:var(--accent);background:var(--soft)}
+.foot{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--fg);color:var(--card);padding:9px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:80;max-width:92vw;text-align:center}
+#toast.on{opacity:1}
+html body{padding:0!important}#edward-rail,#ed-top,#ed-vp,#edward-updates,#edward-board,#edward-refs,.ig-footer,#ed-menu-list,.ed-ig,.edig{display:none!important}
+.note{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">📝</div>
+  <div><h1>修改紀錄管理</h1><p class="sub">像寫部落格一樣：新增、✏️ 編輯、🗑 刪除、💾 暫存、🚀 上線（網站「公開回覆」區塊的內容）。<b>所有回覆預設都是暫存，按 🚀 才會公開。</b></p></div>
+</header>
+<main>
+  <details class="set" id="setBox">
+    <summary>🔑 第一次使用：設定 GitHub 權限（只存在這台裝置，不會公開）</summary>
+    <ol>
+      <li>登入 GitHub → 右上頭像 → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token。</li>
+      <li>Repository access 選「Only select repositories」→ 只選 <b>boa19950303-artale</b>。</li>
+      <li>Permissions → Repository permissions → <b>Contents</b> 設成 <b>Read and write</b>，其他都不要開。Expiration 建議 90 天。</li>
+      <li>產生後複製（只會顯示一次），貼到下面。</li>
+    </ol>
+    <label class="f">GitHub Token <small>（貼上後按「儲存並測試」）</small></label>
+    <input type="password" id="tok" placeholder="github_pat_…" autocomplete="off">
+    <div class="foot" style="justify-content:flex-start"><button class="p" id="btnTok">儲存並測試</button><button id="btnTokClear">移除這台裝置的 Token</button><span class="note" id="tokMsg"></span></div>
+    <p class="note">沒設定權限也能用：你可以編輯、暫存，按「複製 updates.txt」把文字貼給 Claude，由 Claude 上線。</p>
+  </details>
+
+  <div class="bar">
+    <button class="p" id="btnNew">＋ 新增一則</button>
+    <button id="btnImport">📥 匯入草稿</button><button id="btnReload">↻ 重新載入線上版</button>
+    <button id="btnCopy">📋 複製 updates.txt</button>
+    <span class="stat">已上線 <b id="nLive">0</b></span><span class="stat">暫存 <b id="nDraft">0</b></span>
+    <a class="btn" href="./" target="_blank" rel="noopener">🌐 看網站</a>
+  </div>
+  <div id="list"></div>
+</main>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+<script src="edward-nav.js?v=r177"></script>
+<script>
+/* 這頁不需要左邊選單：把 nav 的圖示借來當工具標籤用 */
+</script>
+<script>
+const OWNER='jonesgoober8433-lab',REPO='boa19950303-artale',PATH='updates.txt',BRANCH='main';
+const TOOLS_N={sim:'技能模擬器',archive:'魔改存檔',map:'地圖指引',acc:'命中計算',exp:'升級時間',magic:'法師裝備模擬器',cmd:'快捷指令',fx:'匯率換算',temple:'時間神殿',all:'全站'};
+const HEAD=`# 公開修改紀錄（純文字）
+# 這個檔案會顯示在網站每一頁的「公開回覆」區塊（上方一排工具圖示，按下去看該工具的紀錄）。可以用「修改紀錄管理」頁（admin-updates.html）編輯、刪除、暫存、上線，也可以直接改這個檔。
+# 格式：每一則以「## 日期 | 工具代號」開頭（日期用來排序），下面依序是：回報時間：／修改時間：／回報：／修正：／狀態：。
+#   回報時間、修改時間可寫「2026-11-19」或「2026-11-19 14:30」；修改時間可省略（處理中就不寫）；狀態可省略，預設「已修正」，寫「處理中」會顯示橘色標籤。
+# 工具代號：sim=技能模擬器  archive=魔改存檔  map=地圖指引  acc=命中計算  exp=升級時間  magic=法師裝備模擬器  cmd=快捷指令  fx=匯率換算  temple=時間神殿  all=全站（每個工具都會看到）
+# 一則可以掛多個工具，用逗號分開，例如：## 2026-11-19 | acc, exp
+# 只寫「回報了什麼問題」的摘要，不放名字、不放 Email。以 # 開頭的行是說明，不會顯示。
+`;
+const LSK='admin_updates_v1',TK='admin_updates_token';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let TOKEN='';try{TOKEN=localStorage.getItem(TK)||''}catch(e){}
+/* items: {id, live:{...}|null, draft:{...}|null, del:false}；一則內容 {tools:[],t1,t2,ask,fix,st} */
+let S={items:[]};try{S=JSON.parse(localStorage.getItem(LSK)||'{"items":[]}')}catch(e){}
+const save=()=>{try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}};
+const uid=()=>'i'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+function toast(t,ms){const x=$('toast');x.textContent=t;x.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>x.classList.remove('on'),ms||2600)}
+const view=it=>it.draft||it.live;
+/* ---------- 解析／輸出 updates.txt ---------- */
+function parse(txt){const out=[];let c=null;
+  txt.split(/\r?\n/).forEach(l=>{const m=l.match(/^##\s*(\d{4}-\d{1,2}-\d{1,2})\s*\|\s*(.+)$/);
+    if(m){c={tools:m[2].split(/[,，、\s]+/).filter(Boolean),t1:'',t2:'',ask:'',fix:'',st:'done',date:m[1]};out.push(c);return}
+    if(!c)return;const a=l.match(/^(回報時間|修改時間|回報|修正|狀態)\s*[：:]\s*(.*)$/);if(!a)return;
+    ({回報:()=>c.ask=a[2],修正:()=>c.fix=a[2],回報時間:()=>c.t1=a[2].trim(),修改時間:()=>c.t2=a[2].trim(),狀態:()=>c.st=/處理|進行|待/.test(a[2])?'doing':'done'})[a[1]]()});
+  out.forEach(c=>{if(!c.t1)c.t1=c.date});return out.filter(c=>c.ask||c.fix)}
+const dateOf=e=>((e.t2||e.t1||'').match(/^\d{4}-\d{1,2}-\d{1,2}/)||[new Date().toISOString().slice(0,10)])[0].replace(/-(\d)(?!\d)/g,'-0$1').replace(/-(\d)-/,'-0$1-');
+function normDate(s){const m=String(s||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);return m?m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2):new Date().toISOString().slice(0,10)}
+function serialize(list){
+  const rows=list.slice().sort((a,b)=>{const ka=(a.t2||a.t1||''),kb=(b.t2||b.t1||'');return ka<kb?1:ka>kb?-1:0});
+  return HEAD+'\n'+rows.map(e=>{const d=normDate(e.t2||e.t1);
+    return `## ${d} | ${(e.tools.length?e.tools:['all']).join(', ')}\n回報時間：${e.t1||d}\n${e.st==='doing'||!e.t2?'':'修改時間：'+e.t2+'\n'}回報：${(e.ask||'').replace(/\n/g,' ')}\n修正：${(e.fix||'').replace(/\n/g,' ')}\n${e.st==='doing'?'狀態：處理中\n':''}`}).join('\n')}
+const liveList=()=>S.items.filter(i=>i.live&&!i.del).map(i=>i.live);
+/* ---------- 載入線上版 ---------- */
+async function loadLive(keepMsg){
+  try{
+    const r=await fetch('updates.txt?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error(r.status);
+    const remote=parse(await r.text());
+    // 以線上為準：已有的暫存草稿（對應同一則）保留
+    const old=S.items.filter(i=>i.live);const byKey=e=>e.t1+'|'+(e.ask||'').slice(0,30);
+    const next=remote.map(e=>{const o=old.find(i=>byKey(i.live)===byKey(e));return {id:o?o.id:uid(),live:e,draft:o?o.draft:null,del:false}});
+    S.items=next.concat(S.items.filter(i=>!i.live&&i.draft));save();
+    if(!keepMsg)toast('已載入線上版：'+remote.length+' 則');
+  }catch(e){toast('讀不到線上的 updates.txt（'+e.message+'）')}
+  render()}
+/* ---------- 畫面 ---------- */
+function toolIcon(id){try{const t=window.__EDWARD_TOOLS&&window.__EDWARD_TOOLS[id];return t?t.split('ni_'+id).join('ad_'+id):''}catch(e){return ''}}
+function fmtT(s){const m=String(s||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T]+(\d{1,2}):(\d{2}))?/);return m?m[2]+'/'+m[3]+(m[4]?' '+('0'+m[4]).slice(-2)+':'+m[5]:''):(s||'')}
+function render(){
+  $('nLive').textContent=S.items.filter(i=>i.live&&!i.del).length;$('nDraft').textContent=S.items.filter(i=>i.draft||i.del).length;
+  const items=S.items.slice().sort((a,b)=>{const va=view(a)||a.live,vb=view(b)||b.live;const ka=(va.t2||va.t1||''),kb=(vb.t2||vb.t1||'');return ka<kb?1:ka>kb?-1:0});
+  $('list').innerHTML=items.length?items.map(it=>{const v=view(it);if(!v)return '';
+    const isDraftOnly=!it.live,hasPending=!!it.draft&&!!it.live,del=it.del;
+    return `<div class="card ${it.draft||del?'dr':''}" data-id="${it.id}">
+      <div class="hd"><span class="tm">🕒 回報 ${esc(fmtT(v.t1))}${v.st==='doing'?'':' → 修正 '+esc(fmtT(v.t2||v.t1))}</span>
+        <span class="badge ${v.st==='doing'?'b-doing':'b-done'}">${v.st==='doing'?'處理中':'已修正'}</span>
+        ${del?'<span class="badge b-dr">待刪除（按上線後生效）</span>':isDraftOnly?'<span class="badge b-dr">暫存・尚未公開</span>':hasPending?'<span class="badge b-edit">已上線・有未上線的修改</span>':'<span class="badge b-live">已上線</span>'}</div>
+      <div class="hd">${(v.tools||[]).map(t=>`<span class="tag"><i>${toolIcon(t)}</i>${esc(TOOLS_N[t]||t)}</span>`).join('')}</div>
+      <div class="line"><b>回報</b><span>${esc(v.ask)}</span></div><div class="line"><b>這次修了</b><span>${esc(v.fix)}</span></div>
+      <div class="acts">
+        <button class="ib" title="編輯" data-a="edit">✏️</button>
+        <button class="ib danger" title="刪除" data-a="del">🗑</button>
+        ${it.draft||del?'<button class="ib" title="放棄暫存的修改" data-a="discard">↩</button>':''}
+        <button class="ib p" title="上線" data-a="pub" ${(!it.draft&&it.live&&!del)?'disabled':''}>🚀</button>
+      </div></div>`}).join(''):'<div class="empty">📭 還沒有任何紀錄。按上面「＋ 新增一則」開始。</div>'}
+/* ---------- 編輯視窗 ---------- */
+let EDIT=null;
+function nowStr(){const d=new Date(),p=n=>('0'+n).slice(-2);return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())}
+const toLocal=s=>{const m=String(s||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T]+(\d{1,2}):(\d{2}))?/);if(!m)return '';return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2)+'T'+('0'+(m[4]||'0')).slice(-2)+':'+(m[5]||'00')};
+const fromLocal=s=>s?s.replace('T',' '):'';
+function openEditor(id){
+  let it=S.items.find(i=>i.id===id);const isNew=!it;
+  const v=it?Object.assign({},view(it)):{tools:['sim'],t1:'',t2:'',ask:'',fix:'',st:'done'};
+  EDIT={id:it?it.id:uid(),isNew,v};
+  const hasT1=!!v.t1;
+  $('sheet').innerHTML=`<h2>${isNew?'＋ 新增一則':'✏️ 編輯'}</h2><div class="note">只寫「回報了什麼問題」的摘要，不放名字、不放 Email。</div>
+  <label class="f">工具 <small>（可多選；「全站」會出現在每個工具）</small></label>
+  <div class="tools">${Object.keys(TOOLS_N).map(t=>`<span class="tl ${v.tools.includes(t)?'on':''}" data-t="${t}"><i>${toolIcon(t)}</i>${TOOLS_N[t]}</span>`).join('')}</div>
+  <div class="row2"><div><label class="f">問題時間（回報時間）</label><input type="datetime-local" id="eT1" value="${toLocal(hasT1?v.t1:'')||nowStr()}"></div>
+  <div><label class="f">修改時間 <small>（處理中可留空）</small></label><input type="datetime-local" id="eT2" value="${toLocal(v.t2)}"></div></div>
+  <label class="f">回報了什麼問題</label><textarea id="eAsk" placeholder="例如：手機版配點總表沒辦法左右滑動">${esc(v.ask)}</textarea>
+  <label class="f">這次修了什麼</label><textarea id="eFix" placeholder="例如：手機版表格現在可以左右滑動，複製與儲存按鈕完整顯示。">${esc(v.fix)}</textarea>
+  <label class="f">狀態</label><select id="eSt"><option value="done" ${v.st!=='doing'?'selected':''}>已修正</option><option value="doing" ${v.st==='doing'?'selected':''}>處理中</option></select>
+  <div class="foot"><button id="eCancel">取消</button><button id="eNow">🕒 修改時間＝現在</button><button id="ePub">🚀 上線（公開）</button><button class="p" id="eDraft">💾 暫存（不公開）</button></div>`;
+  $('modal').classList.add('show')}
+function readEdit(){const tools=[...document.querySelectorAll('.tl.on')].map(x=>x.dataset.t);const t1=fromLocal($('eT1').value),t2=fromLocal($('eT2').value);
+  return {tools,t1,t2:$('eSt').value==='doing'?'':t2,ask:$('eAsk').value.trim(),fix:$('eFix').value.trim(),st:$('eSt').value}}
+function validate(v){if(!v.tools.length){toast('請至少選一個工具');return false}if(!v.ask&&!v.fix){toast('請寫回報或修正內容');return false}if(v.st!=='doing'&&!v.t2){toast('「已修正」要填修改時間（或按「修改時間＝現在」）');return false}return true}
+/* ---------- 上線（GitHub API） ---------- */
+const b64=s=>btoa(unescape(encodeURIComponent(s)));
+async function gh(method,body){
+  const url=`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`;
+  const h={'Accept':'application/vnd.github+json','Authorization':'Bearer '+TOKEN};
+  return fetch(url+(method==='GET'?'?ref='+BRANCH:''),{method,headers:h,body:body?JSON.stringify(body):undefined})}
+async function publish(){
+  const txt=serialize(liveList());
+  if(!TOKEN){await copyText(txt);$('setBox').open=true;toast('還沒設定 GitHub 權限：已複製 updates.txt，可貼給 Claude 上線',4200);return false}
+  try{
+    toast('上線中…',8000);
+    const g=await gh('GET');let sha;if(g.status===200)sha=(await g.json()).sha;else if(g.status!==404)throw new Error('讀取失敗 '+g.status+(g.status===401?'（Token 無效或過期）':g.status===403||g.status===404?'（沒有權限）':''));
+    const p=await gh('PUT',{message:'公開修改紀錄：更新（修改紀錄管理頁）',content:b64(txt),sha,branch:BRANCH});
+    if(!p.ok)throw new Error('寫入失敗 '+p.status+(p.status===401?'（Token 無效或過期）':p.status===403?'（Token 沒有 Contents 寫入權限）':p.status===409||p.status===422?'（檔案剛被更新過，請按「重新載入線上版」再試）':''));
+    toast('✅ 已上線！網站約 1 分鐘後更新',4200);return true
+  }catch(e){toast('❌ '+e.message,5200);return false}}
+async function copyText(t){try{await navigator.clipboard.writeText(t)}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove()}}
+/* ---------- 事件 ---------- */
+document.addEventListener('click',async e=>{
+  const tl=e.target.closest('.tl');if(tl){tl.classList.toggle('on');return}
+  const id=e.target.id;
+  if(id==='btnNew'){openEditor(null);return}
+  if(id==='btnReload'){await loadLive();return}
+  if(id==='btnImport'){$('sheet').innerHTML=`<h2>📥 匯入草稿</h2><div class="note">把 Claude 給你的「待上線草稿」文字（updates.txt 的格式）貼在這裡，全部會變成「暫存」，不會公開；你看過、改過再一則一則按 🚀 上線。</div><label class="f">貼上文字</label><textarea id="imText" style="min-height:220px" placeholder="## 2026-11-19 | sim&#10;回報時間：2026-11-19 14:30&#10;修改時間：2026-11-19 16:05&#10;回報：…&#10;修正：…"></textarea><div class="foot"><button id="eCancel">取消</button><button class="p" id="imGo">匯入成暫存</button></div>`;$('modal').classList.add('show');return}
+  if(id==='imGo'){const list=parse($('imText').value);if(!list.length){toast('沒有讀到任何一則（格式要有「## 日期 | 工具代號」）');return}
+    list.forEach(v=>{delete v.date;S.items.unshift({id:uid(),live:null,draft:v,del:false})});save();render();$('modal').classList.remove('show');toast('已匯入 '+list.length+' 則，都是暫存');return}
+  if(id==='btnCopy'){await copyText(serialize(liveList()));toast('已複製目前「已上線」的 updates.txt');return}
+  if(id==='eCancel'||e.target===$('modal')){$('modal').classList.remove('show');return}
+  if(id==='eNow'){const d=new Date(),p=n=>('0'+n).slice(-2);$('eT2').value=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());return}
+  if(id==='eDraft'||id==='ePub'){
+    const v=readEdit();if(id==='ePub'&&!validate(v))return;
+    if(id==='ePub'&&!confirm('確定要公開這則嗎？按「確定」後會立刻更新到網站。'))return;
+    let it=S.items.find(i=>i.id===EDIT.id);if(!it){it={id:EDIT.id,live:null,draft:null,del:false};S.items.unshift(it)}
+    it.del=false;
+    if(id==='eDraft'){it.draft=v;save();render();$('modal').classList.remove('show');toast('💾 已暫存（還沒公開）');return}
+    const prev=it.live;it.live=v;it.draft=null;save();
+    const ok=await publish();if(!ok){it.live=prev;it.draft=v;if(!prev&&false){}save();render();$('modal').classList.remove('show');return}
+    save();render();$('modal').classList.remove('show');return}
+  const b=e.target.closest('button[data-a]');if(!b)return;
+  const card=b.closest('.card'),it=S.items.find(i=>i.id===card.dataset.id);if(!it)return;
+  const a=b.dataset.a;
+  if(a==='edit'){openEditor(it.id)}
+  if(a==='discard'){it.draft=null;it.del=false;if(!it.live)S.items=S.items.filter(x=>x!==it);save();render();toast('已放棄暫存的修改')}
+  if(a==='del'){
+    if(!it.live){if(!confirm('刪除這則暫存？'))return;S.items=S.items.filter(x=>x!==it);save();render();toast('已刪除');return}
+    if(!confirm('刪除這則已上線的紀錄？按下「🚀」或確定後會同步從網站移除。'))return;
+    it.del=true;const prevDraft=it.draft;save();
+    const ok=await publish();if(ok){S.items=S.items.filter(x=>x!==it);save();render()}else{it.del=true;render();toast('已標示待刪除；設定好權限後按 🚀 上線才會生效',4200)}}
+  if(a==='pub'){
+    if(it.del){const ok=await publish();if(ok){S.items=S.items.filter(x=>x!==it);save();render()}return}
+    const v=it.draft;if(!validate(v)){openEditor(it.id);return}
+    if(!confirm('確定要公開這則嗎？按「確定」後會立刻更新到網站。'))return;
+    const prev=it.live;it.live=v;it.draft=null;save();const ok=await publish();if(!ok){it.live=prev;it.draft=v;save()}render()}
+});
+$('btnTok').onclick=async()=>{TOKEN=$('tok').value.trim();if(!TOKEN){$('tokMsg').textContent='請貼上 Token';return}
+  $('tokMsg').textContent='測試中…';try{const r=await fetch(`https://api.github.com/repos/${OWNER}/${REPO}`,{headers:{Authorization:'Bearer '+TOKEN,Accept:'application/vnd.github+json'}});
+    if(r.ok){const j=await r.json();localStorage.setItem(TK,TOKEN);$('tok').value='';$('tokMsg').textContent='✅ 連線成功（'+j.full_name+'），已記住這台裝置';$('setBox').open=false}else{TOKEN='';$('tokMsg').textContent='❌ Token 無效或沒有這個 repo 的權限（'+r.status+'）'}}catch(e){TOKEN='';$('tokMsg').textContent='❌ 連不上 GitHub：'+e.message}};
+$('btnTokClear').onclick=()=>{TOKEN='';try{localStorage.removeItem(TK)}catch(e){}$('tokMsg').textContent='已移除';$('setBox').open=true};
+if(!TOKEN)$('setBox').open=true;
+loadLive(true).then(render);
+</script>
+</body>
+</html>
