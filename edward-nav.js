@@ -38,7 +38,7 @@
   TOOLS.forEach(function(t){t.icon=ICON(t.id)});window.__EDWARD_TOOLS={};TOOLS.forEach(function(t){window.__EDWARD_TOOLS[t.id]=t.icon});
   var cur=location.pathname.split('/').pop();
   // 側邊欄：不捲動，全部工具平均分配整個高度；螢幕矮就自動縮小圖示、再矮就只留圖示
-  var css='#edward-rail{position:fixed;left:0;top:0;bottom:0;width:76px;z-index:9999;background:#f4e8cf;border-right:1px solid #e8dcc3;display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:8px 5px;overflow:hidden;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}'+
+  var css='#edward-rail{box-sizing:content-box;position:fixed;left:0;top:0;bottom:0;width:76px;z-index:9999;background:#f4e8cf;border-right:1px solid #e8dcc3;display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:8px 5px;overflow:hidden;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}'+
   '#edward-rail a{flex:1 1 0;min-height:0;max-height:84px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:#86745f;font-size:11px;font-weight:700;line-height:1.2;text-align:center;border:1px solid transparent;overflow:hidden;padding:0 1px}'+
   '#edward-rail a:hover{background:#fffaf0}#edward-rail a.on{background:#fffaf0;color:#a4602a;border-color:#a4602a}'+
   '#edward-rail .ic{flex:0 1 auto;width:clamp(24px,5.4vh,40px);height:clamp(24px,5.4vh,40px);display:flex;align-items:center;justify-content:center}#edward-rail .ic img,#edward-rail .ic svg{width:100%;height:100%;object-fit:contain;display:block}'+
@@ -174,7 +174,7 @@
     '.ed-ig{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;border:1px solid #a4602a;color:#a4602a;background:#fffaf0;font:700 15px "Noto Sans TC","PingFang TC",system-ui,sans-serif;text-decoration:none;white-space:nowrap}.ed-ig:hover{background:#f4e8cf}.ed-ig svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}'+
     '.ed-host{position:relative}@media(min-width:701px){.ed-host{padding-right:210px!important}.ed-host>.ed-ig{position:absolute;right:16px;top:20px}}'+
     '.ed-sim>.ed-ig{display:flex;width:fit-content;align-self:flex-end;margin:0 0 10px auto}@media(min-width:1000px){.ed-sim{position:static!important}.ed-sim>.ed-ig{position:absolute;right:20px;top:20px;margin:0}}'+
-    '@media(max-width:700px){body h1{font-size:24px}.hic{width:36px;height:36px}.ed-host>.ed-ig{display:flex;width:fit-content;margin:0 0 10px auto;padding:6px 12px;font-size:13px}}';
+    'body>.ed-ig{position:absolute!important;right:28px!important;top:16px!important;margin:0!important;z-index:50}@media(max-width:700px){body h1{font-size:24px}.hic{width:36px;height:36px}.ed-host>.ed-ig{display:flex;width:fit-content;margin:0 0 10px auto;padding:6px 12px;font-size:13px}}';
     document.head.appendChild(st);
     var h=document.querySelector('h1');if(!h)return;
     var id=null;TOOLS.forEach(function(t){if(t.match.indexOf(cur)>=0)id=t.id});
@@ -184,7 +184,7 @@
     host.classList.add(id==='sim'?'ed-sim':'ed-host');
     var a=document.createElement('a');a.className='ed-ig';a.href='https://www.instagram.com/boa19950303/';a.target='_blank';a.rel='noopener noreferrer';
     a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8h.01"/></svg>boa19950303';
-    host.insertBefore(a,host.firstChild);
+    document.body.appendChild(a);
     if(id==='sim'){var fit=function(){a.classList.remove('stack');var x=a.getBoundingClientRect(),y=h.getBoundingClientRect();if(x.left<y.right&&x.right>y.left&&x.top<y.bottom&&x.bottom>y.top)a.classList.add('stack')};fit();window.addEventListener('resize',fit);setTimeout(fit,400)}
   }
 
