@@ -889,13 +889,20 @@
         .summary .sum-close { display: none; margin: 0 0 4px auto; border: 1px solid #a4602a; background: #fffaf0; color: #a4602a; border-radius: 999px; padding: 2px 14px; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; }
 
         /* --- 閃雷悍將：技能已點滿但不夠 4 轉需求（卡住）時，點數總結要發亮提醒按「特例」 --- */
-        .sp-stuck-hint { display: none; margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; background: #fff1d6; border: 1px solid #d9822b; color: #8a3f10; font-size: 14px; font-weight: 700; line-height: 1.5; text-align: center; }
+        .sp-stuck-hint { display: none; margin: 10px 0 0; padding: 6px 8px; border-radius: 10px; background: #fff1d6; border: 1px solid #d9822b; color: #8a3f10; font-size: 13px; font-weight: 700; line-height: 1.5; text-align: center; }
         body.sp-stuck .sp-stuck-hint { display: block; }
         body.sp-stuck .summary { border: 2px solid #d9822b !important; animation: sumGlow 1.5s ease-in-out infinite; }
         @keyframes sumGlow { 0%,100% { filter: drop-shadow(0 0 0 rgba(217,130,43,0)); } 50% { filter: drop-shadow(0 0 14px rgba(217,130,43,.95)); } }
         @media (max-width: 768px) {
             body.sp-stuck #sumTab { background: #d9822b !important; animation: sumGlow 1.5s ease-in-out infinite; }
             body.sp-stuck #sumTab .bd { color: #8a3f10; }
+        }
+
+        /* 電腦版：點數總結卡片太高時可以在卡片內滑動，底部不會被置頂按鈕蓋住（Edward 2026-11-19） */
+        @media (min-width: 769px) {
+            .summary { box-sizing: border-box !important; max-height: calc(100vh - 240px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #d9b98a transparent; touch-action: pan-y; }
+            .summary::-webkit-scrollbar { width: 6px; }
+            .summary::-webkit-scrollbar-thumb { background: #d9b98a; border-radius: 6px; }
         }
 </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
@@ -1682,7 +1689,9 @@
             {   // 閃雷悍將卡住提醒：1~3 轉全點滿、仍低於 4 轉原本需求，且還沒開特例 → 點數總結發亮
                 const rawReq4 = currentProfessionData.spRequiredFor4thJob || 0;
                 const stuck = !!currentProfessionData.specialCase && !specialCaseOn && rawReq4 > 0 && spentSp3rdJobTotal >= maxPointsStage1to3() && spentSp3rdJobTotal < rawReq4;
+                const wasStuck = document.body.classList.contains('sp-stuck');
                 document.body.classList.toggle('sp-stuck', stuck);
+                if (stuck && !wasStuck) { const sm = document.querySelector('.summary'); if (sm) setTimeout(() => sm.scrollTo({ top: sm.scrollHeight, behavior: 'smooth' }), 150); }   // 剛卡住：把總結捲到最底，讓「★ 特例」按鈕馬上看得到
             }
             document.getElementById('spentSp_3rdJob_total').textContent = spentSp3rdJobTotal;
             document.getElementById('reqSp_4thJob').textContent = reqSp4thJob;
