@@ -885,6 +885,16 @@
             .summary .sum-close { display: block; }
         }
         .summary .sum-close { display: none; margin: 0 0 4px auto; border: 1px solid #a4602a; background: #fffaf0; color: #a4602a; border-radius: 999px; padding: 2px 14px; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; }
+
+        /* --- 閃雷悍將：技能已點滿但不夠 4 轉需求（卡住）時，點數總結要發亮提醒按「特例」 --- */
+        .sp-stuck-hint { display: none; margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; background: #fff1d6; border: 1px solid #d9822b; color: #8a3f10; font-size: 14px; font-weight: 700; line-height: 1.5; text-align: center; }
+        body.sp-stuck .sp-stuck-hint { display: block; }
+        body.sp-stuck .summary { border: 2px solid #d9822b !important; animation: sumGlow 1.5s ease-in-out infinite; }
+        @keyframes sumGlow { 0%,100% { filter: drop-shadow(0 0 0 rgba(217,130,43,0)); } 50% { filter: drop-shadow(0 0 14px rgba(217,130,43,.95)); } }
+        @media (max-width: 768px) {
+            body.sp-stuck #sumTab { background: #d9822b !important; animation: sumGlow 1.5s ease-in-out infinite; }
+            body.sp-stuck #sumTab .bd { color: #8a3f10; }
+        }
 </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
     <link rel="stylesheet" href="edward-style.css?v=r135">
@@ -939,6 +949,7 @@
             <p>1轉/(2轉需求): <span id="spentSp_1stJob">0</span> / <span id="reqSp_2ndJob">0</span> <span class="sp-full" id="full_1st"></span></p>
             <p>2轉/(3轉需求): <span id="spentSp_2ndJob_total">0</span> / <span id="reqSp_3rdJob">0</span> <span class="sp-full" id="full_2nd"></span></p>
             <p>3轉/(4轉需求): <span id="spentSp_3rdJob_total">0</span> / <span id="reqSp_4thJob">0</span> <span class="sp-full" id="full_3rd"></span></p>
+            <div class="sp-stuck-hint" id="spStuckHint">⚠ 技能已經全部點滿，但還是不夠 4 轉的需求點數。請按下面的「★ 特例」繼續配點。</div>
             <div class="sp-btn-row"><button type="button" id="specialCaseBtn" class="special-btn" hidden aria-pressed="false" title="特例：這個職業 1~3 轉技能全部點滿也不到 4 轉需求，按下後 4 轉需求改為「1~3 轉全部點滿」">★ 特例</button></div>
         </div>
     </div>
@@ -1666,6 +1677,11 @@
                 if (nb) { const on = specialCaseOn && !!currentProfessionData.specialCase; nb.classList.toggle('on', on); nb.textContent = on ? '✓ 特例已開啟（再按一次關閉）' : '★ 開啟「特例」繼續配點'; }
             }
             const reqSp4thJob = effectiveReq4th();
+            {   // 閃雷悍將卡住提醒：1~3 轉全點滿、仍低於 4 轉原本需求，且還沒開特例 → 點數總結發亮
+                const rawReq4 = currentProfessionData.spRequiredFor4thJob || 0;
+                const stuck = !!currentProfessionData.specialCase && !specialCaseOn && rawReq4 > 0 && spentSp3rdJobTotal >= maxPointsStage1to3() && spentSp3rdJobTotal < rawReq4;
+                document.body.classList.toggle('sp-stuck', stuck);
+            }
             document.getElementById('spentSp_3rdJob_total').textContent = spentSp3rdJobTotal;
             document.getElementById('reqSp_4thJob').textContent = reqSp4thJob;
 
