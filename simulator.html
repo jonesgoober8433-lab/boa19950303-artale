@@ -18,6 +18,7 @@
     <script src="artale-patch.js?v=r131"></script>
     <script src="artale-cygnus.js?v=r133"></script>
     <script src="artale-codes.js?v=r131"></script>
+    <script src="skill-advice.js?v=r2"></script>
     <style>
         /* --- PC 網頁版通用樣式調整 (魔法書卷風格) --- */
 
@@ -981,6 +982,7 @@
         <button type="button" id="specialNoticeBtn" class="sn-btn">★ 開啟「特例」繼續配點</button>
     </section>
 
+    <p class="advice-credit">配點建議整理自<a href="https://docs.google.com/spreadsheets/d/1lkswAMVaY5RgIIwz7HMfsPV85XDAiscl56jV-r4k7BA/htmlview" target="_blank" rel="noopener noreferrer">《阿泰爾冒險技改分析&amp;皇家技能一覽》</a>，文字有簡化改寫。</p>
     <div class="container">
         <div class="skill-tree" id="skillTree">
         </div>
@@ -1253,6 +1255,15 @@
                         requiredByDiv.id = `${skill.id}-requiredby`;
                         requiredByDiv.style.display = 'none';
                         skillItem.appendChild(requiredByDiv);
+                        if (typeof skillAdviceHtml === "function") {
+                            const advHtml = skillAdviceHtml(currentProfessionKey, skill.name);
+                            if (advHtml) {
+                                const advDiv = document.createElement("div");
+                                advDiv.className = "skill-advice";
+                                advDiv.innerHTML = advHtml;
+                                skillItem.appendChild(advDiv);
+                            }
+                        }
                         if (skill.conflictNotes && skill.conflictNotes.length) {
                             const noteDiv = document.createElement('div');
                             noteDiv.className = 'skill-conflict';
@@ -2389,6 +2400,12 @@
         setupBackToTopButton();
     </script>
 <script src="edward-nav.js?v=r182"></script>
+<style>
+.sim-refs{width:100%;max-width:1080px;margin:0 auto 36px;padding:18px 16px 8px;box-sizing:border-box;border-top:1px solid #e8dcc3;color:#86745f;font:13.5px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+.sim-refs h2{margin:0 0 6px;padding:0;border:0;text-align:left;font:700 17px "Noto Serif TC","Songti TC",serif;color:#3a2f25;letter-spacing:.06em}
+.sim-refs a{color:#a4602a;font-weight:700}
+</style>
+<section class="sim-refs" id="simRefs"><h2>參考網站</h2><p><a href="https://docs.google.com/spreadsheets/d/1lkswAMVaY5RgIIwz7HMfsPV85XDAiscl56jV-r4k7BA/htmlview" target="_blank" rel="noopener noreferrer">《阿泰爾冒險技改分析&amp;皇家技能一覽》</a></p></section>
 </body>
 
 
