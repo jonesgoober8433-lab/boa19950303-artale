@@ -18,6 +18,7 @@
     <script src="artale-patch.js?v=r131"></script>
     <script src="artale-cygnus.js?v=r133"></script>
     <script src="artale-codes.js?v=r131"></script>
+    <script src="skill-advice.js?v=r1"></script>
     <style>
         /* --- PC 網頁版通用樣式調整 (魔法書卷風格) --- */
 
@@ -981,6 +982,7 @@
         <button type="button" id="specialNoticeBtn" class="sn-btn">★ 開啟「特例」繼續配點</button>
     </section>
 
+    <p class="advice-credit">配點建議參考：<a href="https://docs.google.com/spreadsheets/d/1lkswAMVaY5RgIIwz7HMfsPV85XDAiscl56jV-r4k7BA/htmlview" target="_blank" rel="noopener noreferrer">《阿泰爾冒險技改分析&amp;皇家技能一覽》</a>。有標註的技能才有建議或簡評。</p>
     <div class="container">
         <div class="skill-tree" id="skillTree">
         </div>
@@ -1253,6 +1255,15 @@
                         requiredByDiv.id = `${skill.id}-requiredby`;
                         requiredByDiv.style.display = 'none';
                         skillItem.appendChild(requiredByDiv);
+                        if (typeof skillAdviceHtml === "function") {
+                            const advHtml = skillAdviceHtml(currentProfessionKey, skill.name);
+                            if (advHtml) {
+                                const advDiv = document.createElement("div");
+                                advDiv.className = "skill-advice";
+                                advDiv.innerHTML = advHtml;
+                                skillItem.appendChild(advDiv);
+                            }
+                        }
                         if (skill.conflictNotes && skill.conflictNotes.length) {
                             const noteDiv = document.createElement('div');
                             noteDiv.className = 'skill-conflict';
