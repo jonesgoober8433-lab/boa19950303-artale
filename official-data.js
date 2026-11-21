@@ -8664,12 +8664,8 @@ const allProfessionsData = {
                             mpCost = 100 - (i - 20) * 5;
                         }
 
-                        // 冷卻時間 的規律：線性遞減
-                        if (i <= 20) {
-                            cooldown = 60 - i;
-                        } else { // i >= 21
-                            cooldown = 40 - (i - 20);
-                        }
+                        // 冷卻時間：每級減 1 分（1級 49 分、20級 30 分、30級 20 分）
+                        cooldown = 50 - i;
 
                         return {
                             effect: `消耗MP: ${mpCost}, 冷卻時間: ${cooldown}分`,
