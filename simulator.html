@@ -484,6 +484,30 @@
             /* 更深的紅色 */
         }
 
+        /* 反向前置：這個技能被其他技能拿來當前置時，寫在自己的卡片上 */
+        .skill-required-by {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .skill-required-by > span {
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.45;
+        }
+
+        /* 同一張卡已經有「前置:」那一行時，接在下面，不再畫第二條虛線 */
+        .skill-required-by.stacked {
+            margin-top: 0;
+            padding-top: 2px;
+            border-top: none;
+        }
+
         .skill-description-area {
             background-color: rgba(245, 245, 245, 0.9);
             /* 略淺的背景，與技能項目主體有層次 */
@@ -768,6 +792,10 @@
                 text-align: left;
             }
 
+            .skill-required-by {
+                gap: 3px;
+            }
+
             .skill-description-area {
                 padding: 10px;
             }
@@ -1027,6 +1055,8 @@
         let spentSp = 0;
         let remainingSp = 0;
         let currentLevel = 200;
+        // 目前職業：技能 id → [{ name, points }]，由各技能的 preRequisite 自動反查
+        let requiredByMap = {};
 
         // --- 初始化模擬器 ---
         function initializeSimulator() {
@@ -1178,6 +1208,7 @@
 
         // --- 渲染技能樹 ---
         function renderSkillTree() {
+            rebuildRequiredByMap();
             const skillTreeDiv = document.getElementById('skillTree');
             skillTreeDiv.innerHTML = ''; // 清空現有內容
 
@@ -1216,6 +1247,12 @@
                         preReqsDiv.className = 'skill-prerequisites';
                         preReqsDiv.id = `${skill.id}-prereqs`;
                         skillItem.appendChild(preReqsDiv);
+                        // 反向：哪些技能把這張卡當成前置（沒有的話維持隱藏）
+                        const requiredByDiv = document.createElement('div');
+                        requiredByDiv.className = 'skill-prerequisites skill-required-by';
+                        requiredByDiv.id = `${skill.id}-requiredby`;
+                        requiredByDiv.style.display = 'none';
+                        skillItem.appendChild(requiredByDiv);
                         if (skill.conflictNotes && skill.conflictNotes.length) {
                             const noteDiv = document.createElement('div');
                             noteDiv.className = 'skill-conflict';
@@ -1752,8 +1789,9 @@
 
                             if (maxBtn) maxBtn.disabled = !canMaxSkill; // 啟用或禁用點滿按鈕
 
-                            // --- 更新前置技能顯示 ---
+                            // --- 更新前置技能顯示（自己的前置，以及誰把這張卡當前置） ---
                             updateSkillPrerequisitesDisplay(skill.id);
+                            updateSkillRequiredByDisplay(skill.id);
                             // ... (技能詳情顯示邏輯保持不變) ...
                             const descArea = document.getElementById(`${skill.id}-description`);
                             if (descArea) {
@@ -2126,6 +2164,53 @@
 
             preReqsDiv.innerHTML = preReqsHtml;
             preReqsDiv.style.display = 'flex'; // 有前置技能時顯示
+        }
+
+        // 由目前職業的 preRequisite 反查：每個技能被哪些技能、各要幾點
+        function rebuildRequiredByMap() {
+            requiredByMap = {};
+            if (!currentProfessionData || !skillsData) return;
+            const stages = (currentProfessionData.jobStagesOrder || Object.keys(skillsData)).slice();
+            const seenStages = new Set(stages);
+            Object.keys(skillsData).forEach(stageKey => { if (!seenStages.has(stageKey)) stages.push(stageKey); });
+            stages.forEach(stageKey => {
+                (skillsData[stageKey] || []).forEach(skill => {
+                    const pre = skill.preRequisite;
+                    if (!pre) return;
+                    Object.keys(pre).forEach(reqId => {
+                        const points = Number(pre[reqId]);
+                        if (!reqId || !Number.isFinite(points) || points <= 0) return;
+                        if (!requiredByMap[reqId]) requiredByMap[reqId] = [];
+                        requiredByMap[reqId].push({ name: skill.name, points: points });
+                    });
+                });
+            });
+        }
+
+        function escSkillText(text) {
+            return String(text).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        // 在「被拿來當前置」的技能卡上，列出「某某需要 N 點當前置」
+        function updateSkillRequiredByDisplay(skillId) {
+            const box = document.getElementById(`${skillId}-requiredby`);
+            if (!box) return;
+            const deps = requiredByMap[skillId];
+            if (!deps || deps.length === 0) {
+                box.innerHTML = '';
+                box.style.display = 'none';
+                box.classList.remove('stacked');
+                return;
+            }
+            const current = currentSkillLevels[skillId] || 0;
+            box.innerHTML = deps.map(dep => {
+                const met = current >= dep.points;
+                return `<span class="${met ? 'prereq-met' : 'prereq-unmet'}">${escSkillText(dep.name)}需要 ${dep.points} 點當前置 (${current}/${dep.points})</span>`;
+            }).join('');
+            const forward = document.getElementById(`${skillId}-prereqs`);
+            const forwardVisible = !!(forward && forward.style.display !== 'none' && forward.textContent.trim());
+            box.classList.toggle('stacked', forwardVisible);
+            box.style.display = 'flex';
         }
 
 
