@@ -161,7 +161,7 @@ tr.hot td{background:#fff1d6}
 <tr><td class="lv">40</td><td>前往新世界 1、2</td><td>維英、克莉爾／魔法森林、天空之城</td><td>凱柏洛斯之淚1；空瓶子20、獨角獅硬角200、食人花種子50</td><td>隨機武器／手攻 60%</td></tr>
 <tr><td class="lv">40</td><td>阿爾法部隊連絡網（依序）</td><td>珀斯上尉等／冰原雪域、天空之城</td><td>紫礦石2、朱礦石2、藍寶石2</td><td>隨機鞋速／鞋跳 10%、60%（順序錯會變防禦卷）</td></tr>
 <tr><td class="lv">45</td><td>傑塔雷第奎朗的歷史</td><td>黑豹戰士／地球防衛總部 克嵐草原1</td><td>消滅葛雷元老，收齊4種細胞</td><td>任選武器攻擊 10%</td></tr>
-<tr><td class="lv">52</td><td>沼澤地的鱷魚</td><td>義安／勇士之村</td><td>① 鱷魚250、青蛇40、蛇皮20<br>② 黑鱷魚120、黑鱷魚皮50</td><td>① 武器攻擊 10%<br>② 披風 60%（力／智／幸／敏）</td></tr>
+<tr><td class="lv">52</td><td>沼澤地的鱷魚</td><td>義安／勇士之村</td><td>① 鱷魚250、青蛇40、蛇皮20<br>② 黑鱷魚120、黑鱷魚皮50</td><td>① 武器攻擊捲軸（自選） 10%<br>② 披風能力值捲軸（自選） 60%</td></tr>
 <tr><td class="lv">60</td><td>遺跡發掘隊的公告</td><td>遺跡公佈欄→杉峰／勇士之村</td><td>骷髏士兵200、士官100、指揮官40；肋骨60、骨盆40、馬頭骨20</td><td>任選武器攻擊 10%</td></tr>
 <tr><td class="lv">60</td><td>史卡圖勒的新毛皮</td><td>史卡圖勒／冰原雪域</td><td>野狼尾巴250、白狼尾巴250、雪吉拉之角80、藍寶石母礦50</td><td>隨機套服 60%（防／敏／智／幸）</td></tr>
 <tr><td class="lv">70</td><td>羅密歐的求婚</td><td>羅密歐／瑪迦提亞城蒙特鳩秘密之室</td><td>銀2、鑽石2；需完成羅密歐茱麗葉系列與組隊結局</td><td>任選武器攻擊 60%</td></tr>
@@ -245,13 +245,15 @@ var Q=[
 [40,'40','前往新世界 1、2','維英、克莉爾','sc','武器／手攻 60%'],
 [40,'40','阿爾法部隊連絡網（依序）','珀斯上尉等／冰原雪域','sc','鞋速／鞋跳 10%、60%'],
 [45,'45','傑塔雷第奎朗的歷史','黑豹戰士／地球防衛總部','sc','武器攻擊 10%'],
-[52,'52','沼澤地的鱷魚','義安／勇士之村','sc','武器攻擊 10%；披風 60%'],
+[52,'52','沼澤地的鱷魚','義安／勇士之村','sc','武器攻擊捲軸（自選） 10%；披風能力值捲軸（自選） 60%'],
 [60,'60','遺跡發掘隊的公告','遺跡公佈欄→杉峰／勇士之村','sc','武器攻擊 10%'],
 [60,'60','史卡圖勒的新毛皮','史卡圖勒／冰原雪域','sc','套服 60%（防／敏／智／幸）'],
 [70,'70','羅密歐的求婚','羅密歐／瑪迦提亞城','sc','武器攻擊 60%'],
 [1,'1','修理酋長的家','酋長／勇士之村','xp','經驗值+600'],
 [10,'10','幫忙寫作業','妖精維英／魔法森林','xp','經驗 500'],
-[10,'10','木妖好可怕','義安／勇士之村','xp',''],
+[10,'10','木妖好可怕','義安／勇士之村','xp','經驗 800'],
+[10,'10','研究菇菇怪物','布魯斯／弓箭手村','xp','經驗 600'],
+[10,'10','尋找女兒','義安／勇士之村','xp','經驗 400'],
 [10,'10','遺失的信','盲俠、赫莉娜、卡伊琳／鯨魚號','xp','經驗 1,000'],
 [10,'10','韋爾族和鯨魚號、發光石','查理斯／鯨魚號','xp','經驗 800'],
 [15,'15','麗德的委託（清掃1）','麗德／鯨魚號','xp','經驗 2,600'],
@@ -297,7 +299,7 @@ var PRE={
 '鍊金術士－珍（3階段）':'珍與黑肥肥（Lv25）',
 '歌迷的愛心':'無前置','黃綠紅的感動':'無前置','前往新世界 1、2':'無前置（單一任務兩步驟）','阿爾法部隊連絡網（依序）':'無前置',
 '傑塔雷第奎朗的歷史':'消滅葛雷（Lv37）→ 消滅葛雷元老（Lv43）',
-'沼澤地的鱷魚':'我必須找到我的女兒（Lv10）（實測：有此前置）','木妖好可怕':'無前置',
+'沼澤地的鱷魚':'我必須找到我的女兒（Lv10）（實測：有此前置）','木妖好可怕':'無前置','尋找女兒':'研究菇菇怪物',
 '遺跡發掘隊的公告':'無前置','史卡圖勒的新毛皮':'無前置',
 '羅密歐的求婚':'羅密歐的花 → 茱麗葉的回應 → 羅密歐的情書 → 茱麗葉的便當（皆 Lv70）；「組隊結局」是否為前置待確認',
 '遺失的信':'無前置（需點盲俠旁垃圾桶觸發）',
@@ -471,13 +473,15 @@ var RQ=[
 ['為了卡伊琳',[['為了卡伊琳、盲俠的長裙','30','桌布×40','24,000＋14,000，名聲+1']]],
 ['特殊料理 2',[['特殊料理2','35','風獨眼獸尾巴×50','48,000'],['特殊料理3','40','冰獨眼獸尾巴×50','72,000']]],
 ['泰實夫的秘密之書',[['泰實夫的秘密之書','30','特製烤鰻魚（弓箭手村麗娜才會製作）、新鮮的牛奶（魔法森林妖精羅雯才有）、鑽石×1、香蕉×50、風獨眼獸尾巴×50、肥肥頭×5','27,610（實測）'],['妖精羅雯和詛咒娃娃 1～5','35','詛咒娃娃 100／200／400／600／1000','162,000']]],
-['木妖好可怕',[['木妖好可怕','10','木妖×50（打怪）','']]],
+['木妖好可怕',[['木妖好可怕','10','木妖×50（打怪）','800']]],
+['研究菇菇怪物',[['研究菇菇怪物','10','菇菇寶貝傘×40、蘑菇芽孢×10','600']]],
+['尋找女兒',[['尋找女兒','10','','400']]],
 ['幫忙寫作業',[['幫忙寫作業','10','綠液球×30、樹枝×30、綠水靈珠×10','500（實測）'],['好無聊','10','樹枝×40、鼻涕液（綠液球）×40','500（實測）'],['伊卡路斯的滑翔翼','32','木材×10、蝙蝠翅膀×50、堅硬羽毛×50','16,000（實測）'],['伊卡路斯的熱氣球','37','桌巾×100、鱷魚皮革袋×10','22,000（實測）'],['伊卡路斯與飛天藥水','42','怪藥×50、神秘的葉子×20','26,400（實測）']]],
 ['珍與黑肥肥',[['珍與黑肥肥','25','黑肥肥尖牙×80、刺菇菇傘×100','7,000（實測）'],['鍊金術士－珍（3階段）','40','①礦泉水×1、怪藥×30、青蛙實驗×20 ②蘑菇王芽胞、暴龍之血×3、怪藥×100、青蛙實驗×30 ③月石、龍皮×20、枯木樹液×10','13,000＋13,600＋14,200（實測）']]],
 ['愛奧斯塔的清掃',[['愛奧斯塔的清掃','30','粉紅色戰鬥機×25、特威德×25（打怪）','8,000'],['愛奧斯塔的威脅','35','積木泥人×20、泥人王×12','14,000（實測）'],['愛奧斯塔的和平','40','泥人領導者×1（8樓隱藏地圖）','21,000']]],
 ['玩具兵的核桃',[['玩具兵的核桃','25','好吃的核桃×20','8,000'],['玩偶之家','25','鐘擺×1','12,000'],['鐘塔的力量','33','萬能鐘錶發條×1（鐘擺只要一個，在玩偶之家用）','17,000（實測）']]],
-['沼澤地的鱷魚',[['沼澤地的鱷魚','52','鱷魚×250、青蛇×40、蛇皮×20；黑鱷魚×120、黑鱷魚皮×50','未查']]],
-['盲俠隱藏任務',[['石巨人','55','石巨人×80','180,000'],['黑曜石巨人','58','黑曜石巨人×100','220,000'],['混種石巨人','58','混種石巨人×100','220,000'],['骷髏','60','骷髏士兵×50、骷髏士官×50','260,000'],['龍','64','青龍×50、冰龍×50','280,000'],['牛魔王','70','月牙牛魔王×30、冰獨眼獸×100','360,000']]],
+['沼澤地的鱷魚',[['沼澤地的鱷魚','52','鱷魚×250、青蛇×40、蛇皮×20；黑鱷魚×120、黑鱷魚皮×50','40,000＋50,000']]],
+['盲俠隱藏任務',[['打敗石巨人','55','石巨人×80','180,000'],['打敗黑曜石巨人','58','黑曜石巨人×100','220,000'],['打敗混種石巨人','58','混種石巨人×100','220,000'],['骷髏','60','骷髏士兵×50、骷髏士官×50','260,000'],['龍','64','青龍×50、冰龍×50','280,000'],['牛魔王','70','月牙牛魔王×30、冰獨眼獸×100','360,000']]],
 ['亞凱斯特的披風',[['珀斯上尉的秘密','—','蘋果×10、蛋×10、紅豆粥×10、魚×40','未查'],['亞凱斯特的披風','33（也有人寫 35，待確認）','魔法石×2、石柳石×4、野狼尾巴×2、黑利堤毛球×50','未查']]],
 ['找回楓之谷古書',[['找回楓之谷古書','25','楓之古書 上、中、下 各×1','未查']]],
 ['酋長蓋房子',[['修理酋長的家','1','樹枝×30、柴火×50','600'],['酋長蓋房子','30','石塊×100、螺絲釘×30、木材×30、酋長的地契×1','未查']]],
@@ -527,16 +531,17 @@ document.getElementById('rtsend').onclick=function(){var t=rtText(),m=document.g
 
 /* ===== 編輯任務 ===== */
 var EK='starterED_v1',ED={e:{},a:[],d:{}};try{var _e=JSON.parse(localStorage.getItem(EK)||'null');if(_e&&_e.e)ED=_e}catch(x){}
-var W=[];var KIND0={'木妖好可怕':'kill'};Object.keys(IMP).forEach(function(k){KIND0[k]=(KIND0[k]?KIND0[k]+',':'')+'pre'});
+var W=[];var KIND0={'木妖好可怕':'pre','研究菇菇怪物':'pre','尋找女兒':'pre','沼澤地的鱷魚':'item'};var NOTE0={'沼澤地的鱷魚':'經驗 40000+50000'};Object.keys(IMP).forEach(function(k){KIND0[k]=(KIND0[k]?KIND0[k]+',':'')+'pre'});
 function lvNum(t){var m=String(t).match(/\d+/);return m?parseInt(m[0],10):999}
 function itemsOf(name){if(typeof RQ==='undefined')return '';for(var i=0;i<RQ.length;i++)for(var j=0;j<RQ[i][1].length;j++)if(RQ[i][1][j][0]===name)return RQ[i][1][j][2];return ''}
 function saveED(){try{localStorage.setItem(EK,JSON.stringify(ED))}catch(x){}}
 function buildW(){W=[];Q.forEach(function(r){var id=r[2];if(ED.d[id])return;var o=ED.e[id]||{};
  var lvT=o.lv!=null?o.lv:r[1],name=o.name!=null?o.name:r[2],npc=o.npc!=null?o.npc:r[3],ty=o.types!=null?o.types:r[4],rw=o.reward!=null?o.reward:r[5];
  var pre=o.pre!=null?o.pre:(PRE[id]!=null?PRE[id]:'');var it=o.items!=null?o.items:itemsOf(id);
- var note=o.note!=null?o.note:'',kind=o.kind!=null?o.kind:(KIND0[id]||'');W.push([lvNum(lvT),lvT,name,npc,ty,rw,pre,it,id,id,note,kind])});
+ var note=o.note!=null?o.note:(NOTE0[id]||''),kind=o.kind!=null?o.kind:(KIND0[id]||'');W.push([lvNum(lvT),lvT,name,npc,ty,rw,pre,it,id,id,note,kind])});
  ED.a.forEach(function(a,i){if(ED.d['n'+i])return;if(Q.some(function(q){return q[2]===a.name}))return;W.push([lvNum(a.lv),a.lv,a.name,a.npc,a.types,a.reward,a.pre,a.items,'n'+i,'n'+i,a.note||'',a.kind||''])});
  W.sort(function(a,b){return a[0]-b[0]})}
+function nz(v){return String(v==null?'':v).replace(/×/g,'x').replace(/^經驗\s*/,'').replace(/\s+/g,'')}
 function origOf(id){for(var i=0;i<Q.length;i++)if(Q[i][2]===id)return Q[i];return null}
 function renderEdit(){var h='<tr><th style="width:36px">刪</th><th style="width:70px">等級</th><th>任務名稱</th><th>NPC／地點</th><th style="width:170px">類型</th><th>前置任務</th><th>需要道具</th><th>獎勵／經驗</th><th style="width:150px">為什麼要做<br><span style="font-weight:400">（可複選）</span></th><th style="min-width:240px">備註（直接打字，我會整理）</th></tr>';
  W.forEach(function(r){var id=r[9],ts=r[4].split(','),ks=(r[11]||'').split(',');
@@ -555,7 +560,7 @@ function renderEdit(){var h='<tr><th style="width:36px">刪</th><th style="width
  edprog()}
 function edprog(){var ne=Object.keys(ED.e).length,na=ED.a.filter(function(a,i){return !ED.d['n'+i]}).length,nd=Object.keys(ED.d).filter(function(k){return ED.d[k]}).length;document.getElementById('edprog').textContent='目前：改過 '+ne+' 個任務、新增 '+na+' 個、刪除 '+nd+' 個'}
 function setField(id,f,v){if(id.charAt(0)==='n'&&/^n\d+$/.test(id)){ED.a[+id.slice(1)][f]=v}else{var o=ED.e[id]||(ED.e[id]={});o[f]=v;
-  var oq=origOf(id),base={lv:oq[1],name:oq[2],npc:oq[3],types:oq[4],reward:oq[5],pre:PRE[id]!=null?PRE[id]:'',items:itemsOf(id),note:'',kind:KIND0[id]||''};var same=true;Object.keys(o).forEach(function(k){if(o[k]!==base[k])same=false});if(same)delete ED.e[id]}
+  var oq=origOf(id),base={lv:oq[1],name:oq[2],npc:oq[3],types:oq[4],reward:oq[5],pre:PRE[id]!=null?PRE[id]:'',items:itemsOf(id),note:NOTE0[id]||'',kind:KIND0[id]||''};var same=true;Object.keys(o).forEach(function(k){if(nz(o[k])!==nz(base[k]))same=false});if(same)delete ED.e[id]}
  saveED();
  for(var i=0;i<W.length;i++)if(W[i][9]===id){var m={lv:1,name:2,npc:3,types:4,reward:5,pre:6,items:7,note:10,kind:11}[f];W[i][m]=v;if(f==='lv')W[i][0]=lvNum(v)}
  W.sort(function(a,b){return a[0]-b[0]});renderAll();renderTop();edprog()}
@@ -565,7 +570,7 @@ function renderTop(){var hot2=W.filter(function(r){return r[4].split(',').length
  document.getElementById('topcp').innerHTML='<b>高 CP（重複出現）：</b>'+hot2.map(function(r){return 'Lv'+r[1]+' '+r[2]+'（'+r[4].split(',').map(function(x){return TN[x]}).join('＋')+'，'+r[4].split(',').length+' 次）'}).join('；')+'<br><b>★ 特別重要的前置任務（先做這些）：</b>'+im.map(function(x){return x[0]+'（×'+x[1][0]+'，'+x[1][1]+'）'}).join('；')+'；愛奧斯塔的清掃（×2）'}
 document.getElementById('edadd').onclick=function(){var lv0=prompt('新任務的等級是？（填數字，會自動依等級排進表格；不確定可先留空）','');if(lv0===null)return;ED.a.push({lv:lv0.trim(),name:'新任務',npc:'',types:'xp',pre:'',items:'',reward:'',note:'',kind:''});saveED();buildW();renderEdit();renderAll();renderTop();var ins=document.querySelectorAll('.edi[data-f=name]');for(var i=0;i<ins.length;i++)if(ins[i].dataset.id==='n'+(ED.a.length-1)){ins[i].focus();ins[i].select();focusRow('n'+(ED.a.length-1))}};
 function edText(){var out=['【小號必去 任務編輯】'],n=0;var lab={lv:'等級',name:'名稱',npc:'NPC／地點',types:'類型',pre:'前置',items:'道具',reward:'獎勵／經驗',note:'備註',kind:'為什麼要做'};
- Object.keys(ED.e).forEach(function(id){var o=ED.e[id],q=origOf(id);if(!q)return;var base={lv:q[1],name:q[2],npc:q[3],types:q[4],reward:q[5],pre:PRE[id]!=null?PRE[id]:'',items:itemsOf(id),note:'',kind:KIND0[id]||''};var d=[];Object.keys(o).forEach(function(k){if(o[k]!==base[k]){var KL={pre:'前置',kill:'打怪',item:'道具'},fm=function(v){return k==='kind'?(v||'').split(',').filter(Boolean).map(function(z){return KL[z]||z}).join('、'):v};d.push(lab[k]+'：'+(fm(base[k])||'（空）')+' → '+(fm(o[k])||'（空）'))}});if(d.length){n++;out.push('[編輯] '+q[2]+'｜'+d.join('｜'))}});
+ Object.keys(ED.e).forEach(function(id){var o=ED.e[id],q=origOf(id);if(!q)return;var base={lv:q[1],name:q[2],npc:q[3],types:q[4],reward:q[5],pre:PRE[id]!=null?PRE[id]:'',items:itemsOf(id),note:NOTE0[id]||'',kind:KIND0[id]||''};var d=[];Object.keys(o).forEach(function(k){if(nz(o[k])!==nz(base[k])){var KL={pre:'前置',kill:'打怪',item:'道具'},fm=function(v){return k==='kind'?(v||'').split(',').filter(Boolean).map(function(z){return KL[z]||z}).join('、'):v};d.push(lab[k]+'：'+(fm(base[k])||'（空）')+' → '+(fm(o[k])||'（空）'))}});if(d.length){n++;out.push('[編輯] '+q[2]+'｜'+d.join('｜'))}});
  ED.a.forEach(function(a,i){if(ED.d['n'+i])return;if(Q.some(function(q){return q[2]===a.name}))return;n++;out.push('[新增] Lv'+a.lv+' '+a.name+'｜NPC：'+a.npc+'｜類型：'+a.types.split(',').filter(Boolean).map(function(t){return TN[t]}).join('、')+'｜前置：'+a.pre+'｜道具：'+a.items+'｜獎勵：'+a.reward+(a.note?'｜備註：'+a.note:'')+(a.kind?'｜為什麼要做：'+a.kind:''))});
  Object.keys(ED.d).forEach(function(k){if(!ED.d[k])return;var o=origOf(k);if(o){n++;out.push('[刪除] '+o[2])}});
  return n?out.join('\n'):''}
@@ -594,6 +599,8 @@ var CT=[
 ['C','玩偶之家',[['鐘擺',1]]],
 ['C','鐘塔的力量',[['萬能鐘錶發條',1]]],
 ['C','我必須找到我的女兒（沼澤前置）',[['玩具特洛伊劍',1],['義安的信',1]]],
+['C','木妖好可怕',[['木妖',50,'k']]],
+['C','研究菇菇怪物',[['菇菇寶貝傘',40],['蘑菇芽孢',10]]],
 ['C','沼澤地的鱷魚',[['鱷魚',250,'k'],['青蛇',40,'k'],['蛇皮',20],['黑鱷魚',120,'k'],['黑鱷魚皮',50]]],
 ['E','珀斯上尉的秘密',[['蘋果',10],['蛋',10],['紅豆粥',10],['魚',40]]],
 ['E','亞凱斯特的披風',[['魔法石',2],['石柳石',4],['野狼尾巴',2],['黑利堤毛球',50]]],
