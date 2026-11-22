@@ -96,7 +96,7 @@ tr.ovdone>td{opacity:.42}tr.ovdone>td:last-child{opacity:1}
 
 .ovd>td{padding:0;border:0}
 .ovsum{cursor:pointer;color:var(--accent);font-weight:700;margin:0 0 8px}
-@media(min-width:701px){#ovmore>summary{display:none}}
+.ovs{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ovdet{margin:2px 10px 10px}.ovdet[hidden]{margin:0}
 @media(min-width:701px) and (max-width:1100px){.wrap{padding:0 12px}}
 @media(max-width:1000px){
@@ -110,33 +110,40 @@ tr.ovdone>td{opacity:.42}tr.ovdone>td:last-child{opacity:1}
  .rqt input[type=text]{font-size:16px;padding:7px 10px}
 }
 @media(max-width:700px){
- body{padding-left:12px;padding-right:12px}
+ .wrap{padding-left:12px;padding-right:12px}
+ .gbn{font-size:14px!important;padding:10px 12px!important}
  h1{font-size:24px}
- .sub{font-size:15px}
+ .sub{font-size:14px}
  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
  .tab{padding:10px 6px;min-height:44px;font-size:16px}
  .card{padding:6px 10px 12px;border-radius:18px}
  #allbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
  #allbar .cpy{flex:1 1 140px;margin:0!important}
- .ovg{flex-direction:column;align-items:stretch;gap:6px;margin-bottom:12px}
- .ovg b{min-width:0}
- .ovg .fl{min-height:36px;padding:4px 14px}
- #ovq,#ovsel{width:100%!important;min-height:44px;font-size:16px}
- #ovreset{margin:6px 0 0!important;width:100%}
+ .ovg{display:grid;grid-template-columns:64px 1fr;align-items:center;gap:6px 8px;margin-bottom:10px}
+ .ovg b{min-width:0;font-size:12px}
+ .ovg>span:not(.ovs){display:flex;flex-wrap:wrap;gap:4px}
+ .ovg .fl{min-height:34px;padding:3px 8px;font-size:13px}
+ .ovs{display:flex;width:100%}
+ #ovq{flex:1;min-width:0;width:auto!important;min-height:40px;font-size:16px}
+ #ovsel{flex:1;min-width:0;min-height:40px;font-size:15px}
+ #ovreset{margin:0!important;white-space:nowrap}
+ #allbar b{flex:0 0 100%}
+ #allbar .cpy{flex:1 1 0;padding:8px 8px!important;min-width:0}
  #ovtb,#ovnt,#ovtb tbody,#ovnt tbody{display:block;min-width:0!important}
  #ovtb tr:first-child,#ovnt tr:first-child{display:none}
- tr.ovr,tr.ovr2{display:grid;grid-template-columns:40px 1fr auto;gap:4px 8px;padding:10px 4px;border-bottom:1px solid var(--line)}
+ tr.ovr,tr.ovr2{display:grid;grid-template-columns:30px 1fr 64px;gap:4px 6px;padding:10px 4px;border-bottom:1px solid var(--line)}
  tr.ovr>td,tr.ovr2>td{border:0;padding:0}
  tr.ovr>td:nth-child(1),tr.ovr2>td:nth-child(1){grid-row:1/3;padding-top:2px}
  tr.ovr>td:nth-child(2),tr.ovr2>td:nth-child(2){grid-column:2;grid-row:1}
- tr.ovr>td:nth-child(5),tr.ovr2>td:nth-child(4){grid-column:3;grid-row:1}
+ tr.ovr>td:nth-child(5),tr.ovr2>td:nth-child(4){grid-column:3;grid-row:1;justify-self:end}
  tr.ovr>td:nth-child(3){grid-column:2;grid-row:2;text-align:left!important;font-size:14px;white-space:nowrap}
  tr.ovr>td:nth-child(3)::before{content:"總經驗 ";font-weight:400;color:var(--muted)}
- tr.ovr>td:nth-child(4){grid-column:3;grid-row:2;font-size:14px;white-space:nowrap!important}
+ tr.ovr>td:nth-child(4){grid-column:2/4;grid-row:2;justify-self:end;font-size:14px;white-space:nowrap!important}
  tr.ovr>td:nth-child(4)::before{content:"可升 ";font-weight:400;color:var(--muted)}
  tr.ovr2>td:nth-child(3){grid-column:2/4;grid-row:2;font-size:14px;color:var(--muted)}
  .ovd{display:block}.ovd>td{display:block}
- .ovi{padding:6px}
+ .ovi{padding:4px}
+ tr.ovr .ovn,tr.ovr2 .ovn{font-size:15px}
  tr.hot{background:#fff1d6}tr.hot td{background:none}
  #ovtb td:nth-child(2){min-width:0}
  .ovitem{display:block;margin-right:0}
@@ -159,8 +166,8 @@ tr.ovdone>td{opacity:.42}tr.ovdone>td:last-child{opacity:1}
 <div id="app"><div class="wrap">
 
 
-<div style="margin:0 0 12px;padding:10px 14px;background:#e6efd9;border:1px solid #4d7a36;border-radius:12px;color:#2f4d22;font-size:15px"><b>大家一起把這份表補完整！</b> 你發現數字跟遊戲不一樣、有任務沒列到、或想補備註，都可以直接改：到「編輯任務」或「測試路線」填，再按上面的「一鍵送出給站長」就會送到我這裡，我確認後會更新。</div>
-<div id="allbar" style="margin:0 0 12px;padding:8px 12px;background:var(--card);border:1px solid var(--accent);border-radius:12px"><b style="color:var(--accent)">改過的全部內容：</b> <button class="cpy" id="allcopy" style="margin:0 8px;padding:6px 18px;font-size:15px">一鍵複製</button><button class="cpy" id="allsend" style="margin:0 8px 0 0;padding:6px 18px;font-size:15px;background:#4d7a36">一鍵送出給站長</button><span id="allmsg" style="font-weight:700;color:#4d7a36"></span><div style="font-size:12px;color:var(--muted);margin-top:2px">包含：測試路線核對、待確認答案、任務編輯、收集總表勾選。沒改過的不會放進去。</div></div>
+<div class="gbn" style="margin:0 0 12px;padding:10px 14px;background:#e6efd9;border:1px solid #4d7a36;border-radius:12px;color:#2f4d22;font-size:15px"><b>大家一起把這份表補完整！</b><br>數字不一樣、缺任務、想補備註，都可以改<br>到「編輯任務」或「測試路線」填<br>再按「一鍵送出給站長」，我確認後更新</div>
+<div id="allbar" style="margin:0 0 12px;padding:8px 12px;background:var(--card);border:1px solid var(--accent);border-radius:12px"><b style="color:var(--accent)">改過的全部內容：</b> <button class="cpy" id="allcopy" style="margin:0 8px;padding:6px 18px;font-size:15px">一鍵複製</button><button class="cpy" id="allsend" style="margin:0 8px 0 0;padding:6px 18px;font-size:15px;background:#4d7a36">一鍵送出給站長</button><span id="allmsg" style="font-weight:700;color:#4d7a36"></span><div style="font-size:12px;color:var(--muted);margin-top:2px;flex:0 0 100%">只放你改過的：路線核對、待確認、編輯、收集勾選</div></div>
 <div class="tabs">
 <button class="tab on" data-p="ov">任務總覽</button>
 <button class="tab" data-p="cl">收集總表</button>
@@ -181,16 +188,14 @@ tr.ovdone>td{opacity:.42}tr.ovdone>td:last-child{opacity:1}
 
 
 <section class="panel on" id="ov">
-<p class="sub">所有任務一頁看完，想怎麼看自己選<br>等級是解任務的基本順序<br>經驗效率＝整串總經驗，可以升該等級的幾 %<br>點任務那一列展開細節，也可以直接按 Ctrl＋F 搜尋<br>☆ 想解的打勾，下面會列出要準備的道具和要打的怪<br>✓ 已解的打勾，就會淡掉</p>
+<p class="sub">所有任務一頁看完，想怎麼看自己選<br>等級是解任務的基本順序<br>經驗效率＝整串總經驗，可以升該等級的幾 %<br>點任務展開細節，也可以用瀏覽器搜尋<br>☆ 想解的打勾，會列出要準備的道具和怪<br>✓ 已解的打勾，就會淡掉</p>
 <div class="card ovc" id="ovc" style="margin-bottom:12px;padding-top:12px">
-<div class="ovg"><b>搜尋</b><input id="ovq" list="ovdl" placeholder="例如：伊卡路斯披風、樹枝" autocomplete="off" style="font:inherit;background:#fdf6e6;border:1px solid var(--line);border-radius:999px;padding:3px 14px;width:min(420px,100%)"><datalist id="ovdl"></datalist><button class="fl" id="ovqx" style="display:none">清除</button></div>
+<div class="ovg"><b>搜尋</b><span class="ovs"><input id="ovq" list="ovdl" placeholder="例如：伊卡路斯披風" autocomplete="off" style="font:inherit;background:#fdf6e6;border:1px solid var(--line);border-radius:999px;padding:3px 14px;width:min(420px,100%)"><datalist id="ovdl"></datalist><button class="fl" id="ovqx" style="display:none">清除</button></span></div>
 <div class="ovg"><b>類型</b><span id="ovty"></span></div>
-<details id="ovmore"><summary class="ovsum">更多篩選與排序</summary>
 <div class="ovg"><b>條件</b><span id="ovop"></span></div>
 <div class="ovg"><b>為什麼要做</b><span id="ovkd"></span></div>
 <div class="ovg"><b>我的</b><span id="ovmy"></span></div>
-<div class="ovg"><b>排序</b><select id="ovsel" class="fl" style="padding:3px 10px"><option value="lv">等級（預設）</option><option value="eff">經驗效率</option><option value="tot">總經驗</option></select> <button class="fl" id="ovreset" style="margin-left:8px">還原初始狀態</button></div>
-</details>
+<div class="ovg"><b>排序</b><span class="ovs"><select id="ovsel" class="fl" style="padding:3px 10px"><option value="lv">等級</option><option value="eff">經驗效率</option><option value="tot">總經驗</option></select> <button class="fl" id="ovreset" style="margin-left:8px">還原初始狀態</button></span></div>
 </div>
 <div id="ovwant" class="card" style="margin-bottom:12px;padding-top:12px;display:none"></div>
 <div class="card"><table id="ovtb" style="min-width:520px"></table></div>
@@ -825,7 +830,7 @@ function chipS(x){return '<span class="ovstep">'+esc_(x.name)+(x.plain?'':(x.lv<
 var SVG_W=function(on){return '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z" fill="'+(on?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>'};
 var SVG_D=function(on){return '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9.3" fill="'+(on?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8"/><path d="M7.6 12.4l3 3 5.8-6.2" fill="none" stroke="'+(on?'#fff':'currentColor')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
 function renderWant(){var el=document.getElementById('ovwant');var ws=OVR.filter(function(r){return WD.w[r.key]&&!WD.d[r.key]});
- if(!ws.length){el.style.display='';el.innerHTML='<b style="color:var(--accent)">☆ 想解的任務</b>：還沒有打星號的任務<br><small>按下面每一列的 ☆，就會列在這裡，並彙整要準備的道具和要打的怪</small>';return}
+ if(!ws.length){el.style.display='';el.innerHTML='<b style="color:var(--accent)">☆ 想解的任務</b>：還沒有打星號的任務<br><small>按每一列的 ☆ 加入，會彙整要準備的道具和怪</small>';return}
  var agg={},raw=[];ws.forEach(function(r){var n=needsOf(r);n.list.forEach(function(x){var k=x.item+(x.kill?'|k':'');var a=agg[k]||(agg[k]={item:x.item,kill:x.kill,tot:0,uses:[]});a.tot+=x.qty;a.uses.push(x)});n.raw.forEach(function(t){raw.push(t)})});
  var ks=Object.keys(agg).map(function(k){return agg[k]}).sort(function(a,b){return b.uses.length-a.uses.length||b.tot-a.tot});
  function it(a){return '<details class="ovitem"><summary><b>'+esc_(a.item)+'</b> ×'+fmtN(a.tot)+(a.uses.length>1?' <span class="hotb" style="background:#d9822b">'+a.uses.length+' 處</span>':'')+'</summary>'+a.uses.map(function(u){return '<div class="u">'+esc_(u.task)+' ×'+fmtN(u.qty)+'</div>'}).join('')+'</details>'}
@@ -839,9 +844,9 @@ function renderOV(){if(typeof W==='undefined'||!W.length||typeof RQ==='undefined
  var TY=[['eq','裝備'],['sc','捲軸'],['xp','經驗'],['bo','Boss']];
  function chb(arr,st,key){return arr.map(function(t){return '<button class="fl'+(st[t[0]]?' on':'')+'" data-'+key+'="'+t[0]+'">'+t[1]+'</button>'}).join('')}
  document.getElementById('ovty').innerHTML=chb(TY,ovTy,'t');
- document.getElementById('ovop').innerHTML=chb([['chain','有前置任務（完整任務線）'],['dup','重複／重要']],ovOp,'o');
+ document.getElementById('ovop').innerHTML=chb([['chain','有前置任務'],['dup','重複／重要']],ovOp,'o');
  document.getElementById('ovkd').innerHTML=chb([['pre','前置'],['xp','經驗'],['item','道具']],ovKd,'k');
- document.getElementById('ovmy').innerHTML=chb([['w','只看想解的'],['d','只看已解的'],['h','隱藏已解的']],ovMy,'m');
+ document.getElementById('ovmy').innerHTML=chb([['w','想解的'],['d','已解的'],['h','隱藏已解']],ovMy,'m');
  var dl=document.getElementById('ovdl');if(!dl.children.length)dl.innerHTML=itemList().map(function(x){return '<option value="'+esc_(x)+'">'}).join('');
  document.getElementById('ovsel').value=ovSo;document.getElementById('ovqx').style.display=ovQ?'':'none';
  var anyK=ovKd.pre||ovKd.xp||ovKd.item,ql=ovQ.toLowerCase();
@@ -892,7 +897,6 @@ var _cr=clRender;clRender=function(){_cr();labelAll()};var _re=renderEdit;render
 var _ra=renderAll;renderAll=function(){_ra();try{renderOV()}catch(e){}};
 try{renderOV()}catch(e){console.log('ov',e)}
 labelAll();
-(function(){var mq=window.matchMedia('(max-width:700px)'),d=document.getElementById('ovmore');function f(){d.open=!mq.matches}f();if(mq.addEventListener)mq.addEventListener('change',f)})();
 
 </script>
 <script src="edward-nav.js?v=r182"></script></body></html>
