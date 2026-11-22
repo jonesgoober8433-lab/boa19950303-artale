@@ -51,6 +51,12 @@ tr.hot td{background:#fff1d6}
 .rtn.show{display:block}
 
 .rqw{overflow-x:auto;margin-top:8px}
+.rqt tr.rqdone{display:none}.rqw.sh tr.rqdone{display:table-row}
+.rtstep.folded:not(.open)>*:not(.t){display:none}
+.rtstep.folded>.t{cursor:pointer;color:var(--muted)}
+.rtstep.folded>.t::before{content:"✅ ";}
+.rtstep.folded>.t::after{content:"　（已核對，點開看）";font-weight:400;font-size:13px}
+.rtstep.folded.open>.t::after{content:"　（點一下收起）"}
 .rqt{border-collapse:collapse;min-width:900px;width:100%;font-size:14px}
 .rqt th{font-size:12px;color:var(--muted);font-weight:500;padding:3px 6px;text-align:left;border:0}
 .rqt td{padding:3px 4px;border:0;vertical-align:top}
@@ -68,6 +74,26 @@ tr.hot td{background:#fff1d6}
 .cltask{padding:7px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
 .cltask.dn{opacity:.45}
 
+.ovb{display:inline-block;height:8px;border-radius:4px;background:#d9822b;vertical-align:middle}
+.ovstep{display:inline-block;max-width:100%;text-wrap:balance;background:var(--soft);border-radius:8px;padding:1px 8px;margin:1px 0;font-size:13px;white-space:nowrap}
+.ovstep.me{background:#f6e6c4;font-weight:700}
+.ovar{color:var(--muted);margin:0 2px}
+.ovg{margin:0 0 8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ovg b{font-size:13px;color:var(--muted);margin-right:2px;min-width:78px;display:inline-block}
+#ov{text-wrap:pretty}#ov td,#ov .sub{text-wrap:balance}
+.ovn{display:inline-block;max-width:100%;overflow-wrap:anywhere;text-wrap:balance}
+.ovpath{padding:3px 0}
+.ovdet{margin-top:6px;padding:6px 10px;background:#fffdf6;border-radius:10px;cursor:default}
+.ovdet[hidden]{margin:0;padding:0;background:none}
+#ovtb td:nth-child(4){white-space:nowrap}
+.ovi{border:0;background:none;padding:2px;cursor:pointer;color:#b9a88c;line-height:0;vertical-align:middle}
+.ovi.w.on{color:#d9822b}.ovi.d.on{color:#4d7a36}
+tr.ovdone>td{opacity:.42}tr.ovdone>td:last-child{opacity:1}
+.ovitem{display:inline-block;vertical-align:top;margin:0 8px 6px 0;background:var(--soft);border-radius:10px;padding:3px 10px;font-size:14px}
+.ovitem summary{cursor:pointer}
+.ovitem .u{font-size:13px;color:var(--muted);padding:2px 0}
+#ovtb td:nth-child(2){min-width:190px}
+
 .wrap{width:100%}
 </style></head><body>
 <div class="wrap"><header style="padding:0"><h1>小號必去</h1></header>
@@ -77,10 +103,7 @@ tr.hot td{background:#fff1d6}
 <div style="margin:0 0 12px;padding:10px 14px;background:#e6efd9;border:1px solid #4d7a36;border-radius:12px;color:#2f4d22;font-size:15px"><b>大家一起把這份表補完整！</b> 你發現數字跟遊戲不一樣、有任務沒列到、或想補備註，都可以直接改：到「編輯任務」或「測試路線」填，再按上面的「一鍵送出給站長」就會送到我這裡，我確認後會更新。</div>
 <div id="allbar" style="margin:0 0 12px;padding:8px 12px;background:var(--card);border:1px solid var(--accent);border-radius:12px"><b style="color:var(--accent)">改過的全部內容：</b> <button class="cpy" id="allcopy" style="margin:0 8px;padding:6px 18px;font-size:15px">一鍵複製</button><button class="cpy" id="allsend" style="margin:0 8px 0 0;padding:6px 18px;font-size:15px;background:#4d7a36">一鍵送出給站長</button><span id="allmsg" style="font-weight:700;color:#4d7a36"></span><div style="font-size:12px;color:var(--muted);margin-top:2px">包含：測試路線核對、待確認答案、任務編輯、收集總表勾選。沒改過的不會放進去。</div></div>
 <div class="tabs">
-<button class="tab on" data-p="all">全部（依等級）</button>
-<button class="tab" data-p="eq">裝備</button>
-<button class="tab" data-p="sc">捲軸</button>
-<button class="tab" data-p="xp">經驗</button>
+<button class="tab on" data-p="ov">任務總覽</button>
 <button class="tab" data-p="cl">收集總表</button>
 <button class="tab" data-p="rt">測試路線</button>
 <button class="tab" data-p="ed">編輯任務</button>
@@ -88,7 +111,7 @@ tr.hot td{background:#fff1d6}
 </div>
 
 
-<section class="panel on" id="all">
+<section class="panel" id="all">
 <div id="topcp" class="top"></div>
 <div class="filters" id="flt"></div>
 <div class="card"><table id="alltb" style="min-width:1150px"></table></div>
@@ -97,6 +120,22 @@ tr.hot td{background:#fff1d6}
 </section>
 
 
+
+<section class="panel on" id="ov">
+<p class="sub">所有任務一頁看完，想怎麼看自己選<br>等級是解任務的基本順序<br>經驗效率＝整串總經驗，可以升該等級的幾 %<br>點任務那一列展開細節，也可以直接按 Ctrl＋F 搜尋<br>☆ 想解的打勾，下面會列出要準備的道具和要打的怪<br>✓ 已解的打勾，就會淡掉</p>
+<div class="card ovc" id="ovc" style="margin-bottom:12px;padding-top:12px">
+<div class="ovg"><b>搜尋</b><input id="ovq" list="ovdl" placeholder="例如：伊卡路斯披風、樹枝" autocomplete="off" style="font:inherit;background:#fdf6e6;border:1px solid var(--line);border-radius:999px;padding:3px 14px;width:min(420px,100%)"><datalist id="ovdl"></datalist><button class="fl" id="ovqx" style="display:none">清除</button></div>
+<div class="ovg"><b>類型</b><span id="ovty"></span></div>
+<div class="ovg"><b>條件</b><span id="ovop"></span></div>
+<div class="ovg"><b>為什麼要做</b><span id="ovkd"></span></div>
+<div class="ovg"><b>我的</b><span id="ovmy"></span></div>
+<div class="ovg"><b>排序</b><select id="ovsel" class="fl" style="padding:3px 10px"><option value="lv">等級（預設）</option><option value="eff">經驗效率</option><option value="tot">總經驗</option></select></div>
+</div>
+<div id="ovwant" class="card" style="margin-bottom:12px;padding-top:12px;display:none"></div>
+<div class="card"><table id="ovtb" style="min-width:520px"></table></div>
+<div id="ovempty" class="sub" style="margin-top:8px"></div>
+<details id="ovno" style="margin-top:12px"><summary style="cursor:pointer;color:var(--muted)" id="ovnos"></summary><div class="card" style="margin-top:8px"><table id="ovnt" style="min-width:470px"></table></div></details>
+</section>
 
 <section class="panel" id="ed"><div class="card" style="padding-top:12px">
 <p class="sub" style="margin:0 0 6px">這裡可以改「全部（依等級）」表裡的所有欄位，也能新增、刪除任務。「備註」欄想到什麼就直接打，我會再整理。改的內容自動儲存在你的瀏覽器，改完按「送出編輯給站長」，就會送到我這裡。</p>
@@ -156,7 +195,7 @@ tr.hot td{background:#fff1d6}
 <tr><td class="lv">40</td><td>愛奧斯塔的和平</td><td>馬賽爾／玩具城</td><td>泥人領導者1（愛奧斯塔8樓隱藏地圖）</td><td>隨機手攻 10%、60%</td></tr>
 <tr><td class="lv">40</td><td>鍊金術士－珍（3階段）</td><td>珍／維多利亞港</td><td>① 礦泉水1、怪藥30、巫婆青蛙實驗20<br>② 蘑菇王芽胞1、暴龍之血3、怪藥100、巫婆青蛙實驗30<br>③ 月石1、龍皮20、枯木樹液10；前置：珍與黑肥肥</td><td>隨機手攻 10%、60%</td></tr>
 <tr><td class="lv">40</td><td>歌迷的愛心</td><td>珍珍、黃綠紅／不夜城、西門町</td><td>小狗仔尾巴500；綠、黃、紅粉圓各100</td><td>隨機武器攻擊 60%</td></tr>
-<tr><td class="lv">40</td><td>黃綠紅的感動</td><td>黃綠紅、珍珍</td><td>雪吉拉、企鵝王、菇菇寶貝玩偶 各200</td><td>隨機武器攻擊 60%</td></tr>
+<tr><td class="lv">40</td><td>黃綠紅的感動</td><td>黃綠紅、珍珍</td><td>雪吉拉娃娃、企鵝王娃娃、菇菇寶貝玩偶 各200</td><td>套服 60%（非自選，屬性待確認）</td></tr>
 <tr><td class="lv">40</td><td>前往新世界 1、2</td><td>維英、克莉爾／魔法森林、天空之城</td><td>凱柏洛斯之淚1；空瓶子20、獨角獅硬角200、食人花種子50</td><td>隨機武器／手攻 60%</td></tr>
 <tr><td class="lv">40</td><td>阿爾法部隊連絡網（依序）</td><td>珀斯上尉等／冰原雪域、天空之城</td><td>紫礦石2、朱礦石2、藍寶石2</td><td>隨機鞋速／鞋跳 10%、60%（順序錯會變防禦卷）</td></tr>
 <tr><td class="lv">45</td><td>傑塔雷第奎朗的歷史</td><td>黑豹戰士／地球防衛總部 克嵐草原1</td><td>消滅葛雷元老，收齊4種細胞</td><td>任選武器攻擊 10%</td></tr>
@@ -239,7 +278,7 @@ var Q=[
 [40,'40','愛奧斯塔的和平','馬賽爾／玩具城','sc','手攻 10%、60%'],
 [40,'40','鍊金術士－珍（3階段）','珍／維多利亞港','sc','手攻 10%、60%'],
 [40,'40','歌迷的愛心','珍珍、黃綠紅／不夜城、西門町','sc','武器攻擊 60%'],
-[40,'40','黃綠紅的感動','黃綠紅、珍珍','sc','武器攻擊 60%'],
+[40,'40','黃綠紅的感動','黃綠紅、珍珍','sc','套服 60%（非自選，屬性待確認）'],
 [40,'40','前往新世界 1、2','維英、克莉爾','sc','武器／手攻 60%'],
 [40,'40','阿爾法部隊連絡網（依序）','珀斯上尉等／冰原雪域','sc','鞋速／鞋跳 10%、60%'],
 [45,'45','傑塔雷第奎朗的歷史','黑豹戰士／地球防衛總部','sc','武器攻擊 10%'],
@@ -307,7 +346,7 @@ var PRE={
 '妖精羅雯和詛咒娃娃 1～5':'泰實夫的秘密之書（Lv30）',
 '童話書的整理':'「小王子」篇另需前置：為了小王子（Lv32）；其餘各篇無前置',
 '擊退巨居蟹 1～6':'1 個開場任務（擊退巨居蟹王）＋3 個後續（幫助拉爾／麗爾／露爾），開場任務是 3 個後續的共同前置（階段數待確認）',
-'盲俠隱藏任務（6階段）':'遺失的信 → 石巨人（55）→ 黑石巨人（58）→ 混種巨人（58）→ 骷髏（60）→ 龍（64）→ 牛魔王（70），每階段前置都是前面全部'
+'盲俠隱藏任務（6階段）':'遺失的信 → 石巨人（55）→ 黑石巨人（58）→ 混種巨人（58）→ 骷髏（60）→ 打敗惡龍（64）→ 牛魔王（70），每階段前置都是前面全部'
 };
 var IMP={
 '遺失的信':[6,'盲俠 6 個階段的共同前置'],
@@ -320,7 +359,7 @@ var IMP={
 '擊退巨居蟹 1～6':[3,'3 個後續任務的共同前置'],
 '童話書的整理':[2,'其中「兄弟之愛」也是故鄉傳說的前置']
 };
-Q.push([55,'55','盲俠：石巨人／黑石巨人／混種巨人／骷髏／龍／牛魔王','（同上）','xp','（併入上面盲俠隱藏任務）']);
+Q.push([55,'55','盲俠：石巨人／黑石巨人／混種巨人／骷髏／惡龍／牛魔王','（同上）','xp','（併入上面盲俠隱藏任務）']);
 Q.pop();
 var DET=[
 ['修理酋長的家','1','酋長','樹枝30、木柴50','酋長蓋房子',0],
@@ -347,7 +386,7 @@ var flt='all';
 function renderAll(){
  var h='<tr><th>等級</th><th>任務</th><th>NPC／地點</th><th>類型</th><th>前置任務</th><th>需要道具</th><th>獎勵</th><th>備註</th><th>重複／重要</th></tr>',n=0;
  (typeof W!=='undefined'?W:Q).forEach(function(r){var t=r[4].split(',');var show=flt==='all'||(flt==='dup'?t.length>1:t.indexOf(flt)>=0);if(!show)return;n++;
-  var chips=t.filter(Boolean).map(function(x){return '<span class="chip c-'+x+'">'+TN[x]+'</span>'}).join('');var KN={pre:'前置',kill:'打怪',item:'道具'};chips+=((r[11]||'').split(',').filter(Boolean).map(function(k){return '<span class="chip" style="background:#eee4d2;color:#6b5a44">'+KN[k]+'</span>'}).join(''));
+  var chips=t.filter(Boolean).map(function(x){return '<span class="chip c-'+x+'">'+TN[x]+'</span>'}).join('');var KN={pre:'前置',xp:'經驗',kill:'打怪',item:'道具'};chips+=((r[11]||'').split(',').filter(Boolean).map(function(k){return '<span class="chip" style="background:#eee4d2;color:#6b5a44">'+KN[k]+'</span>'}).join(''));
   var d=t.length>1?'<span class="hotb">重複 '+t.length+' 次</span>':'';
   var im=IMP[r[8]||r[2]];var ib=im?'<span class="hotb" style="background:#a8392b" title="'+im[1]+'">★ 前置×'+im[0]+'</span><br><small>'+im[1]+'</small>':'';var pr=(r[6]!=null&&r[6]!==undefined?r[6]:PRE[r[2]])||'<small>（未查）</small>';
   h+='<tr'+((t.length>1||im)?' class="hot"':'')+'><td class="lv">'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+chips+'</td><td>'+pr+'</td><td>'+(r[7]||'')+'</td><td>'+r[5]+'</td><td>'+(r[10]?esc_(r[10]):'')+'</td><td>'+d+(d&&ib?'<br>':'')+ib+'</td></tr>'});
@@ -379,7 +418,7 @@ var CF=[
  {k:'愛奧斯塔的威脅：有前置「愛奧斯塔的清掃」嗎？',h:'✅ 已確認：一定要先做',o:['有']},
  {k:'沼澤地的鱷魚：有前置嗎？',h:'✅ 已確認：有前置「我必須找到我的女兒」（Lv10）',o:['有']},
  {k:'史卡圖勒的新毛皮：套服 60% 是哪個屬性？',h:'有人寫力量／敏捷／智力／幸運，有人寫防禦／敏捷／智力／幸運',o:[]},
- {k:'黃綠紅的感動：獎勵是套服還是武器 60%？',h:'有人寫套服 60%，有人寫武器 60%',o:['套服','武器']},
+ {k:'黃綠紅的感動：獎勵是套服還是武器 60%？',h:'已回報：套服 60%；但不是自選，不確定是哪種屬性',o:['套服','武器']},
  {k:'傑塔雷第奎朗的歷史：前置有哪些？',h:'前置可能是消滅葛雷（Lv37）→ 消滅葛雷元老（Lv43），也有人只寫元老',o:['兩個都要']},
  {k:'羅密歐的求婚：「組隊結局」是前置嗎？',h:'「組隊結局」是不是前置？有人說要，查不到明文',o:['是','否']},
  {k:'酷獸七個任務：中文名與英文名對應是否正確？',h:'蝸牛傳說、古老的樹、邪惡森林、怪物與邪惡的計畫、葛雷金剛、故鄉傳說、女神的寵物：是依英文名推的',o:['正確']},
@@ -453,7 +492,7 @@ var RT=[
 ];
 
 function esc_(x){return String(x).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
-function cfBlocks(a){if(!a||!a.length)return '';return a.map(function(q){var c=CF[q-1],el=document.getElementById('cf'+(q-1));return '<div class="cfx" style="margin-top:8px;padding:8px 10px;background:#fff1d6;border-radius:10px"><div style="font-weight:700;color:#8a3f10">📌 待確認 #'+q+'：'+esc_(c.k)+'</div><div style="font-size:13px;color:var(--muted);margin:2px 0 6px">'+esc_(c.h)+'</div>'+c.o.map(function(o){return '<button class="qp cfxq" data-q="'+q+'" data-v="'+esc_(o)+'">'+esc_(o)+'</button>'}).join('')+'<input type="text" autocomplete="off" class="cfi" data-q="'+q+'" placeholder="你的答案（直接在這裡回覆）" value="'+esc_(el?el.value:'')+'" style="width:100%;font:inherit;background:#fdf6e6;border:1px solid var(--line);border-radius:10px;padding:7px 10px;color:var(--fg)"></div>'}).join('')}
+function cfBlocks(a){if(!a||!a.length)return '';return a.map(function(q){var c=CF[q-1],el=document.getElementById('cf'+(q-1));var okc=/^✅/.test(c.h);return (okc?'<details style="margin-top:8px"><summary style="cursor:pointer;color:#4d7a36;font-size:14px">✅ 待確認 #'+q+' 已確認（點開看）</summary>':'')+'<div class="cfx" style="margin-top:8px;padding:8px 10px;background:#fff1d6;border-radius:10px"><div style="font-weight:700;color:#8a3f10">📌 待確認 #'+q+'：'+esc_(c.k)+'</div><div style="font-size:13px;color:var(--muted);margin:2px 0 6px">'+esc_(c.h)+'</div>'+c.o.map(function(o){return '<button class="qp cfxq" data-q="'+q+'" data-v="'+esc_(o)+'">'+esc_(o)+'</button>'}).join('')+'<input type="text" autocomplete="off" class="cfi" data-q="'+q+'" placeholder="你的答案（直接在這裡回覆）" value="'+esc_(el?el.value:'')+'" style="width:100%;font:inherit;background:#fdf6e6;border:1px solid var(--line);border-radius:10px;padding:7px 10px;color:var(--fg)"></div>'+(okc?'</details>':'')}).join('')}
 function cfSet(q,v,from){var el=document.getElementById('cf'+(q-1));if(el){el.value=v;el.dispatchEvent(new Event('input'))}document.querySelectorAll('.cfi[data-q="'+q+'"]').forEach(function(x){if(x!==from)x.value=v});prog()}
 
 var RQ=[
@@ -478,12 +517,12 @@ var RQ=[
 ['愛奧斯塔的清掃',[['愛奧斯塔的清掃','30','粉紅色戰鬥機×25、特威德×25（打怪）','8,000'],['愛奧斯塔的威脅','35','積木泥人×20、泥人王×12','14,000（實測）'],['愛奧斯塔的和平','40','泥人領導者×1（8樓隱藏地圖）','21,000']]],
 ['玩具兵的核桃',[['玩具兵的核桃','25','好吃的核桃×20','8,000'],['玩偶之家','25','鐘擺×1','12,000'],['鐘塔的力量','33','萬能鐘錶發條×1（鐘擺只要一個，在玩偶之家用）','17,000（實測）']]],
 ['沼澤地的鱷魚',[['沼澤地的鱷魚','52','鱷魚×250、青蛇×40、蛇皮×20；黑鱷魚×120、黑鱷魚皮×50','40,000＋50,000']]],
-['盲俠隱藏任務',[['打敗石巨人','55','石巨人×80','180,000'],['打敗黑曜石巨人','58','黑曜石巨人×100','220,000'],['打敗混種石巨人','58','混種石巨人×100','220,000'],['骷髏','60','骷髏士兵×50、骷髏士官×50','260,000'],['龍','64','青龍×50、冰龍×50','280,000'],['牛魔王','70','月牙牛魔王×30、冰獨眼獸×100','360,000']]],
+['盲俠隱藏任務',[['打敗石巨人','55','石巨人×80（打怪）','180,000'],['打敗黑曜石巨人','58','黑曜石巨人×100（打怪）','220,000'],['打敗混種石巨人','58','混種石巨人×100（打怪）','220,000'],['骷髏','60','骷髏士兵×50、骷髏士官×50（打怪）','260,000'],['打敗惡龍','64','青龍×50、冰龍×50（打怪）','280,000'],['牛魔王','70','月牙牛魔王×30、冰獨眼獸×100（打怪）','360,000']]],
 ['亞凱斯特的披風',[['珀斯上尉的秘密','—','蘋果×10、蛋×10、紅豆粥×10、魚×40','未查'],['亞凱斯特的披風','33（也有人寫 35，待確認）','魔法石×2、石柳石×4、野狼尾巴×2、黑利堤毛球×50','未查']]],
 ['酋長蓋房子',[['修理酋長的家','1','樹枝×30、木柴×50','600'],['酋長蓋房子','30','石塊×100、螺絲釘×30、木材×30、酋長的地契×1','40,000']]],
 ['擊退巨居蟹',[['擊退巨居蟹','55','烏龜×50、紅螃蟹×50、青螃蟹×50、巨居蟹×1','400＋400＋2,000＋267,000（名聲+10）']]],
 ['史卡圖勒的新毛皮',[['史卡圖勒的新毛皮','60','野狼尾巴×250、白狼尾巴×250、雪吉拉之角×80、藍寶石母礦×50','54,000（待確認）']]],
-['黃綠紅的感動',[['黃綠紅的感動','40','雪吉拉、企鵝王、菇菇寶貝玩偶 各×200','未查']]],
+['黃綠紅的感動',[['黃綠紅的感動','40','雪吉拉娃娃×200、企鵝王娃娃×200、菇菇寶貝玩偶×200','2,000＋10,000＋30,000']]],
 ['傑塔雷第奎朗',[['消滅葛雷','37','葛雷×25（怪物正式名稱待確認）','16,000'],['消滅葛雷元老','43','便條×3','未查'],['傑塔雷第奎朗的歷史','45','4 種葛雷細胞各×1','未查']]],
 ['羅密歐的求婚',[['羅密歐系列四任務','70','五月之霧×20、雪玫瑰、樣板、禮物、情書、便當…','未查'],['羅密歐的求婚','70','銀×2、鑽石×2（訂婚戒指）','未查']]],
 ['酷獸七個任務',[['蝸牛傳說','20','各色蝸牛殼×10、彩虹蝸牛殼×1','54,000'],['古老的樹','35','枯枝×100、打樹妖王','87,000'],['邪惡森林','50','詛咒之釘×10、妖精的頭髮×1、打殭屍猴王','225,600'],['怪物與邪惡的計畫','65','鱷魚皮×50、大鱷魚皮×50、打沼澤巨鱷','360,000'],['戰鬥生命體葛雷金剛','65','觸手×10、接收裝置×30、小型太空船×30、葛雷首領的標誌×1','360,000'],['故鄉傳說','70','打九尾狐（前置：兄弟之愛）','408,600'],['女神的寵物','83','星光精靈×50、月光精靈×100、光輝精靈×150、打艾利傑','768,000']]]
@@ -492,9 +531,9 @@ var RV={};try{RV=JSON.parse(localStorage.getItem('starterRV_v2')||'{}')}catch(e)
 function saveRV(){try{localStorage.setItem('starterRV_v2',JSON.stringify(RV))}catch(e){}prog()}
 function doubt(x){return /待確認|？|未查|另有/.test(x||'')}
 function rqFor(t){for(var i=0;i<RQ.length;i++)if(t.indexOf(RQ[i][0])===0)return RQ[i][1];return null}
-function rqBlock(si,title){var a=rqFor(title);if(!a)return '';var h='<div class="rqw"><table class="rqt"><tr><th>任務名稱<br><span style="font-weight:400">（跟遊戲不同就改）</span></th><th style="width:90px">任務等級<br><span style="font-weight:400">（任務欄顯示）</span></th><th style="width:90px">接取等級<br><span style="font-weight:400">（最低幾級能接）</span></th><th>需要道具</th><th style="width:170px">經驗值</th><th>已核對</th></tr>';
+function rqBlock(si,title){var a=rqFor(title);if(!a)return '';var h='<div class="rqw"><a href="#" class="rqtg" style="display:none;font-size:13px;color:#4d7a36"></a><table class="rqt"><tr><th>任務名稱<br><span style="font-weight:400">（跟遊戲不同就改）</span></th><th style="width:90px">任務等級<br><span style="font-weight:400">（任務欄顯示）</span></th><th style="width:90px">接取等級<br><span style="font-weight:400">（最低幾級能接）</span></th><th>需要道具</th><th style="width:170px">經驗值</th><th>已核對</th></tr>';
  a.forEach(function(q,j){var k='q:'+q[0],v=RV[k]||{};var f=['nm','lv','nl','it','xp'];function og(c){return c==='nm'?q[0]:c==='lv'?q[1]:c==='it'?q[2]:c==='xp'?q[3]:''}
-  h+='<tr>'+f.map(function(c){var o=og(c);var val=v[c]!=null?v[c]:o;var chg=(v[c]!=null&&v[c]!==o);return '<td><input type="text" autocomplete="off" class="rqi'+(chg?' chg':'')+(doubt(o)&&!chg?' dbt':'')+'" data-k="'+k+'" data-c="'+c+'" data-o="'+esc_(o)+'" value="'+esc_(val)+'"'+(c==='nl'?' placeholder="填入"':'')+'></td>'}).join('')+'<td style="padding-top:7px"><input type="checkbox" class="rqc" data-k="'+k+'"'+(v.ok?' checked':'')+'></td></tr>'});
+  h+='<tr'+(v.ok?' class="rqdone"':'')+'>'+f.map(function(c){var o=og(c);var val=v[c]!=null?v[c]:o;var chg=(v[c]!=null&&v[c]!==o);return '<td><input type="text" autocomplete="off" class="rqi'+(chg?' chg':'')+(doubt(o)&&!chg?' dbt':'')+'" data-k="'+k+'" data-c="'+c+'" data-o="'+esc_(o)+'" value="'+esc_(val)+'"'+(c==='nl'?' placeholder="填入"':'')+'></td>'}).join('')+'<td style="padding-top:7px"><input type="checkbox" class="rqc" data-k="'+k+'"'+(v.ok?' checked':'')+'></td></tr>'});
  return h+'</table></div><div style="font-size:12px;color:var(--muted)">一般底色＝頁面上的值；跟遊戲不同就直接改，改過的會變紅，確認完勾「已核對」。⚠ 橘底＝來源說法不一致、或還沒查到，請特別看。</div>'+'</div>'.slice(0,0)}
 function sk(i){return 's:'+RT[i][0]}
 var RK='starterRT_v2',RS={};try{RS=JSON.parse(localStorage.getItem(RK)||'{}')}catch(e){}
@@ -508,14 +547,18 @@ function hid(r){if(r.length<2)return false;for(var d=0;d<DONE.length;d++)if(r[0]
  var dn=0;(rqFor(r[0])||[]).forEach(function(q){for(var z=0;z<4;z++)if(doubt(q[z]))dn++});var dbb=dn?' <span class="hotb" style="background:#b5651d">⚠ '+dn+' 格存疑（橘底）</span>':'';var cfb=(r[2]&&r[2].length)?' <span class="hotb" style="background:#d9822b">📌 待確認 #'+r[2].join('、#')+'</span>':'';h+='<div class="rtstep"><div class="t">'+k+'. '+r[0]+dbb+cfb+'</div><div class="c">'+r[1]+'</div><button class="rtb ok'+(v.r==='ok'?' on':'')+'" data-i="'+i+'" data-r="ok">✅ 一致</button><button class="rtb bad'+(v.r==='bad'?' on':'')+'" data-i="'+i+'" data-r="bad">❌ 不同</button><input type="text" autocomplete="off" class="rtn'+(v.r==='bad'||v.n?' show':'')+'" id="rn'+i+'" placeholder="實際看到的（等級、數量、前置…）" value="'+(v.n||'').replace(/"/g,'&quot;')+'">'+rqBlock(i,r[0])+cfBlocks(r[2])+'</div>'});
  document.getElementById('rtlist').innerHTML=h;
  document.querySelectorAll('.rtb').forEach(function(b){b.onclick=function(){var i=b.dataset.i,k=sk(i),v=RS[k]||{};v.r=(v.r===b.dataset.r)?'':b.dataset.r;RS[k]=v;
-  var row=b.parentElement;row.querySelector('.ok').classList.toggle('on',v.r==='ok');row.querySelector('.bad').classList.toggle('on',v.r==='bad');row.querySelector('.rtn').classList.toggle('show',v.r==='bad'||!!v.n);saveRT()}});
+  var row=b.parentElement;row.querySelector('.ok').classList.toggle('on',v.r==='ok');row.querySelector('.bad').classList.toggle('on',v.r==='bad');row.querySelector('.rtn').classList.toggle('show',v.r==='bad'||!!v.n);saveRT();applyFold()}});
  document.querySelectorAll('.rtn').forEach(function(x){x.addEventListener('input',function(){var k=sk(x.id.slice(2)),v=RS[k]||{};v.n=x.value;RS[k]=v;saveRT()})});
  document.querySelectorAll('.rqi').forEach(function(x){x.addEventListener('input',function(){var k=x.dataset.k,v=RV[k]||{};v[x.dataset.c]=x.value;RV[k]=v;x.classList.toggle('chg',x.value!==x.dataset.o);saveRV()})});
- document.querySelectorAll('.rqc').forEach(function(x){x.addEventListener('change',function(){var k=x.dataset.k,v=RV[k]||{};v.ok=x.checked;RV[k]=v;saveRV()})});
+ document.querySelectorAll('.rqc').forEach(function(x){x.addEventListener('change',function(){var k=x.dataset.k,v=RV[k]||{};v.ok=x.checked;RV[k]=v;saveRV();x.closest('tr').classList.toggle('rqdone',x.checked);applyFold()})});
+ document.querySelectorAll('.rqtg').forEach(function(a){a.onclick=function(e){e.preventDefault();a.parentElement.classList.toggle('sh');applyFold()}});
+ document.querySelectorAll('.rtstep>.t').forEach(function(t){t.onclick=function(){var p=t.parentElement;if(p.classList.contains('folded'))p.classList.toggle('open')}});
+ applyFold();
  document.querySelectorAll('.cfi').forEach(function(x){x.addEventListener('input',function(){cfSet(+x.dataset.q,x.value,x)})});
  document.querySelectorAll('.cfxq').forEach(function(b){b.onclick=function(){var q=+b.dataset.q;cfSet(q,b.dataset.v,null)}});
  for(var q=1;q<=CF.length;q++)(function(q){var el=document.getElementById('cf'+(q-1));if(el)el.addEventListener('input',function(){document.querySelectorAll('.cfi[data-q="'+q+'"]').forEach(function(x){if(x.value!==el.value)x.value=el.value});prog()})})(q);
  prog()})();
+function applyFold(){document.querySelectorAll('.rtstep').forEach(function(st){var tot=st.querySelectorAll('.rqc').length,dn=st.querySelectorAll('tr.rqdone').length;var a=st.querySelector('.rqtg');if(a){var w=a.parentElement;a.style.display=dn?'':'none';a.textContent=(w.classList.contains('sh')?'▼ 收起':'▶ 已核對 '+dn+' 項（點開看）')}var ok=st.querySelector('.rtb.ok.on');var fold=tot>0?dn===tot:!!ok;st.classList.toggle('folded',fold);if(!fold)st.classList.remove('open')})}
 function rtText(){var out=['【小號必去 測試回報】'],c=0;RT.forEach(function(r,i){if(r.length<2||hid(r))return;var v=RS[sk(i)];if(!v||(!v.r&&!v.n))return;c++;out.push((r[2]&&r[2].length?'[待確認#'+r[2].join('#')+'] ':'')+r[0]+'：'+(v.r==='ok'?'一致':v.r==='bad'?'不同':'備註')+(v.n?' → '+v.n:''))});RT.forEach(function(r,i){if(hid(r))return;var a=rqFor(r[0]);if(a)a.forEach(function(q,j){var v=RV['q:'+q[0]];if(!v)return;var d=[];[['nm','任務名稱',0],['lv','任務等級',1],['nl','接取等級',-1],['it','道具',2],['xp','經驗值',3]].forEach(function(f){var o=f[2]<0?'':q[f[2]];if(v[f[0]]!=null&&v[f[0]]!==o)d.push(f[1]+'：'+(o||'（空）')+' → '+v[f[0]])});if(d.length){c++;out.push('[核對] '+q[0]+' 不同｜'+d.join('｜'))}else if(v.ok){c++;out.push('[核對] '+q[0]+' 名稱、任務等級、道具、經驗值皆一致（接取等級未填）')}})});
 CF.forEach(function(cc,i){if(DONECF.indexOf(i+1)>=0)return;var ce=document.getElementById('cf'+i);var vv=ce&&ce.value.trim();if(vv){c++;out.push('[待確認#'+(i+1)+'] '+cc.k.replace(/[：:].*$/,'')+' → '+vv)}});return c?out.join('\n'):''}
 document.getElementById('rtcopy').onclick=function(){var t=rtText(),m=document.getElementById('rtmsg');if(!t){m.textContent='還沒測任何一步';return}
@@ -544,7 +587,7 @@ function renderEdit(){var h='<tr><th style="width:36px">刪</th><th style="width
   function inp(f,val,w){return '<td><input type="text" autocomplete="off" class="edi" data-id="'+esc_(id)+'" data-f="'+f+'" value="'+esc_(val)+'"></td>'}
   h+='<tr><td><button class="rtb eddelb" data-id="'+esc_(id)+'" title="刪除這個任務" style="padding:1px 8px">🗑</button></td>'+inp('lv',r[1])+inp('name',r[2])+inp('npc',r[3])+
    '<td style="white-space:nowrap">'+['eq','sc','xp','bo'].map(function(t){return '<label style="margin-right:6px;font-size:13px"><input type="checkbox" class="edt" data-id="'+esc_(id)+'" data-t="'+t+'"'+(ts.indexOf(t)>=0?' checked':'')+'>'+TN[t]+'</label>'}).join('')+'</td>'+
-   inp('pre',r[6]||'')+inp('items',r[7]||'')+inp('reward',r[5])+'<td style="white-space:nowrap">'+[['pre','前置'],['kill','打怪'],['item','道具']].map(function(t){return '<label style="margin-right:6px;font-size:13px"><input type="checkbox" class="edk" data-id="'+esc_(id)+'" data-k="'+t[0]+'"'+(ks.indexOf(t[0])>=0?' checked':'')+'>'+t[1]+'</label>'}).join('')+'</td>'+inp('note',r[10]||'')+'</tr>'});
+   inp('pre',r[6]||'')+inp('items',r[7]||'')+inp('reward',r[5])+'<td style="white-space:nowrap">'+[['pre','前置'],['xp','經驗'],['item','道具']].map(function(t){return '<label style="margin-right:6px;font-size:13px"><input type="checkbox" class="edk" data-id="'+esc_(id)+'" data-k="'+t[0]+'"'+(ks.indexOf(t[0])>=0?' checked':'')+'>'+t[1]+'</label>'}).join('')+'</td>'+inp('note',r[10]||'')+'</tr>'});
  document.getElementById('edtb').innerHTML=h;
  var dl=Object.keys(ED.d).filter(function(k){return ED.d[k]});
  document.getElementById('eddel').innerHTML=dl.length?'已刪除（點名稱復原）：'+dl.map(function(k){var o=origOf(k);var nm=o?o[2]:(ED.a[+k.slice(1)]||{}).name;return '<button class="qp edres" data-id="'+esc_(k)+'">'+esc_(nm||k)+'</button>'}).join(''):'';
@@ -566,7 +609,7 @@ function renderTop(){var hot2=W.filter(function(r){return r[4].split(',').length
  document.getElementById('topcp').innerHTML='<b>高 CP（重複出現）：</b>'+hot2.map(function(r){return 'Lv'+r[1]+' '+r[2]+'（'+r[4].split(',').map(function(x){return TN[x]}).join('＋')+'，'+r[4].split(',').length+' 次）'}).join('；')+'<br><b>★ 特別重要的前置任務（先做這些）：</b>'+im.map(function(x){return x[0]+'（×'+x[1][0]+'，'+x[1][1]+'）'}).join('；')+'；愛奧斯塔的清掃（×2）'}
 document.getElementById('edadd').onclick=function(){var lv0=prompt('新任務的等級是？（填數字，會自動依等級排進表格；不確定可先留空）','');if(lv0===null)return;ED.a.push({lv:lv0.trim(),name:'新任務',npc:'',types:'xp',pre:'',items:'',reward:'',note:'',kind:''});saveED();buildW();renderEdit();renderAll();renderTop();var ins=document.querySelectorAll('.edi[data-f=name]');for(var i=0;i<ins.length;i++)if(ins[i].dataset.id==='n'+(ED.a.length-1)){ins[i].focus();ins[i].select();focusRow('n'+(ED.a.length-1))}};
 function edText(){var out=['【小號必去 任務編輯】'],n=0;var lab={lv:'等級',name:'名稱',npc:'NPC／地點',types:'類型',pre:'前置',items:'道具',reward:'獎勵／經驗',note:'備註',kind:'為什麼要做'};
- Object.keys(ED.e).forEach(function(id){var o=ED.e[id],q=origOf(id);if(!q)return;var base={lv:q[1],name:q[2],npc:q[3],types:q[4],reward:q[5],pre:PRE[id]!=null?PRE[id]:'',items:itemsOf(id),note:NOTE0[id]||'',kind:KIND0[id]||''};var d=[];Object.keys(o).forEach(function(k){if(nz(o[k])!==nz(base[k])){var KL={pre:'前置',kill:'打怪',item:'道具'},fm=function(v){return k==='kind'?(v||'').split(',').filter(Boolean).map(function(z){return KL[z]||z}).join('、'):v};d.push(lab[k]+'：'+(fm(base[k])||'（空）')+' → '+(fm(o[k])||'（空）'))}});if(d.length){n++;out.push('[編輯] '+q[2]+'｜'+d.join('｜'))}});
+ Object.keys(ED.e).forEach(function(id){var o=ED.e[id],q=origOf(id);if(!q)return;var base={lv:q[1],name:q[2],npc:q[3],types:q[4],reward:q[5],pre:PRE[id]!=null?PRE[id]:'',items:itemsOf(id),note:NOTE0[id]||'',kind:KIND0[id]||''};var d=[];Object.keys(o).forEach(function(k){if(nz(o[k])!==nz(base[k])){var KL={pre:'前置',xp:'經驗',kill:'打怪',item:'道具'},fm=function(v){return k==='kind'?(v||'').split(',').filter(Boolean).map(function(z){return KL[z]||z}).join('、'):v};d.push(lab[k]+'：'+(fm(base[k])||'（空）')+' → '+(fm(o[k])||'（空）'))}});if(d.length){n++;out.push('[編輯] '+q[2]+'｜'+d.join('｜'))}});
  ED.a.forEach(function(a,i){if(ED.d['n'+i])return;if(Q.some(function(q){return q[2]===a.name}))return;n++;out.push('[新增] Lv'+a.lv+' '+a.name+'｜NPC：'+a.npc+'｜類型：'+a.types.split(',').filter(Boolean).map(function(t){return TN[t]}).join('、')+'｜前置：'+a.pre+'｜道具：'+a.items+'｜獎勵：'+a.reward+(a.note?'｜備註：'+a.note:'')+(a.kind?'｜為什麼要做：'+a.kind:''))});
  Object.keys(ED.d).forEach(function(k){if(!ED.d[k])return;var o=origOf(k);if(o){n++;out.push('[刪除] '+o[2])}});
  return n?out.join('\n'):''}
@@ -604,7 +647,7 @@ var CT=[
 ['E','酋長蓋房子',[['石塊',100],['螺絲釘',30],['木材',30],['酋長的地契',1]]],
 ['E','擊退巨居蟹',[['烏龜',50,'k'],['紅螃蟹',50,'k'],['青螃蟹',50,'k'],['巨居蟹',1,'k']]],
 ['E','史卡圖勒的新毛皮',[['野狼尾巴',250],['白狼尾巴',250],['雪吉拉之角',80],['藍寶石母礦',50]]],
-['E','黃綠紅的感動',[['雪吉拉玩偶',200],['企鵝王玩偶',200],['菇菇寶貝玩偶',200]]],
+['E','黃綠紅的感動',[['雪吉拉娃娃',200],['企鵝王娃娃',200],['菇菇寶貝玩偶',200]]],
 ['E','消滅葛雷',[['葛雷（名稱待確認）',25,'k']]],
 ['E','消滅葛雷元老',[['便條',3]]],
 ['E','傑塔雷第奎朗的歷史',[['葛雷細胞（4種）',4]],'4 種葛雷細胞各 1'],
@@ -647,6 +690,137 @@ function clText(){var d=Object.keys(CL.done).filter(function(k){return CL.done[k
 function allText(){var p=[rtText(),edText(),clText()].filter(Boolean);return p.length?'【小號必去 全部修改】\n\n'+p.join('\n\n'):''}
 document.getElementById('allcopy').onclick=function(){var t=allText(),m=document.getElementById('allmsg');if(!t){m.textContent='還沒有任何修改';return}function fb(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');m.textContent='已複製全部修改'}catch(e){m.textContent='複製失敗'}a.remove()}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){m.textContent='已複製全部修改'},fb)}else fb()};
 document.getElementById('allsend').onclick=function(){var t=allText(),m=document.getElementById('allmsg');if(!t){m.textContent='還沒有任何修改';return}var fd=new FormData();fd.append('entry.1549621807',t);m.textContent='送出中…';fetch('https://docs.google.com/forms/d/e/1FAIpQLSeFwQM2pY0lXhuirRuxnwsNovmVlfXw3zQN_pBJP2PGaZ455g/formResponse',{method:'POST',mode:'no-cors',body:fd}).then(function(){m.textContent='已送出全部修改，謝謝！'},function(){m.textContent='送出失敗，請改按「一鍵複製」'})};
+
+/* ===== 任務總覽：一頁全選 ===== */
+var EXPN=[15, 34, 57, 92, 135, 372, 560, 840, 1242, 1716, 2360, 3216, 4200, 5460, 7050, 8840, 11040, 13716, 16680, 20216, 24402, 28980, 34320, 40512, 47216, 54900, 63666, 73080, 83720, 95700, 108480, 122760, 138666, 155540, 174216, 194832, 216600, 240500, 266682, 294216, 324240, 356916, 391160, 428280, 468450, 510420, 555680, 604416, 655200, 709716, 748608, 789631, 832902, 878545, 926689, 977471, 1031036, 1087536, 1147132, 1209994, 1276301, 1346242, 1420016, 1497832, 1579913, 1666492, 1757815, 1854143, 1955750, 2062925, 2175973, 2295216, 2420993, 2553663, 2693603, 2841212, 2996910, 3161140, 3334370, 3517093, 3709829, 3913127, 4127566, 4353756, 4592341, 4844001, 5109452, 5389449, 5684790, 5996316, 6324914, 6671519, 7037118, 7422752, 7829518, 8258575, 8711144, 9188514, 9692044, 10223168, 10783397, 11374327, 11997640, 12655110, 13348610, 14080113, 14851703, 15665576, 16524049, 17429566, 18384706, 19392187, 20454878, 21575805, 22758159, 24005306, 25320796, 26708375, 28171993, 29715818, 31344244, 33061908, 34873700, 36784778, 38800583, 40926854, 43169645, 45535341, 48030677, 50662758, 53439077, 56367538, 59456479, 62714694, 66151459, 69776558, 73600313, 77633610, 81887931, 86375389, 91108760, 96101520, 101367883, 106922842, 112782213, 118962678, 125481832, 132358236, 139611467, 147262175, 155332142, 163844343, 172823012, 182293713, 192283408, 202820538, 213935103, 225658746, 238024845, 251068606, 264827165, 279339693, 294647508, 310794191, 327825712, 345790561, 364739883, 384727628, 405810702, 428049128, 451506220, 476248760, 502347192, 529875818, 558913012, 589541445, 621848316, 655925603, 691870326, 729784819, 769777027, 811960808, 856456260, 903390063, 952895838, 1005114529, 1060194805, 1118293480, 1179575962, 1244216724, 1312399800, 1384319309, 1460180007, 1540197871, 1624600714, 1713628833, 1807535693, 1906588648, 2011069705, 2121276324];
+function needAt(lv){return lv>=1&&lv<=200?EXPN[lv-1]:null}
+var LINES=[
+{e:[['修理酋長的家','酋長蓋房子']]},
+{e:[['我必須找到我的女兒','沼澤地的鱷魚']]},
+{e:[['玩具兵的核桃','玩偶之家'],['玩偶之家','鐘塔的力量']]},
+{e:[['愛奧斯塔的清掃','愛奧斯塔的威脅'],['愛奧斯塔的威脅','愛奧斯塔的和平']]},
+{e:[['消滅葛雷','消滅葛雷元老'],['消滅葛雷元老','傑塔雷第奎朗的歷史']]},
+{e:[['羅密歐系列四任務','羅密歐的求婚']],ct:['羅密歐的花','茱麗葉的回應','羅密歐的情書','茱麗葉的便當']},
+{e:[['幫忙寫作業','好無聊'],['好無聊','伊卡路斯的滑翔翼'],['伊卡路斯的滑翔翼','伊卡路斯的熱氣球'],['伊卡路斯的熱氣球','伊卡路斯與飛天藥水']]},
+{e:[['為了小王子','童話書的整理'],['兄弟之愛（童話書）','童話書的整理'],['兄弟之愛（童話書）','故鄉傳說']]},
+{e:[['泰實夫的秘密之書','妖精羅雯和詛咒娃娃 1～5']]},
+{e:[['特殊料理 1','特殊料理 2'],['特殊料理 2','特殊料理 3']]},
+{e:[['麗德的委託（清掃1）','清掃2'],['麗德的委託（清掃1）','清掃3']],x:['清掃鯨魚號 2、3']},
+{e:[['瑪亞和奇怪的藥','麥吉的舊戰劍']]},
+{e:[['珍與黑肥肥','鍊金術士－珍（3階段）']]},
+{e:[['遺失的信','盲俠隱藏任務（6階段）']]},
+{e:[['珀斯上尉的秘密','亞凱斯特的披風']]},
+{e:[['研究菇菇怪物','尋找女兒']]},
+{e:[['開場：擊退巨居蟹王','幫助拉爾'],['開場：擊退巨居蟹王','幫助麗爾'],['開場：擊退巨居蟹王','幫助露爾']],src:['擊退巨居蟹'],x:['擊退巨居蟹 1～6']},
+{e:[['委託1（Lv15）','委託2（Lv25）']],src:['內拉和墮落城市居民的委託']},
+{e:[['第1個煩惱（Lv20）','第2個煩惱（Lv21）']],src:['明明夫人的第1、2個煩惱']}];
+function nn(x){return String(x||'').replace(/\s+/g,'')}
+function cn(x){return nn(x).replace(/（[^）]*）/g,'').replace(/[0-9①②③～、].*$/,'')}
+function expP(s,needKey){s=String(s==null?'':s);var d=/未查|待確認/.test(s);if(needKey){var i=s.indexOf('經驗');if(i<0)return {v:null,d:d};s=s.slice(i+2)}
+ s=s.replace(/（[^）]*）/g,'').replace(/名聲\+?\d+/g,'').replace(/／.*$/,'');
+ var m=s.match(/\d[\d,]*/g);if(!m)return {v:null,d:d};var t=0;m.forEach(function(x){t+=parseInt(x.replace(/,/g,''),10)});return {v:t,d:d}}
+function allSteps(){var a=[];if(typeof RQ==='undefined')return a;RQ.forEach(function(g){g[1].forEach(function(q){a.push(q)})});return a}
+function stepInfo(name){var n=nn(name),A=allSteps(),i,w;
+ for(i=0;i<A.length;i++)if(nn(A[i][0])===n)return [{name:A[i][0],lv:lvNum(A[i][1]),exp:expP(A[i][3])}];
+ var g=rqFor(name);if(g)return g.map(function(q){return {name:q[0],lv:lvNum(q[1]),exp:expP(q[3])}});
+ for(i=0;i<W.length;i++)if(nn(W[i][2])===n){w=W[i];return [{name:w[2],lv:w[0],exp:expP(w[5],true)}]}
+ for(i=0;i<DET.length;i++)if(nn(DET[i][0])===n)return [{name:DET[i][0],lv:lvNum(DET[i][1]),exp:expP(DET[i][3],true)}];
+ return [{name:name,lv:999,exp:{v:null,d:true}}]}
+var ovTy={eq:1,sc:1,xp:1,bo:1},ovOp={chain:0,dup:0},ovKd={pre:0,xp:0,item:0},ovMy={w:0,d:0,h:0},ovSo='lv',ovQ='',OVR=[];
+var WDK='starterWD_v1',WD={w:{},d:{}};try{var _w=JSON.parse(localStorage.getItem(WDK)||'null');if(_w&&_w.w)WD=_w}catch(x){}
+function saveWD(){try{localStorage.setItem(WDK,JSON.stringify(WD))}catch(x){}}
+function mk(names,rows,steps,paths){
+ var lvs=steps.map(function(x){return x.lv}).filter(function(x){return x<999});var lv=lvs.length?Math.max.apply(null,lvs):(rows[0]?rows[0][0]:999);
+ var tot=0,known=0,doubt=false;steps.forEach(function(x){if(x.exp.v!=null){tot+=x.exp.v;known++}else doubt=true;if(x.exp.d)doubt=true});
+ var ty={},kd={},imp=false;rows.forEach(function(r){var tt=r[4].split(',').filter(Boolean);tt.forEach(function(t){ty[t]=1;if(t==='xp'||t==='bo')kd.xp=1});if(tt.length>1)imp=true;(r[11]||'').split(',').filter(Boolean).forEach(function(k){kd[k]=1});if(IMP[r[8]||r[2]])imp=true});
+ var all={};names.concat(steps.map(function(x){return x.name})).concat(rows.map(function(r){return r[2]})).forEach(function(n){all[cn(n)]=1});
+ var nd=known&&lv<999?needAt(lv):null;
+ var hay=(rows.map(function(r){return [r[2],r[3],r[5],r[6]||'',r[7]||'',r[10]||''].join(' ')}).join(' ')+' '+steps.map(function(x){return x.name}).join(' ')+' '+(paths?paths.map(function(p){return p.map(function(x){return x.name}).join(' ')}).join(' '):'')).toLowerCase();
+ return {key:rows[0][9]||rows[0][2],steps:steps,rows:rows,lv:lv,tot:known?tot:null,partial:!!(known&&steps.some(function(x){return x.exp.v==null})),doubt:doubt,ty:ty,kd:kd,imp:imp,paths:paths,names:all,eff:nd?tot/nd*100:null,hay:hay}}
+function buildOV(){OVR=[];var used={};
+ LINES.forEach(function(L){var nodes=[],ind={},out={};
+  L.e.forEach(function(p){p.forEach(function(n){if(nodes.indexOf(n)<0)nodes.push(n)});(out[p[0]]=out[p[0]]||[]).push(p[1]);ind[p[1]]=1});
+  var names=(L.src||nodes).concat(L.x||[]);var rows=[];
+  W.forEach(function(r,i){if(!used[i]&&names.some(function(n){return nn(n)===nn(r[2])})){used[i]=1;rows.push(r)}});if(!rows.length)return;
+  var paths=[];function dfs(n,acc){acc=acc.concat([n]);if(!out[n]){paths.push(acc);return}out[n].forEach(function(m){dfs(m,acc)})}
+  nodes.filter(function(n){return !ind[n]}).forEach(function(n){dfs(n,[])});
+  var steps=[],seen={};(L.src||nodes).forEach(function(n){stepInfo(n).forEach(function(x){if(!seen[x.name]){seen[x.name]=1;steps.push(x)}})});
+  var pp=paths.map(function(p){var o=[];p.forEach(function(n){if(L.src)o.push({name:n,lv:999,exp:{v:null},plain:1});else stepInfo(n).forEach(function(x){o.push(x)})});return o});
+  OVR.push(mk(names.concat(L.src?nodes:[]).concat(L.ct||[]),rows,steps,pp))});
+ W.forEach(function(r,i){if(used[i])return;used[i]=1;OVR.push(mk([r[2]],[r],stepInfo(r[2]),null))})}
+function fmtN(n){return n==null?'—':String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function fmtP(p){return p==null?'—':(p>=10?Math.round(p):p.toFixed(1))+'%'}
+function parseItems(t){var list=[],raw=[],kill=/打怪/.test(t);String(t).replace(/（[^）]*）/g,'').split(/[、；;]/).forEach(function(p){p=p.trim();if(!p||/^無/.test(p))return;var m=p.match(/^(.+?)\s*[×xX]\s*(\d[\d,]*)/);if(m&&!/^各/.test(m[1]))list.push({item:m[1].trim(),qty:parseInt(m[2].replace(/,/g,''),10),kill:kill});else raw.push(p)});return {list:list,raw:raw.join('、')}}
+function needsOf(r){if(r._n)return r._n;var list=[],raw=[],cov={};
+ if(typeof CT!=='undefined')CT.forEach(function(t){if(!r.names[cn(t[1])])return;cov[cn(t[1])]=1;t[2].forEach(function(it){list.push({task:t[1].replace(/（[^）]*）/g,'').replace(/\s*[①②③]/,''),item:it[0],qty:it[1],kill:it[2]==='k'})})});
+ r.steps.forEach(function(x){if(cov[cn(x.name)])return;var A=allSteps(),q=null;for(var i=0;i<A.length;i++)if(nn(A[i][0])===nn(x.name)){q=A[i][2];break}if(!q)return;var pr=parseItems(q);pr.list.forEach(function(y){y.task=x.name;list.push(y)});if(pr.raw)raw.push({task:x.name,text:pr.raw})});
+ r._n={list:list,raw:raw};return r._n}
+function itemHits(r,q){var out=[];if(!q)return out;needsOf(r).list.forEach(function(x){if(x.item.toLowerCase().indexOf(q.toLowerCase())>=0)out.push('<span class="ovn">'+esc_(x.task)+'</span>：'+esc_(x.item)+'×'+x.qty+(x.kill?'（打怪）':''))});return out}
+function itemList(){var m={};if(typeof CT!=='undefined')CT.forEach(function(t){t[2].forEach(function(it){m[it[0]]=1})});return Object.keys(m).sort(function(a,b){return a.localeCompare(b,'zh-Hant')})}
+function chipS(x){return '<span class="ovstep">'+esc_(x.name)+(x.plain?'':(x.lv<999?' Lv'+x.lv:' Lv?')+(x.exp.v!=null?'（'+fmtN(x.exp.v)+'）':'（—）'))+'</span>'}
+var SVG_W=function(on){return '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z" fill="'+(on?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>'};
+var SVG_D=function(on){return '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9.3" fill="'+(on?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8"/><path d="M7.6 12.4l3 3 5.8-6.2" fill="none" stroke="'+(on?'#fff':'currentColor')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+function renderWant(){var el=document.getElementById('ovwant');var ws=OVR.filter(function(r){return WD.w[r.key]&&!WD.d[r.key]});
+ if(!ws.length){el.style.display='none';el.innerHTML='';return}
+ var agg={},raw=[];ws.forEach(function(r){var n=needsOf(r);n.list.forEach(function(x){var k=x.item+(x.kill?'|k':'');var a=agg[k]||(agg[k]={item:x.item,kill:x.kill,tot:0,uses:[]});a.tot+=x.qty;a.uses.push(x)});n.raw.forEach(function(t){raw.push(t)})});
+ var ks=Object.keys(agg).map(function(k){return agg[k]}).sort(function(a,b){return b.uses.length-a.uses.length||b.tot-a.tot});
+ function it(a){return '<details class="ovitem"><summary><b>'+esc_(a.item)+'</b> ×'+fmtN(a.tot)+(a.uses.length>1?' <span class="hotb" style="background:#d9822b">'+a.uses.length+' 處</span>':'')+'</summary>'+a.uses.map(function(u){return '<div class="u">'+esc_(u.task)+' ×'+fmtN(u.qty)+'</div>'}).join('')+'</details>'}
+ var items=ks.filter(function(a){return !a.kill}),kills=ks.filter(function(a){return a.kill});
+ el.innerHTML='<b style="color:var(--accent)">☆ 想解的 '+ws.length+' 個任務</b>：'+ws.map(function(r){return '<span class="ovstep">'+esc_(r.rows.map(function(x){return x[2]}).join('、'))+' <a href="#" class="ovx" data-k="'+esc_(r.key)+'" title="取消想解" style="color:var(--muted);text-decoration:none">✕</a></span>'}).join(' ')+
+  '<div style="margin:8px 0 2px;font-size:13px;color:var(--muted)">要準備的道具（點開看用在哪些任務）</div>'+(items.length?items.map(it).join(''):'<small>沒有道具資料</small>')+
+  (kills.length?'<div style="margin:8px 0 2px;font-size:13px;color:var(--muted)">要打的怪</div>'+kills.map(it).join(''):'')+
+  (raw.length?'<div style="margin-top:8px;font-size:13px;color:var(--muted)">其他（文字說明，沒辦法加總）：'+raw.map(function(t){return esc_(t.task+'：'+t.text)}).join('；')+'</div>':'');
+ el.style.display='';el.querySelectorAll('.ovx').forEach(function(a){a.onclick=function(e){e.preventDefault();delete WD.w[a.dataset.k];saveWD();renderOV()}})}
+function renderOV(){if(typeof W==='undefined'||!W.length||typeof RQ==='undefined')return;buildOV();
+ var TY=[['eq','裝備'],['sc','捲軸'],['xp','經驗'],['bo','Boss']];
+ function chb(arr,st,key){return arr.map(function(t){return '<button class="fl'+(st[t[0]]?' on':'')+'" data-'+key+'="'+t[0]+'">'+t[1]+'</button>'}).join('')}
+ document.getElementById('ovty').innerHTML=chb(TY,ovTy,'t');
+ document.getElementById('ovop').innerHTML=chb([['chain','有前置任務（完整任務線）'],['dup','重複／重要']],ovOp,'o');
+ document.getElementById('ovkd').innerHTML=chb([['pre','前置'],['xp','經驗'],['item','道具']],ovKd,'k');
+ document.getElementById('ovmy').innerHTML=chb([['w','只看想解的'],['d','只看已解的'],['h','隱藏已解的']],ovMy,'m');
+ var dl=document.getElementById('ovdl');if(!dl.children.length)dl.innerHTML=itemList().map(function(x){return '<option value="'+esc_(x)+'">'}).join('');
+ document.getElementById('ovsel').value=ovSo;document.getElementById('ovqx').style.display=ovQ?'':'none';
+ var anyK=ovKd.pre||ovKd.xp||ovKd.item,ql=ovQ.toLowerCase();
+ var L=OVR.filter(function(r){var ok=!Object.keys(r.ty).length;Object.keys(r.ty).forEach(function(t){if(ovTy[t])ok=true});if(!ok)return false;
+  if(ovOp.chain&&!r.paths)return false;if(ovOp.dup&&!r.imp)return false;
+  if(anyK){var k=false;['pre','xp','item'].forEach(function(z){if(ovKd[z]&&r.kd[z])k=true});if(!k)return false}
+  if(ovMy.w&&!WD.w[r.key])return false;if(ovMy.d&&!WD.d[r.key])return false;if(ovMy.h&&WD.d[r.key])return false;
+  if(ql){var hit=r.hay.indexOf(ql)>=0||itemHits(r,ovQ).length>0;if(!hit)return false}return true});
+ var fold=!(ovQ||ovOp.chain||ovMy.w||ovMy.d);var Y=fold?L.filter(function(r){return r.tot!=null}):L,N=fold?L.filter(function(r){return r.tot==null}):[];
+ Y.sort(function(a,b){if(ovSo==='lv')return a.lv-b.lv;var k=ovSo,x=a[k],y=b[k];if(x==null&&y==null)return a.lv-b.lv;if(x==null)return 1;if(y==null)return -1;return y-x||a.lv-b.lv});
+ N.sort(function(a,b){return a.lv-b.lv});
+ var mx=100;
+ function nm(r){return r.rows.map(function(x,i){return '<span class="ovn">'+esc_(x[2])+(i<r.rows.length-1?'、':'')+'</span>'}).join(' ')}
+ function chips(r){return Object.keys(r.ty).map(function(t){return '<span class="chip c-'+t+'">'+TN[t]+'</span>'}).join('')}
+ var KN2={pre:'前置',xp:'經驗',item:'道具'};
+ function detail(r){var main=r.rows[r.rows.length-1],st='';
+  if(r.paths){st='<div style="font-size:13px;color:var(--muted)">'+(r.paths.length>1?'共 '+r.paths.length+' 條路線，共用的前置每條都列出來':'完整任務線')+'</div>'+r.paths.map(function(p){return '<div class="ovpath">'+p.map(chipS).join('<span class="ovar">→</span>')+'</div>'}).join('')}
+  else{var p=(main[6]!=null&&main[6]!=='')?main[6]:PRE[main[2]];if(!p){var ps=DET.filter(function(d){return String(d[4]).indexOf(main[2])>=0}).map(function(d){return d[0]});p=ps.length?'前置：'+ps.join('、'):'單一任務，沒有前置'}st='<div class="ovpath"><small>'+esc_(p)+'</small></div>'}
+  var rw=r.rows.filter(function(x){return x[5]}).map(function(x){return esc_(x[5])}).join('；');var npc=r.rows.map(function(x){return esc_(x[3]||'')}).filter(function(v,i,a){return v&&a.indexOf(v)===i}).join('；');
+  var ks=Object.keys(r.kd).map(function(k){return KN2[k]}).filter(Boolean).join('、');
+  var nd=needsOf(r),nl=nd.list.map(function(x){return esc_(x.item)+'×'+fmtN(x.qty)+(x.kill?'（打怪）':'')}).join('、');
+  var hits=ovQ?itemHits(r,ovQ):[];var ndv=(r.eff!=null&&r.lv<999)?needAt(r.lv):null;
+  return (ndv?'<div style="font-size:13px;color:var(--muted)">效率算法：總經驗 '+fmtN(r.tot)+' ÷ Lv'+r.lv+' 升級所需 '+fmtN(ndv)+' ＝ '+fmtP(r.eff)+'（超過 100% 代表做一次可以升超過一級）</div>':'')+(hits.length?'<div style="margin:2px 0 4px;color:var(--accent);font-weight:700">需要：'+hits.join('；')+'</div>':'')+st+'<div style="font-size:14px;margin-top:4px"><b>獎勵</b> '+rw+'</div>'+(nl?'<div style="font-size:14px"><b>道具／怪物</b> '+nl+'</div>':'')+(nd.raw.length?'<div style="font-size:14px;color:var(--muted)">'+nd.raw.map(function(t){return esc_(t.task+'：'+t.text)}).join('；')+'</div>':'')+(npc?'<div style="font-size:14px;color:var(--muted)">NPC／地點　'+npc+'</div>':'')+(ks?'<div style="font-size:13px;color:var(--muted)">為什麼要做　'+ks+'</div>':'')}
+ function mine(r){return '<td style="white-space:nowrap;text-align:center"><button class="ovi w'+(WD.w[r.key]?' on':'')+'" data-k="'+esc_(r.key)+'" data-a="w" title="想解（打勾後會列出要準備的道具和要打的怪）" aria-label="想解">'+SVG_W(WD.w[r.key])+'</button><button class="ovi d'+(WD.d[r.key]?' on':'')+'" data-k="'+esc_(r.key)+'" data-a="d" title="已經解完" aria-label="已解">'+SVG_D(WD.d[r.key])+'</button></td>'}
+ var open=!!(ovQ||ovOp.chain);
+ var h='<tr><th style="width:44px" title="解任務等級：整串做完需要的最高等級">等級</th><th>任務</th><th style="text-align:right;width:90px">總經驗</th><th style="width:130px" title="整串總經驗 ÷ 該等級升級所需經驗">經驗效率<br><span style="font-weight:400">可升幾 %</span></th><th style="width:76px;text-align:center">我的</th></tr>';
+ Y.forEach(function(r){var warn=r.partial||r.doubt;
+  h+='<tr class="ovr'+(r.imp?' hot':'')+(WD.d[r.key]?' ovdone':'')+'" style="cursor:pointer"><td class="lv">'+(r.lv<999?r.lv:'?')+'</td><td>'+nm(r)+' '+(r.paths?'<span class="ovstep" style="font-size:12px">'+(r.paths.length>1?r.paths.length+' 條線':r.paths[0].length+' 步')+'</span> ':'')+chips(r)+(r.imp?'<span class="hotb" style="background:#a8392b">★</span>':'')+'<div class="ovdet"'+(open?'':' hidden="until-found"')+'>'+detail(r)+'</div></td><td class="exp">'+fmtN(r.tot)+(warn&&r.tot!=null?' <span title="'+(r.partial?'串裡有幾步還沒查到經驗，實際會更高':'含待確認的數字')+'" style="color:#d9822b;cursor:help">⚠</span>':'')+'</td><td>'+(r.eff!=null?'<b>'+fmtP(r.eff)+'</b> <span class="ovb" style="width:'+Math.max(4,Math.round(Math.min(r.eff,mx)*0.8))+'px"></span>':'<small>—</small>')+'</td>'+mine(r)+'</tr>'});
+ document.getElementById('ovtb').innerHTML=h;
+ document.getElementById('ovempty').textContent=Y.length?'':'沒有符合的任務，放寬一下條件試試';
+ document.querySelectorAll('#ovtb tr.ovr').forEach(function(tr){tr.onclick=function(e){if(e.target.closest('.ovi'))return;var d=tr.querySelector('.ovdet');d.hidden=d.hidden?false:'until-found'}});
+ var h2='<tr><th style="width:44px">等級</th><th>任務</th><th>獎勵</th><th style="width:76px;text-align:center">我的</th></tr>';
+ N.forEach(function(r){h2+='<tr'+(WD.d[r.key]?' class="ovdone"':'')+'><td class="lv">'+(r.lv<999?r.lv:'?')+'</td><td>'+nm(r)+' '+chips(r)+'<div class="ovdet" hidden="until-found">'+detail(r)+'</div></td><td style="font-size:14px">'+r.rows.map(function(x){return esc_(x[5]||'')}).join('；')+'</td>'+mine(r)+'</tr>'});
+ document.getElementById('ovnt').innerHTML=h2;
+ document.querySelectorAll('.ovi').forEach(function(b){b.onclick=function(e){e.stopPropagation();var k=b.dataset.k,a=b.dataset.a;if(WD[a][k])delete WD[a][k];else WD[a][k]=1;saveWD();renderOV()}});
+ document.getElementById('ovnos').textContent='還沒有經驗資料（'+N.length+' 個）：點開看';
+ document.getElementById('ovno').style.display=N.length?'':'none';
+ renderWant()}
+document.getElementById('ovc').onclick=function(e){var d=e.target.dataset||{};if(d.t){ovTy[d.t]=ovTy[d.t]?0:1}else if(d.o){ovOp[d.o]=ovOp[d.o]?0:1}else if(d.k){ovKd[d.k]=ovKd[d.k]?0:1}else if(d.m){ovMy[d.m]=ovMy[d.m]?0:1}else if(e.target.id==='ovqx'){ovQ='';document.getElementById('ovq').value=''}else return;renderOV()};
+document.getElementById('ovq').oninput=function(){ovQ=this.value.trim();renderOV()};
+document.getElementById('ovsel').onchange=function(){ovSo=this.value;renderOV()};
+var _ra=renderAll;renderAll=function(){_ra();try{renderOV()}catch(e){}};
+try{renderOV()}catch(e){console.log('ov',e)}
 
 </script>
 <script src="edward-nav.js?v=r182"></script></body></html>
