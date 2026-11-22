@@ -94,6 +94,65 @@ tr.ovdone>td{opacity:.42}tr.ovdone>td:last-child{opacity:1}
 .ovitem .u{font-size:13px;color:var(--muted);padding:2px 0}
 #ovtb td:nth-child(2){min-width:190px}
 
+.ovd>td{padding:0;border:0}
+.ovsum{cursor:pointer;color:var(--accent);font-weight:700;margin:0 0 8px}
+@media(min-width:701px){#ovmore>summary{display:none}}
+.ovdet{margin:2px 10px 10px}.ovdet[hidden]{margin:0}
+@media(min-width:701px) and (max-width:1100px){.wrap{padding:0 12px}}
+@media(max-width:1000px){
+ .rqt{min-width:0!important}.rqt tr:first-child{display:none}
+ .rqt,.rqt tbody{display:block}
+ .rqt tr{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px;padding:10px;margin:0 0 8px;background:#fffdf6;border:1px solid var(--line);border-radius:12px}
+ .rqw.sh .rqt tr.rqdone{display:grid}
+ .rqt td{display:block;padding:0!important}
+ .rqt td::before{content:attr(data-l);display:block;font-size:12px;color:var(--muted);margin-bottom:2px}
+ .rqt td:nth-child(1),.rqt td:nth-child(4){grid-column:1/-1}
+ .rqt input[type=text]{font-size:16px;padding:7px 10px}
+}
+@media(max-width:700px){
+ body{padding-left:12px;padding-right:12px}
+ h1{font-size:24px}
+ .sub{font-size:15px}
+ .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .tab{padding:10px 6px;min-height:44px;font-size:16px}
+ .card{padding:6px 10px 12px;border-radius:18px}
+ #allbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+ #allbar .cpy{flex:1 1 140px;margin:0!important}
+ .ovg{flex-direction:column;align-items:stretch;gap:6px;margin-bottom:12px}
+ .ovg b{min-width:0}
+ .ovg .fl{min-height:36px;padding:4px 14px}
+ #ovq,#ovsel{width:100%!important;min-height:44px;font-size:16px}
+ #ovreset{margin:6px 0 0!important;width:100%}
+ #ovtb,#ovnt,#ovtb tbody,#ovnt tbody{display:block;min-width:0!important}
+ #ovtb tr:first-child,#ovnt tr:first-child{display:none}
+ tr.ovr,tr.ovr2{display:grid;grid-template-columns:40px 1fr auto;gap:4px 8px;padding:10px 4px;border-bottom:1px solid var(--line)}
+ tr.ovr>td,tr.ovr2>td{border:0;padding:0}
+ tr.ovr>td:nth-child(1),tr.ovr2>td:nth-child(1){grid-row:1/3;padding-top:2px}
+ tr.ovr>td:nth-child(2),tr.ovr2>td:nth-child(2){grid-column:2;grid-row:1}
+ tr.ovr>td:nth-child(5),tr.ovr2>td:nth-child(4){grid-column:3;grid-row:1}
+ tr.ovr>td:nth-child(3){grid-column:2;grid-row:2;text-align:left!important;font-size:14px;white-space:nowrap}
+ tr.ovr>td:nth-child(3)::before{content:"總經驗 ";font-weight:400;color:var(--muted)}
+ tr.ovr>td:nth-child(4){grid-column:3;grid-row:2;font-size:14px;white-space:nowrap!important}
+ tr.ovr>td:nth-child(4)::before{content:"可升 ";font-weight:400;color:var(--muted)}
+ tr.ovr2>td:nth-child(3){grid-column:2/4;grid-row:2;font-size:14px;color:var(--muted)}
+ .ovd{display:block}.ovd>td{display:block}
+ .ovi{padding:6px}
+ tr.hot{background:#fff1d6}tr.hot td{background:none}
+ #ovtb td:nth-child(2){min-width:0}
+ .ovitem{display:block;margin-right:0}
+ #clsum,#clsum tbody,#edtb,#edtb tbody{display:block;min-width:0!important}
+ #clsum tr:first-child,#edtb tr:first-child{display:none}
+ #clsum tr,#edtb tr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 10px;padding:10px;margin:0 0 8px;background:#fffdf6;border:1px solid var(--line);border-radius:12px}
+ #clsum td,#edtb td{display:block;padding:0!important;border:0!important}
+ #clsum td::before,#edtb td::before{content:attr(data-l);display:block;font-size:12px;color:var(--muted)}
+ #clsum td:nth-child(1),#clsum td:nth-child(5){grid-column:1/-1}
+ #edtb tr{grid-template-columns:1fr 1fr}
+ #edtb td:nth-child(n+3){grid-column:1/-1}
+ .rqt tr{grid-template-columns:1fr}
+ .rqt td:nth-child(n){grid-column:1/-1}
+ .cfrow input[type=text],textarea{font-size:16px}
+}
+
 .wrap{width:100%}
 </style></head><body>
 <div class="wrap"><header style="padding:0"><h1>小號必去</h1></header>
@@ -126,10 +185,12 @@ tr.ovdone>td{opacity:.42}tr.ovdone>td:last-child{opacity:1}
 <div class="card ovc" id="ovc" style="margin-bottom:12px;padding-top:12px">
 <div class="ovg"><b>搜尋</b><input id="ovq" list="ovdl" placeholder="例如：伊卡路斯披風、樹枝" autocomplete="off" style="font:inherit;background:#fdf6e6;border:1px solid var(--line);border-radius:999px;padding:3px 14px;width:min(420px,100%)"><datalist id="ovdl"></datalist><button class="fl" id="ovqx" style="display:none">清除</button></div>
 <div class="ovg"><b>類型</b><span id="ovty"></span></div>
+<details id="ovmore"><summary class="ovsum">更多篩選與排序</summary>
 <div class="ovg"><b>條件</b><span id="ovop"></span></div>
 <div class="ovg"><b>為什麼要做</b><span id="ovkd"></span></div>
 <div class="ovg"><b>我的</b><span id="ovmy"></span></div>
 <div class="ovg"><b>排序</b><select id="ovsel" class="fl" style="padding:3px 10px"><option value="lv">等級（預設）</option><option value="eff">經驗效率</option><option value="tot">總經驗</option></select> <button class="fl" id="ovreset" style="margin-left:8px">還原初始狀態</button></div>
+</details>
 </div>
 <div id="ovwant" class="card" style="margin-bottom:12px;padding-top:12px;display:none"></div>
 <div class="card"><table id="ovtb" style="min-width:520px"></table></div>
@@ -808,13 +869,14 @@ function renderOV(){if(typeof W==='undefined'||!W.length||typeof RQ==='undefined
  var open=!!(ovQ||ovOp.chain);
  var h='<tr><th style="width:44px" title="解任務等級：整串做完需要的最高等級">等級</th><th>任務</th><th style="text-align:right;width:90px">總經驗</th><th style="width:170px;white-space:nowrap" title="整串總經驗 ÷ 該等級升級所需經驗">經驗效率（可升幾 %）</th><th style="width:76px;text-align:center">我的</th></tr>';
  Y.forEach(function(r){var warn=r.partial||r.doubt;
-  h+='<tr class="ovr'+(r.imp?' hot':'')+(WD.d[r.key]?' ovdone':'')+'" style="cursor:pointer"><td class="lv">'+(r.lv<999?r.lv:'?')+'</td><td>'+nm(r)+' '+(r.paths?'<span class="ovstep" style="font-size:12px">'+(r.paths.length>1?r.paths.length+' 條線':r.paths[0].length+' 步')+'</span> ':'')+chips(r)+(r.imp?'<span class="hotb" style="background:#a8392b">★</span>':'')+'<div class="ovdet"'+(open?'':' hidden="until-found"')+'>'+detail(r)+'</div></td><td class="exp">'+fmtN(r.tot)+(warn&&r.tot!=null?' <span title="'+(r.partial?'串裡有幾步還沒查到經驗，實際會更高':'含待確認的數字')+'" style="color:#d9822b;cursor:help">⚠</span>':'')+'</td><td>'+(r.eff!=null?'<b>'+fmtP(r.eff)+'</b> <span class="ovb" style="width:'+Math.max(4,Math.round(Math.min(r.eff,mx)*0.8))+'px"></span>':'<small>—</small>')+'</td>'+mine(r)+'</tr>'});
+  h+='<tr class="ovr'+(r.imp?' hot':'')+(WD.d[r.key]?' ovdone':'')+'" style="cursor:pointer"><td class="lv">'+(r.lv<999?r.lv:'?')+'</td><td>'+nm(r)+' '+(r.paths?'<span class="ovstep" style="font-size:12px">'+(r.paths.length>1?r.paths.length+' 條線':r.paths[0].length+' 步')+'</span> ':'')+chips(r)+(r.imp?'<span class="hotb" style="background:#a8392b">★</span>':'')+'</td><td class="exp">'+fmtN(r.tot)+(warn&&r.tot!=null?' <span title="'+(r.partial?'串裡有幾步還沒查到經驗，實際會更高':'含待確認的數字')+'" style="color:#d9822b;cursor:help">⚠</span>':'')+'</td><td>'+(r.eff!=null?'<b>'+fmtP(r.eff)+'</b> <span class="ovb" style="width:'+Math.max(4,Math.round(Math.min(r.eff,mx)*0.8))+'px"></span>':'<small>—</small>')+'</td>'+mine(r)+'</tr><tr class="ovd"><td colspan="5"><div class="ovdet"'+(open?'':' hidden="until-found"')+'>'+detail(r)+'</div></td></tr>'});
  document.getElementById('ovtb').innerHTML=h;
  document.getElementById('ovempty').textContent=Y.length?'':'沒有符合的任務，放寬一下條件試試';
- document.querySelectorAll('#ovtb tr.ovr').forEach(function(tr){tr.onclick=function(e){if(e.target.closest('.ovi'))return;var d=tr.querySelector('.ovdet');d.hidden=d.hidden?false:'until-found'}});
+ document.querySelectorAll('#ovtb tr.ovr').forEach(function(tr){tr.onclick=function(e){if(e.target.closest('.ovi'))return;var d=tr.nextElementSibling.querySelector('.ovdet');d.hidden=d.hidden?false:'until-found'}});
  var h2='<tr><th style="width:44px">等級</th><th>任務</th><th>獎勵</th><th style="width:76px;text-align:center">我的</th></tr>';
- N.forEach(function(r){h2+='<tr'+(WD.d[r.key]?' class="ovdone"':'')+'><td class="lv">'+(r.lv<999?r.lv:'?')+'</td><td>'+nm(r)+' '+chips(r)+'<div class="ovdet" hidden="until-found">'+detail(r)+'</div></td><td style="font-size:14px">'+r.rows.map(function(x){return esc_(x[5]||'')}).join('；')+'</td>'+mine(r)+'</tr>'});
+ N.forEach(function(r){h2+='<tr class="ovr2'+(WD.d[r.key]?' ovdone':'')+'" style="cursor:pointer"><td class="lv">'+(r.lv<999?r.lv:'?')+'</td><td>'+nm(r)+' '+chips(r)+'</td><td style="font-size:14px">'+r.rows.map(function(x){return esc_(x[5]||'')}).join('；')+'</td>'+mine(r)+'</tr><tr class="ovd"><td colspan="4"><div class="ovdet" hidden="until-found">'+detail(r)+'</div></td></tr>'});
  document.getElementById('ovnt').innerHTML=h2;
+ document.querySelectorAll('#ovnt tr.ovr2').forEach(function(tr){tr.onclick=function(e){if(e.target.closest('.ovi'))return;var d=tr.nextElementSibling.querySelector('.ovdet');d.hidden=d.hidden?false:'until-found'}});
  document.querySelectorAll('.ovi').forEach(function(b){b.onclick=function(e){e.stopPropagation();var k=b.dataset.k,a=b.dataset.a;if(WD[a][k])delete WD[a][k];else WD[a][k]=1;saveWD();renderOV()}});
  document.getElementById('ovnos').textContent='還沒有經驗資料（'+N.length+' 個）：點開看';
  document.getElementById('ovno').style.display=N.length?'':'none';
@@ -824,8 +886,13 @@ document.getElementById('cl2want').onclick=function(e){e.preventDefault();docume
 document.getElementById('ovreset').onclick=function(){if(!confirm('確定要還原嗎？你的星號與完成紀錄會清空'))return;try{localStorage.removeItem(WDK);localStorage.removeItem(CLK)}catch(x){}location.reload()};
 document.getElementById('ovq').oninput=function(){ovQ=this.value.trim();renderOV()};
 document.getElementById('ovsel').onchange=function(){ovSo=this.value;renderOV()};
+function labelTable(t){if(!t.rows.length)return;var hs=[].map.call(t.rows[0].cells,function(c){return c.innerText.split('\n')[0].trim()});[].forEach.call(t.querySelectorAll('tr'),function(tr,i){if(i===0)return;[].forEach.call(tr.cells,function(td,j){td.setAttribute('data-l',hs[j]||'')})})}
+function labelAll(){document.querySelectorAll('.rqt,#clsum,#edtb').forEach(labelTable)}
+var _cr=clRender;clRender=function(){_cr();labelAll()};var _re=renderEdit;renderEdit=function(){_re();labelAll()};
 var _ra=renderAll;renderAll=function(){_ra();try{renderOV()}catch(e){}};
 try{renderOV()}catch(e){console.log('ov',e)}
+labelAll();
+(function(){var mq=window.matchMedia('(max-width:700px)'),d=document.getElementById('ovmore');function f(){d.open=!mq.matches}f();if(mq.addEventListener)mq.addEventListener('change',f)})();
 
 </script>
 <script src="edward-nav.js?v=r182"></script></body></html>
