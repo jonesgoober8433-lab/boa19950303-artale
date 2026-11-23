@@ -316,7 +316,7 @@ tr.ovdone>td{opacity:.42}tr.ovdone>td:last-child{opacity:1}
 <tr><th>等級</th><th>任務</th><th>NPC／地點</th><th>Boss</th><th style="text-align:right">經驗</th></tr>
 <tr><td class="lv">20</td><td>蝸牛傳說</td><td>皮亞／弓箭手村</td><td>紅寶王</td><td class="exp">60,000</td></tr>
 <tr><td class="lv">35</td><td>古老的樹</td><td>溫斯頓／勇士之村</td><td>樹妖王</td><td class="exp">7,000＋87,000</td></tr>
-<tr><td class="lv">50</td><td>邪惡森林</td><td>艾溫／魔法森林</td><td>殭屍猴王</td><td class="exp">225,600</td></tr>
+<tr><td class="lv">50</td><td>惡靈森林</td><td>艾溫／魔法森林</td><td>殭屍猴王</td><td class="exp">225,600</td></tr>
 <tr><td class="lv">55</td><td>擊退巨居蟹</td><td>麗爾／黃金海灘</td><td>巨居蟹</td><td class="exp">267,000</td></tr>
 <tr><td class="lv">65</td><td>怪物與邪惡的計畫</td><td>吉姆／墮落城市後街</td><td>沼澤巨鱷</td><td class="exp">360,000</td></tr>
 <tr><td class="lv">65</td><td>戰鬥生命體葛雷金剛</td><td>金博士／地球防衛總部</td><td>葛雷金剛</td><td class="exp">360,000</td></tr>
@@ -383,7 +383,7 @@ var Q=[
 [55,'55–70','盲俠隱藏任務（6階段）','盲俠／鯨魚號','xp','經驗 180,000～360,000'],
 [20,'20','蝸牛傳說','皮亞／弓箭手村','bo','Boss 紅寶王：經驗 60,000'],
 [35,'35','古老的樹','溫斯頓／勇士之村','bo','Boss 樹妖王：經驗 7,000＋87,000'],
-[50,'50','邪惡森林','艾溫／魔法森林','bo','Boss 殭屍猴王：經驗 225,600'],
+[50,'50','惡靈森林','艾溫／魔法森林','bo','Boss 殭屍猴王：經驗 225,600'],
 [65,'65','怪物與邪惡的計畫','吉姆／墮落城市後街','bo','Boss 沼澤巨鱷：經驗 360,000'],
 [65,'65','戰鬥生命體葛雷金剛','金博士／地球防衛總部','bo','Boss 葛雷金剛：經驗 360,000'],
 [70,'70','故鄉傳說','七誠／童話村','bo','Boss 九尾狐：經驗 408,600'],
@@ -492,7 +492,7 @@ var CF=[
  {k:'黃綠紅的感動：獎勵是套服還是武器 60%？',h:'✅ 已確認：套服 60%（非自選，屬性不確定）',o:['套服','武器']},
  {k:'傑塔雷第奎朗的歷史：前置有哪些？',h:'前置可能是消滅葛雷（Lv37）→ 消滅葛雷元老（Lv43），也有人只寫元老',o:['兩個都要']},
  {k:'羅密歐的求婚：「組隊結局」是前置嗎？',h:'「組隊結局」是不是前置？有人說要，查不到明文',o:['是','否']},
- {k:'酷獸七個任務：中文名與英文名對應是否正確？',h:'蝸牛傳說已核對（名稱、等級、道具、經驗 60,000 一致）；古老的樹已核對道具與經驗；其餘五個仍是依英文名推的。新線索：古老的樹 ＝ 古老的樹：謊言的真相 → 調查木妖（需乾枯的樹枝 100，7,000 與 87,000 各是哪一步未確認）。另：蝸牛傳說 → 明明夫人（故事的主角）→ 狩獵蝸牛，這兩個後續任務的等級、道具、經驗還沒有資料',o:['正確']},
+ {k:'酷獸七個任務：中文名與英文名對應是否正確？',h:'蝸牛傳說已核對（名稱、等級、道具、經驗 60,000 一致）；古老的樹已核對道具與經驗；惡靈森林已核對名稱（原寫邪惡森林）；其餘四個仍是依英文名推的。惡靈森林 → （艾溫的道歉）：後續任務尚無資料。新線索：古老的樹 ＝ 古老的樹：謊言的真相 → 調查木妖（需乾枯的樹枝 100，7,000 與 87,000 各是哪一步未確認）。另：蝸牛傳說 → 明明夫人（故事的主角）→ 狩獵蝸牛，這兩個後續任務的等級、道具、經驗還沒有資料',o:['正確']},
  {k:'麗德的委託（清掃1）：接任務等級是？',h:'✅ 已實測：Lv15（經驗 2,600 正確）',o:['15']},
  {k:'離家出走的阿勒斯：材料是？',h:'✅ 已實測：蝴蝶結60＋火獨眼獸尾巴30，經驗 13,200',o:['正確']}
 ];
@@ -559,7 +559,7 @@ var RT=[
 ['黃綠紅的感動','確認：獎勵是套服 60% 還是武器 60%',[17]],
 ['傑塔雷第奎朗的歷史','確認：前置是否為「消滅葛雷」＋「消滅葛雷元老」',[18]],
 ['羅密歐的求婚','確認：「組隊結局」是不是前置',[19]],
-['酷獸七個任務','確認：蝸牛傳說、古老的樹、邪惡森林、怪物與邪惡的計畫、葛雷金剛、故鄉傳說、女神的寵物的中文名',[20]]
+['酷獸七個任務','確認：蝸牛傳說、古老的樹、惡靈森林、怪物與邪惡的計畫、葛雷金剛、故鄉傳說、女神的寵物的中文名',[20]]
 ];
 
 function esc_(x){return String(x).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
@@ -597,7 +597,7 @@ var RQ=[
 ['黃綠紅的感動',[['黃綠紅的感動','40','雪吉拉娃娃×200、企鵝王娃娃×200、菇菇寶貝玩偶×200','2,000＋10,000＋30,000']]],
 ['傑塔雷第奎朗',[['消滅葛雷','37','葛雷×25（怪物正式名稱待確認）','16,000'],['消滅葛雷元老','43','便條×3','未查'],['傑塔雷第奎朗的歷史','45','4 種葛雷細胞各×1','未查']]],
 ['羅密歐的求婚',[['羅密歐系列四任務','70','五月之霧×20、雪玫瑰、樣板、禮物、情書、便當…','未查'],['羅密歐的求婚','70','銀×2、鑽石×2（訂婚戒指）','未查']]],
-['酷獸七個任務',[['蝸牛傳說','20','嫩寶殼×10、藍寶殼×10、紅寶殼×10、彩虹蝸牛殼×1','60,000'],['古老的樹','35','乾枯的樹枝×100（任務道具）、打樹妖王','7,000＋87,000'],['邪惡森林','50','詛咒之釘×10、妖精的頭髮×1、打殭屍猴王','225,600'],['怪物與邪惡的計畫','65','鱷魚皮×50、大鱷魚皮×50、打沼澤巨鱷','360,000'],['戰鬥生命體葛雷金剛','65','觸手×10、接收裝置×30、小型太空船×30、葛雷首領的標誌×1','360,000'],['故鄉傳說','70','打九尾狐（前置：兄弟之愛）','408,600'],['女神的寵物','83','星光精靈×50、月光精靈×100、光輝精靈×150、打艾利傑','768,000']]]
+['酷獸七個任務',[['蝸牛傳說','20','嫩寶殼×10、藍寶殼×10、紅寶殼×10、彩虹蝸牛殼×1','60,000'],['古老的樹','35','乾枯的樹枝×100（任務道具）、打樹妖王','7,000＋87,000'],['惡靈森林','50','詛咒之釘×10、妖精的頭髮×1、打殭屍猴王','225,600'],['怪物與邪惡的計畫','65','鱷魚皮×50、大鱷魚皮×50、打沼澤巨鱷','360,000'],['戰鬥生命體葛雷金剛','65','觸手×10、接收裝置×30、小型太空船×30、葛雷首領的標誌×1','360,000'],['故鄉傳說','70','打九尾狐（前置：兄弟之愛）','408,600'],['女神的寵物','83','星光精靈×50、月光精靈×100、光輝精靈×150、打艾利傑','768,000']]]
 ];
 var RV={};try{RV=JSON.parse(localStorage.getItem('starterRV_v2')||'{}')}catch(e){}
 function saveRV(){try{localStorage.setItem('starterRV_v2',JSON.stringify(RV))}catch(e){}prog()}
@@ -730,7 +730,7 @@ var CT=[
 ['E','羅密歐的求婚',[['銀',2],['鑽石',2]]],
 ['E','蝸牛傳說（酷獸）',[['嫩寶殼',10],['藍寶殼',10],['紅寶殼',10],['彩虹蝸牛殼',1]]],
 ['E','古老的樹（酷獸）',[['乾枯的樹枝',100],['樹妖王',1,'k']]],
-['E','邪惡森林（酷獸）',[['詛咒之釘',10],['妖精的頭髮',1],['殭屍猴王',1,'k']]],
+['E','惡靈森林（酷獸）',[['詛咒之釘',10],['妖精的頭髮',1],['殭屍猴王',1,'k']]],
 ['E','怪物與邪惡的計畫（酷獸）',[['鱷魚皮',50],['大鱷魚皮',50],['沼澤巨鱷',1,'k']]],
 ['E','戰鬥生命體葛雷金剛（酷獸）',[['葛雷觸手',10],['接收裝置',30],['小型太空船',30],['葛雷首領的標誌',1],['葛雷金剛',1,'k']]],
 ['E','故鄉傳說（酷獸）',[['九尾狐',1,'k']]],
@@ -865,7 +865,10 @@ function renderOV(){if(typeof W==='undefined'||!W.length||typeof RQ==='undefined
  function nm(r){return r.rows.map(function(x,i){return '<span class="ovn">'+esc_(x[2])+(i<r.rows.length-1?'、':'')+'</span>'}).join(' ')}
  function chips(r){return Object.keys(r.ty).map(function(t){return '<span class="chip c-'+t+'">'+TN[t]+'</span>'}).join('')}
  var KN2={pre:'前置',xp:'經驗',item:'道具'};
- function detail(r){var main=r.rows[r.rows.length-1],st='';
+ var SUPP={'惡靈森林':[['starter-img/evil-forest-1.jpg','猴子森林 II／巫婆森林 II：從底層往上走，左邊上到猴子森林 II，右邊上到巫婆森林 II'],['starter-img/evil-forest-2.jpg','智慧森林：照箭頭走到猴子森林']]};
+ function suppHtml(r){var out=[];r.rows.forEach(function(x){var m=SUPP[x[2]];if(m&&out.indexOf(m)<0)out.push(m)});if(!out.length)return '';return out.map(function(m){return '<details class="ovsupp" style="margin-top:6px"><summary style="cursor:pointer;color:var(--accent);font-weight:700;font-size:14px">補充：地圖（點開看）</summary>'+m.map(function(i){return '<figure style="margin:6px 0"><img src="'+i[0]+'" alt="'+esc_(i[1])+'" loading="lazy" style="max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line)"><figcaption style="font-size:13px;color:var(--muted)">'+esc_(i[1])+'</figcaption></figure>'}).join('')+'</details>'}).join('')}
+ function detail(r){return detail0(r)+suppHtml(r)}
+ function detail0(r){var main=r.rows[r.rows.length-1],st='';
   if(r.paths){st='<div style="font-size:13px;color:var(--muted)">'+(r.paths.length>1?'共 '+r.paths.length+' 條路線，共用的前置每條都列出來':'完整任務線')+'</div>'+r.paths.map(function(p){return '<div class="ovpath">'+p.map(chipS).join('<span class="ovar">→</span>')+'</div>'}).join('')}
   else{var p=(main[6]!=null&&main[6]!=='')?main[6]:PRE[main[2]];if(!p){var ps=DET.filter(function(d){return String(d[4]).indexOf(main[2])>=0}).map(function(d){return d[0]});p=ps.length?'前置：'+ps.join('、'):'單一任務，沒有前置'}st='<div class="ovpath"><small>'+esc_(p)+'</small></div>'}
   var rw=r.rows.filter(function(x){return x[5]}).map(function(x){return esc_(x[5])}).join('；');var npc=r.rows.map(function(x){return esc_(x[3]||'')}).filter(function(v,i,a){return v&&a.indexOf(v)===i}).join('；');
