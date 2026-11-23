@@ -44,7 +44,13 @@ label{display:block;font-size:13px;color:var(--muted);margin:8px 0 2px}
 table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left}
 th{color:var(--muted);font-weight:500;font-size:12px;position:sticky;top:0;background:var(--card)}
 .tw{max-height:560px;overflow:auto;border:1px solid var(--line);border-radius:10px}
-tr.r{cursor:pointer}tr.r:hover{background:var(--soft)}
+tr.r{cursor:pointer}tr.cpr td{background:#fff6e0}tr.cpr:hover td{background:var(--soft)}
+.cpb{display:inline-block;margin-left:4px;padding:0 7px;border-radius:999px;background:#d9822b;color:#fff;font-size:11.5px;font-weight:700;line-height:1.7;white-space:nowrap}
+.cpi{margin-left:4px;border:1px solid var(--line);background:#fffaf0;border-radius:999px;width:24px;height:24px;padding:0;font-size:13px;line-height:1;cursor:pointer;vertical-align:middle}
+#cpbox{position:fixed;inset:0;z-index:9999;background:rgba(40,28,16,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;cursor:zoom-out}
+#cpbox img{max-width:100%;max-height:calc(100% - 60px);object-fit:contain;border-radius:8px}
+#cpbox div{color:#fff;font-size:13px;text-align:center;line-height:1.6}#cpbox a{color:#ffd9a0}
+tr.r:hover{background:var(--soft)}
 td.n .nm{display:flex;align-items:center;gap:6px}td.n img{width:28px;height:28px;object-fit:contain;image-rendering:pixelated}
 .mini{width:70px;height:8px;background:var(--line);border-radius:99px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:6px}.mini i{display:block;height:100%;background:var(--accent)}
 .ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.ctl select,.ctl input{width:auto;min-width:140px}
@@ -88,11 +94,11 @@ footer{color:var(--muted);font-size:12.5px;margin:20px 0 60px}
     <b>全部怪物（依你目前的等級與命中）</b>
     <div class="ctl" style="margin-top:8px">
       <input type="search" id="q2" placeholder="篩選怪物名稱…">
-      <select id="sort"><option value="lv">依等級</option><option value="rate">命中率低的在前</option><option value="need">命中需求高的在前</option></select>
+      <select id="sort"><option value="lv">依等級</option><option value="rate">命中率低的在前</option><option value="need">命中需求高的在前</option><option value="cp">CP值高的在前</option></select>
       <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="only" style="width:auto"> 只看還打不到 100% 的</label>
       <span class="muted" id="cnt2"></span>
     </div>
-    <div class="tw"><table><thead><tr><th>怪物</th><th>等級</th><th>血量</th><th>經驗</th><th>100% 命中需求</th><th>命中率</th></tr></thead><tbody id="tb"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>怪物</th><th>等級</th><th>血量</th><th>經驗</th><th title="CP值＝經驗 ÷ 血量 × 1,000，越高代表每點血量換到的經驗越多">CP值</th><th>100% 命中需求</th><th>命中率</th></tr></thead><tbody id="tb"></tbody></table></div>
   </section>
   <details class="card">
     <summary>計算方式與資料說明</summary>
@@ -134,6 +140,8 @@ const regions=REG.map(r=>r.name);const rgInfo={};REG.forEach(r=>rgInfo[r.name]={
 function renderChips(){
   $('rgChips').innerHTML=`<button type="button" class="rgc ${S.rg==='all'?'on':''}" data-r="all"><span class="ico0">🍄</span><span class="nm">全部地區</span><small>${D.length}</small></button>`+
    regions.map(r=>`<button type="button" class="rgc ${S.rg===r?'on':''}" data-r="${esc(r)}">${rgInfo[r].icon?`<img src="monster-img/${encodeURIComponent(rgInfo[r].icon)}" alt="">`:'<span class="ico0">·</span>'}<span class="nm">${esc(r)}</span><small>${rgInfo[r].n}</small></button>`).join('')}
+const CPTOP=['黃色蜥蜴','沙漠地鼠','黑肥肥','沙漠毒蠍','狐蒙','成年仙人掌','禿鷹','褐色發條熊','沙漠矮人','火肥肥'];
+const cpv=m=>(m.hp&&m.exp!=null)?m.exp/m.hp*1000:null,cpT=m=>{const v=cpv(m);return v==null?'暫無':v.toFixed(1)};
 const L=m=>m.lv==null?9999:m.lv,lvT=m=>m.lv==null?'等級 暫無':'Lv.'+m.lv;
 const order=D.map((m,i)=>i).sort((a,b)=>L(D[a])-L(D[b])||D[a].n.localeCompare(D[b].n));
 function pass(m,q,rg){return(!q||m.n.toLowerCase().includes(q.toLowerCase()))&&(rg==='all'||m.rg.includes(rg))}
@@ -147,7 +155,7 @@ function renderOut(){
   const el=$('out');
   if(SEL<0){el.innerHTML='<b>③ 結果</b><p class="muted">先選一隻怪物</p>';return}
   const m=D[SEL],lv=lvNow(),ac=acNow(),c=calc(m,lv,ac);
-  let h=`<b>③ 結果</b><div class="hero" style="margin-top:8px"><div class="pic">${m.img?`<img src="${imgSrc(m)}" alt="">`:'<span class="muted">缺圖</span>'}</div><div><h2>${esc(m.n)}</h2><div class="stat"><span>等級 <b>${m.lv==null?'暫無':m.lv}</b></span><span>血量 <b>${nz(m.hp)}</b></span><span>經驗 <b>${nz(m.exp)}</b></span></div></div></div>`;
+  let h=`<b>③ 結果</b><div class="hero" style="margin-top:8px"><div class="pic">${m.img?`<img src="${imgSrc(m)}" alt="">`:'<span class="muted">缺圖</span>'}</div><div><h2>${esc(m.n)}</h2><div class="stat"><span>等級 <b>${m.lv==null?'暫無':m.lv}</b></span><span>血量 <b>${nz(m.hp)}</b></span><span>經驗 <b>${nz(m.exp)}</b></span><span>CP值 <b>${cpT(m)}</b></span></div></div></div>`;
   if(m.req==null){h+=`<div class="notice">這隻怪物的等級、命中需求、經驗目前暫無，所以還不能算命中率。</div>`}
   else if(!c){h+=`<p class="muted">請在上面輸入你的等級與命中。</p>`}
   else{
@@ -166,16 +174,18 @@ function renderTable(){
   const lv=lvNow(),ac=acNow(),q=$('q2').value.trim().toLowerCase(),only=$('only').checked,sort=$('sort').value;
   let rows=D.map((m,i)=>({m,i,c:calc(m,lv,ac)})).filter(x=>(!q||x.m.n.toLowerCase().includes(q))&&(S.rg==='all'||x.m.rg.includes(S.rg))&&(!only||(x.c&&x.c.r<100)));
   if(sort==='rate')rows.sort((a,b)=>(a.c?a.c.r:101)-(b.c?b.c.r:101)||L(a.m)-L(b.m));
+  else if(sort==='cp')rows.sort((a,b)=>(cpv(b.m)||-1)-(cpv(a.m)||-1)||L(a.m)-L(b.m));
   else if(sort==='need')rows.sort((a,b)=>(b.c?b.c.a100:-1)-(a.c?a.c.a100:-1));
   else rows.sort((a,b)=>L(a.m)-L(b.m)||a.m.n.localeCompare(b.m.n));
   $('cnt2').textContent=`${rows.length} 隻`;
-  $('tb').innerHTML=rows.map(({m,i,c})=>`<tr class="r" data-i="${i}"><td class="n"><div class="nm">${m.img?`<img src="${imgSrc(m)}" alt="" loading="lazy">`:''}<span>${esc(m.n)}${m.sus?' <span class="tag t-warn">疑似預設值</span>':''}</span></div></td><td>${m.lv==null?'暫無':m.lv}</td><td>${nz(m.hp)}</td><td>${nz(m.exp)}</td><td>${m.req==null?'暫無':p3(c?c.a100:m.req)}</td><td>${c?`<span class="mini"><i style="width:${c.r}%"></i></span>${p3(c.r)}%`:'暫無'}</td></tr>`).join('');
+  $('tb').innerHTML=rows.map(({m,i,c})=>{const ck=CPTOP.indexOf(m.n);return `<tr class="r${ck>=0?' cpr':''}" data-i="${i}"><td class="n"><div class="nm">${m.img?`<img src="${imgSrc(m)}" alt="" loading="lazy">`:''}<span>${esc(m.n)}${m.sus?' <span class="tag t-warn">疑似預設值</span>':''}${ck>=0?` <span class="cpb">CP榜 #${ck+1}</span><button type="button" class="cpi" title="練功 CP 值比較圖（點開看，附出處）" aria-label="CP 值比較圖">📊</button>`:''}</span></div></td><td>${m.lv==null?'暫無':m.lv}</td><td>${nz(m.hp)}</td><td>${nz(m.exp)}</td><td>${cpT(m)}</td><td>${m.req==null?'暫無':p3(c?c.a100:m.req)}</td><td>${c?`<span class="mini"><i style="width:${c.r}%"></i></span>${p3(c.r)}%`:'暫無'}</td></tr>`}).join('');
 }
 function all(){renderOut();renderTable()}
 function pick(i){SEL=i;renderList();renderOut();const it=document.querySelector('#list .it.on');if(it)it.scrollIntoView({block:'nearest'})}
 $('q').addEventListener('input',e=>{S.q=e.target.value.trim();renderList()});
 $('rgChips').addEventListener('click',e=>{const b=e.target.closest('.rgc');if(!b)return;const r=b.dataset.r;S.rg=(S.rg===r?'all':r);renderChips();renderList();renderTable()});
 $('list').addEventListener('click',e=>{const it=e.target.closest('.it[data-i]');if(it)pick(+it.dataset.i)});
+document.addEventListener('click',e=>{let bx=document.getElementById('cpbox');if(bx){if(e.target.closest('a'))return;bx.remove();return}const b=e.target.closest&&e.target.closest('.cpi');if(!b)return;e.stopPropagation();bx=document.createElement('div');bx.id='cpbox';bx.innerHTML='<img src="cp-img/cp-compare.webp" alt="怪物練功 CP 值比較"><div>CP值＝經驗 ÷ 血量 × 1,000（只比單隻怪的經驗／血量，不含刷新量、地圖動線、命中等）<br>圖片出處：<a href="https://www.threads.com/share/F6lPCoSzc" target="_blank" rel="noopener">Threads 貼文</a>　點一下關閉</div>';document.body.appendChild(bx)},true);
 $('tb').addEventListener('click',e=>{const r=e.target.closest('tr[data-i]');if(r){pick(+r.dataset.i);window.scrollTo({top:0,behavior:'smooth'})}});
 ['lv','ac'].forEach(id=>$(id).addEventListener('input',e=>{store(id,e.target.value);all()}));
 ['q2','sort','only'].forEach(id=>$(id).addEventListener('input',renderTable));
