@@ -423,7 +423,7 @@ const SKILL_ADVICE = {
     ".skill-advice .adv-opt{background:#f4e8cf;color:#6b5636}",
     ".skill-advice .adv-note{background:#fffaf0;color:#a4602a;border:1px solid #e8dcc3}",
     ".skill-advice .adv-pts{flex:none;font-weight:700;color:#7f4719}",
-    ".skill-advice .adv-why{flex:1 1 180px;min-width:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}"
+    ".skill-advice .adv-why{flex:1 1 180px;min-width:0;overflow-wrap:anywhere}"
   ].join("");
   document.head.appendChild(st);
 })();
