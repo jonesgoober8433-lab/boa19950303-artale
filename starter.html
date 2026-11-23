@@ -30,6 +30,12 @@ small{color:var(--muted)}
 tr.hot td{background:#fff1d6}
 .cfun{display:inline-block;margin-left:6px;padding:0 8px;border:1px dashed #d9822b;border-radius:999px;background:#fffaf0;color:#a4602a;font-size:12px;font-weight:700;white-space:nowrap}
 .cfx.filled .cfun{display:none}
+.supg{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}
+.supg figure{margin:0;flex:1 1 140px;max-width:200px}
+.supg img{width:100%;height:auto;max-height:200px;object-fit:contain;background:#f3ead6;border-radius:10px;border:1px solid var(--line);cursor:zoom-in;display:block}
+.supg figcaption{font-size:12px;line-height:1.5;color:var(--muted);margin-top:3px}
+#supbox{position:fixed;inset:0;z-index:9999;background:rgba(40,28,16,.8);display:flex;align-items:center;justify-content:center;padding:12px;cursor:zoom-out}
+#supbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
 .hotb{display:inline-block;background:#d9822b;color:#fff;border-radius:999px;padding:0 9px;font-weight:700;font-size:13px;white-space:nowrap}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
 .fl{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:3px 14px;font:inherit;font-size:14px;cursor:pointer}
@@ -492,7 +498,7 @@ var CF=[
  {k:'黃綠紅的感動：獎勵是套服還是武器 60%？',h:'✅ 已確認：套服 60%（非自選，屬性不確定）',o:['套服','武器']},
  {k:'傑塔雷第奎朗的歷史：前置有哪些？',h:'前置可能是消滅葛雷（Lv37）→ 消滅葛雷元老（Lv43），也有人只寫元老',o:['兩個都要']},
  {k:'羅密歐的求婚：「組隊結局」是前置嗎？',h:'「組隊結局」是不是前置？有人說要，查不到明文',o:['是','否']},
- {k:'酷獸七個任務：中文名與英文名對應是否正確？',h:'蝸牛傳說已核對（名稱、等級、道具、經驗 60,000 一致）；古老的樹已核對道具與經驗；惡靈森林已核對名稱（原寫邪惡森林）；其餘四個仍是依英文名推的。惡靈森林 → （艾溫的道歉）：後續任務尚無資料。新線索：古老的樹 ＝ 古老的樹：謊言的真相 → 調查木妖（需乾枯的樹枝 100，7,000 與 87,000 各是哪一步未確認）。另：蝸牛傳說 → 明明夫人（故事的主角）→ 狩獵蝸牛，這兩個後續任務的等級、道具、經驗還沒有資料',o:['正確']},
+ {k:'酷獸七個任務：中文名與英文名對應是否正確？',h:'蝸牛傳說已核對（名稱、等級、道具、經驗 60,000 一致）；古老的樹已核對道具與經驗；惡靈森林已核對名稱（原寫邪惡森林）；其餘四個仍是依英文名推的。惡靈森林 → （艾溫的道歉）：這是 NPC 對話視窗顯示的資訊，不是獨立任務，已放進惡靈森林的補充。新線索：古老的樹 ＝ 古老的樹：謊言的真相 → 調查木妖（需乾枯的樹枝 100，7,000 與 87,000 各是哪一步未確認）。另：蝸牛傳說 → 明明夫人（故事的主角）→ 狩獵蝸牛，這兩個後續任務的等級、道具、經驗還沒有資料',o:['正確']},
  {k:'麗德的委託（清掃1）：接任務等級是？',h:'✅ 已實測：Lv15（經驗 2,600 正確）',o:['15']},
  {k:'離家出走的阿勒斯：材料是？',h:'✅ 已實測：蝴蝶結60＋火獨眼獸尾巴30，經驗 13,200',o:['正確']}
 ];
@@ -865,9 +871,11 @@ function renderOV(){if(typeof W==='undefined'||!W.length||typeof RQ==='undefined
  function nm(r){return r.rows.map(function(x,i){return '<span class="ovn">'+esc_(x[2])+(i<r.rows.length-1?'、':'')+'</span>'}).join(' ')}
  function chips(r){return Object.keys(r.ty).map(function(t){return '<span class="chip c-'+t+'">'+TN[t]+'</span>'}).join('')}
  var KN2={pre:'前置',xp:'經驗',item:'道具'};
- var SUPP={'惡靈森林':[['starter-img/evil-forest-1.jpg','猴子森林 II／巫婆森林 II：從底層往上走，左邊上到猴子森林 II，右邊上到巫婆森林 II'],['starter-img/evil-forest-2.jpg','智慧森林：照箭頭走到猴子森林']]};
- function suppHtml(r){var out=[];r.rows.forEach(function(x){var m=SUPP[x[2]];if(m&&out.indexOf(m)<0)out.push(m)});if(!out.length)return '';return out.map(function(m){return '<details class="ovsupp" style="margin-top:6px"><summary style="cursor:pointer;color:var(--accent);font-weight:700;font-size:14px">補充：地圖（點開看）</summary>'+m.map(function(i){return '<figure style="margin:6px 0"><img src="'+i[0]+'" alt="'+esc_(i[1])+'" loading="lazy" style="max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line)"><figcaption style="font-size:13px;color:var(--muted)">'+esc_(i[1])+'</figcaption></figure>'}).join('')+'</details>'}).join('')}
+ var SUPT={'惡靈森林':'與 NPC 對話時，對話視窗會顯示「艾溫的道歉」。這不是獨立任務，只是這個任務的對話資訊'};
+ var SUPP={'古老的樹':[['starter-img/old-tree-1.webp','調查木妖：乾枯的樹枝 100/100，完成任務後木妖登錄至怪物圖鑑（魔法森林北郊平原）']],'惡靈森林':[['starter-img/evil-forest-2.jpg','智慧森林：照箭頭走到猴子森林'],['starter-img/evil-forest-1.jpg','猴子森林 II／巫婆森林 II：從底層往上走，左邊上到猴子森林 II，右邊上到巫婆森林 II']]};
+ function suppHtml(r){var out=[];r.rows.forEach(function(x){var m=SUPP[x[2]];if(m&&out.indexOf(m)<0){m.t=SUPT[x[2]]||'';out.push(m)}});if(!out.length)return '';return out.map(function(m){return '<details class="ovsupp" style="margin-top:6px"><summary style="cursor:pointer;color:var(--accent);font-weight:700;font-size:14px">補充（點開看）</summary>'+(m.t?'<div style="font-size:14px;margin:6px 0">'+esc_(m.t)+'</div>':'')+'<div class="supg">'+m.map(function(i){return '<figure><img class="supi" src="'+i[0]+'" alt="'+esc_(i[1])+'" loading="lazy" title="點一下放大"><figcaption>'+esc_(i[1])+'</figcaption></figure>'}).join('')+'</div></details>'}).join('')}
  function detail(r){return detail0(r)+suppHtml(r)}
+ document.addEventListener('click',function(e){var im=e.target.closest&&e.target.closest('.supi');var bx=document.getElementById('supbox');if(bx){bx.remove();return}if(!im)return;e.stopPropagation();bx=document.createElement('div');bx.id='supbox';bx.innerHTML='<img src="'+im.getAttribute('src')+'" alt="">';document.body.appendChild(bx)},true);
  function detail0(r){var main=r.rows[r.rows.length-1],st='';
   if(r.paths){st='<div style="font-size:13px;color:var(--muted)">'+(r.paths.length>1?'共 '+r.paths.length+' 條路線，共用的前置每條都列出來':'完整任務線')+'</div>'+r.paths.map(function(p){return '<div class="ovpath">'+p.map(chipS).join('<span class="ovar">→</span>')+'</div>'}).join('')}
   else{var p=(main[6]!=null&&main[6]!=='')?main[6]:PRE[main[2]];if(!p){var ps=DET.filter(function(d){return String(d[4]).indexOf(main[2])>=0}).map(function(d){return d[0]});p=ps.length?'前置：'+ps.join('、'):'單一任務，沒有前置'}st='<div class="ovpath"><small>'+esc_(p)+'</small></div>'}
