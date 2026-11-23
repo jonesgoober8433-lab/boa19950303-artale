@@ -186,7 +186,7 @@ $('q').addEventListener('input',e=>{S.q=e.target.value.trim();renderList()});
 $('rgChips').addEventListener('click',e=>{const b=e.target.closest('.rgc');if(!b)return;const r=b.dataset.r;S.rg=(S.rg===r?'all':r);renderChips();renderList();renderTable()});
 $('list').addEventListener('click',e=>{const it=e.target.closest('.it[data-i]');if(it)pick(+it.dataset.i)});
 document.addEventListener('click',e=>{let bx=document.getElementById('cpbox');if(bx){if(e.target.closest('a'))return;bx.remove();return}const b=e.target.closest&&e.target.closest('.cpi');if(!b)return;e.stopPropagation();bx=document.createElement('div');bx.id='cpbox';bx.innerHTML='<img src="cp-img/cp-compare.webp" alt="怪物練功 CP 值比較"><div>CP值＝經驗 ÷ 血量 × 1,000（只比單隻怪的經驗／血量，不含刷新量、地圖動線、命中等）<br>圖片出處：<a href="https://www.threads.com/share/F6lPCoSzc" target="_blank" rel="noopener">Threads 貼文</a>　點一下關閉</div>';document.body.appendChild(bx)},true);
-$('tb').addEventListener('click',e=>{const r=e.target.closest('tr[data-i]');if(r){pick(+r.dataset.i);window.scrollTo({top:0,behavior:'smooth'})}});
+$('tb').addEventListener('click',e=>{const r=e.target.closest('tr[data-i]');if(r){pick(+r.dataset.i);document.querySelector('.grid').scrollIntoView({behavior:'smooth',block:'start'})}});
 ['lv','ac'].forEach(id=>$(id).addEventListener('input',e=>{store(id,e.target.value);all()}));
 ['q2','sort','only'].forEach(id=>$(id).addEventListener('input',renderTable));
 renderChips();renderList();all();
