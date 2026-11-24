@@ -77,32 +77,53 @@ window.buildV1124Archive = function () {
         return skillOut;
     };
 
+    const ADVENTURERS = [
+        ['Hero', 'emblems/hero_face.webp', 'hero'],
+        ['Paladin', 'emblems/paladin_face.webp', 'paladin'],
+        ['DarkKnight', 'emblems/darkknight_face.webp', 'darkknight'],
+        ['ArchMageF/P', 'emblems/archmage-fp_face.webp', 'archmage-fp'],
+        ['ArchMageI/L', 'emblems/archmage-il_face.webp', 'archmage-il'],
+        ['Bishop', 'emblems/bishop_face.webp', 'bishop'],
+        ['Bowmaster', 'emblems/bowmaster_face.webp', 'bowmaster'],
+        ['Marksman', 'emblems/marksman_face.webp', 'marksman'],
+        ['NightLord', 'emblems/nightlord_face.webp', 'nightlord'],
+        ['Shadower', 'emblems/shadower_face.webp', 'shadower'],
+        ['Buccaneer', 'emblems/viper_face.webp', 'viper'],
+        ['Corsair', 'emblems/captain_face.webp', 'captain']
+    ];
     const jobs = [];
-    ORDER.forEach(key => {
+    function pushJob(key, facePath, group, slug, onlyCygnus) {
         const name = Object.keys(allProfessionsData).find(k => k.indexOf('(' + key + ')') >= 0);
         const job = name && allProfessionsData[name];
         if (!job) return;
         const face = 'face:v1124:' + key;
-        IMG[face] = FACE[key];
+        IMG[face] = facePath;
         const skills = [];
         job.jobStagesOrder.forEach(stage => {
             if (!/^[1-4]轉/.test(stage)) return;
-            (job.skills[stage] || []).forEach(s => { if (s && s._cygnus) skills.push(toSkill(job, s, stage)); });
+            (job.skills[stage] || []).forEach(s => {
+                if (!s || (onlyCygnus && !s._cygnus)) return;
+                const card = toSkill(job, s, stage);
+                if (!s._v1124) card.tags = [];
+                skills.push(card);
+            });
         });
         jobs.push({
             name: name.split(' ')[0],
-            group: '皇家騎士團',
+            group,
             face,
-            sim: 'v1124-simulator.html?prof=' + key,
+            sim: 'v1124-simulator.html?prof=' + (key === 'ArchMageF/P' ? 'archmage_fp' : key === 'ArchMageI/L' ? 'archmage_il' : key),
             summary: '2026.11.24 正式版。數字和技能模擬器同一份，點下面可以開去試算。',
-            dev: '來源：https://artale.live/tw/patch-notes/cygnus-knights/' + (key === 'SoulMaster' ? 'soulmaster' : key.toLowerCase()),
+            dev: '來源：https://artale.live/tw/patch-notes/cygnus-knights/' + slug,
             skills
         });
-    });
+    }
+    ADVENTURERS.forEach(row => pushJob(row[0], row[1], '冒險家', row[2], false));
+    ORDER.forEach(key => pushJob(key, FACE[key], '皇家騎士團', key === 'SoulMaster' ? 'soulmaster' : key.toLowerCase(), true));
 
     return {
         name: '2026.11.24 正式版',
-        note: '<b>2026.11.24 正式版</b>：皇家騎士團 5 個職業。這裡的數字是頁面載入時直接從技能模擬器的 v1124 資料讀出來的，和模擬器試算同一份。改版頁只給區間、沒有逐級的，中間等級是空的。第一版、第二版的存檔沒有改。',
+        note: '<b>2026.11.24 正式版</b>：冒險家 12 職和皇家騎士團 5 職。數字直接讀技能模擬器這版的資料。改版頁有逐級的才填，只寫區間的等級先留空。第一版、第二版的存檔沒有改。',
         jobs
     };
 };
