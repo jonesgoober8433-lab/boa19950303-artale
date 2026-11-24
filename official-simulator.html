@@ -1633,7 +1633,7 @@
             else cell(X0, Y0, n * CW, RH, heads.slice(0, 3).join('　'), true);
             m.cols.forEach((c, i) => { const x = X0 + i * CW; cell(x, Y0 + RH, CW, RH, c.title, true); cell(x, Y0 + RH * 2, CW, RH, c.pts + ' 點', true); g.strokeRect(x + .5, Y0 + RH * 3 + .5, CW, RH * maxRows + 12); });
             const imgs = [];
-            m.cols.forEach((c, i) => c.list.forEach((sk, j) => { imgs.push(new Promise(res => { const im = new Image(); im.onload = () => res([im, i, j, sk]); im.onerror = () => res([null, i, j, sk]); im.src = (window.__IMG && window.__IMG[sk.img]) || sk.img || ''; })); }));
+            m.cols.forEach((c, i) => c.list.forEach((sk, j) => { imgs.push(new Promise(res => { const im = new Image(), u = (window.__IMG && window.__IMG[sk.img]) || sk.img || ''; if (!u) { res([null, i, j, sk]); return; } const to = setTimeout(() => res([null, i, j, sk]), 5000); im.onload = () => { clearTimeout(to); res([im, i, j, sk]); }; im.onerror = () => { clearTimeout(to); res([null, i, j, sk]); }; im.src = u; })); }));
             return Promise.all(imgs).then(arr => {
                 arr.forEach(([im, i, j, sk]) => { const x = X0 + i * CW + 8, y = Y0 + RH * 3 + 6 + j * RH; if (im) g.drawImage(im, x, y + 3, 26, 26); g.font = '16px ' + font; g.textAlign = 'left'; g.fillStyle = '#222'; g.fillText(sk.name + ' ' + sk.lv, x + 34, y + RH / 2); });
                 return new Promise(res => cv.toBlob(b => res({ blob: b, name: '配點_' + m.profName + '_Lv' + m.level + '.png' })));
@@ -1641,7 +1641,8 @@
         }
         function btMsg(t, ok) { const el = document.getElementById('btMsg'); if (!el) return; el.textContent = t; el.style.color = ok ? '#4d7a36' : '#a4602a'; clearTimeout(btMsg.h); btMsg.h = setTimeout(() => { el.textContent = ''; }, 4000); }
         function saveBuildTableImage() {
-            makeBuildImage().then(({ blob, name }) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); btMsg('已儲存成檔案', true); });
+            btMsg('製作圖片中…', true);
+            Promise.race([makeBuildImage(), new Promise((_, rej) => setTimeout(() => rej(new Error('製作圖片逾時')), 15000))]).catch(err => { btMsg('製作圖片失敗：' + (err && err.message ? err.message : err), false); return null; }).then(res => { if (!res) return; const { blob, name } = res; const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); btMsg('已儲存成檔案', true); });
         }
         var btCache = null, btTimer = null;
         function prepBuildImage() {   // 先在背景畫好圖，按鈕一按就能直接寫進剪貼簿（Safari 要求在點擊當下寫入）
@@ -1665,6 +1666,7 @@
         }
         async function copyBuildTableImage() {
             clearTimeout(btTimer);
+            btMsg('製作圖片中…', true);
             const c = btCache && btCache.pr ? btCache : { pr: makeBuildImage(), blob: null };
             const p = c.pr;
             try {
@@ -1672,7 +1674,8 @@
                 await navigator.clipboard.write([new ClipboardItem({ 'image/png': c.blob || p.then(r => r.blob) })]);
                 btMsg('已複製圖片，到 Discord／Line 直接貼上（Ctrl+V／長按貼上）', true);
             } catch (e) {
-                const { blob, name } = await p;
+                let got; try { got = await Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('製作圖片逾時')), 15000))]); } catch (err) { btMsg('製作圖片失敗：' + (err && err.message ? err.message : err), false); return; }
+                const { blob, name } = got;
                 try {   // 手機：改開系統分享，可直接選 Line／Discord
                     const f = new File([blob], name, { type: 'image/png' });
                     if (navigator.maxTouchPoints > 0 && navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); btMsg('已開啟分享', true); return; }
