@@ -72,6 +72,22 @@
     const fastSword = find('SoulMaster', '快速之劍');
     addAll(fastSword, '攻擊速度: 提升1階段');
     keepCurve(fastSword, '持續時間', 15, 300, '持續時間頁面只寫 15~300秒，最初版同名技能的兩端對不上，中間每一級不填。');
+    // 複檢補上（2026-11-24）：改版頁 MP 自然恢復 +2~30，舊逐級表 20 級是 40，對不上，所以只留兩端。
+    const mpRec = find('SoulMaster', '魔力恢復');
+    if (mpRec) {
+        dropField(mpRec, '回復量');
+        addAt(mpRec, 1, '回復量: 2');
+        addAt(mpRec, 20, '回復量: 30');
+        say(mpRec, '每 10 秒 MP 自然恢復 +2~30。頁面只寫兩端，1 級 2、20 級 30，中間每一級不填。');
+    }
+    // 頁面有寫、逐級表沒有的固定說明
+    addAll(find('SoulMaster', '靈魂'), '攻擊: 最多3名敵人');
+    addAll(find('SoulMaster', '劍氣縱橫'), '攻擊: 最多6名敵人');
+    addAll(find('SoulMaster', '靈魂斬'), '攻擊: 每名2次');
+    say(find('SoulMaster', '終極攻擊'), '頁面寫的發動條件：使用魔天一擊或劍氣縱橫時，有一定機率發動追加攻擊。');
+    // 改版頁沒寫數字、沿用最初版逐級表的技能
+    ['生命淨化', '生命擴展', '精準之劍'].forEach(n => say(find('SoulMaster', n), '改版頁沒寫這個技能的數字，逐級數值沿用最初版。'));
+    say(fastSword, '消耗 HP／MP 改版頁沒寫，沿用最初版。');
 
     // ----- 烈焰巫師 -----
     addAll(find('FlameWizard', '火牢術'), '攻擊: 最多3名敵人');
