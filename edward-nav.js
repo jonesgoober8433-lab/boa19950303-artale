@@ -3,7 +3,7 @@
 (function(){
   if(location.protocol==='file:'||window.__IMG||window.__SNAPSHOT_SEARCH)return;
   var TOOLS=[
-    {id:'sim',name:'技能模擬器',href:'index.html',match:['','index.html','simulator.html','official-index.html','official-simulator.html'],icon:'<img src="ui/title-icon.svg" alt="">'},
+    {id:'sim',name:'技能模擬器',href:'index.html',match:['','index.html','simulator.html','official-index.html','official-simulator.html','v1124-simulator.html'],icon:'<img src="ui/title-icon.svg" alt="">'},
     {id:'archive',name:'魔改存檔',href:'archive.html',match:['archive.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5V21.5"/><path d="M9 8h6M9 12h6"/></svg>'},
     {id:'map',name:'地圖指引',href:'map.html',match:['map.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5z"/><path d="M9 4v14M15 6.5v14"/></svg>'},
     {id:'acc',name:'練功計算',href:'acc.html',match:['acc.html','exp.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
@@ -204,33 +204,51 @@
     anchor.parentNode.insertBefore(d,anchor);
   }
 
-  // ---- 技能模擬器兩個版本：正式版（最初版，收錄自 Jamox）／測試版（阿泰爾魔改資料，未來提供後會改成正式版）
+  // ---- 技能模擬器三個版本：最初版／Tespia v2 測試版／2026.11.24 正式版（皇家騎士團改版）
   function addVersion(){
-    var official=/^official-/.test(cur),isSim=['','index.html','simulator.html','official-index.html','official-simulator.html'].indexOf(cur)>=0;
+    var isSim=['','index.html','simulator.html','official-index.html','official-simulator.html','v1124-simulator.html'].indexOf(cur)>=0;
     if(!isSim||document.getElementById('ed-ver'))return;
-    var q=location.search,page=/simulator\.html$/.test(cur)?'simulator.html':'index.html';
+    var here=/^v1124-/.test(cur)?'v1124':(/^official-/.test(cur)?'official':'test');
+    var q=location.search,onSim=/simulator\.html$/.test(cur);
     var prof=(new URLSearchParams(q)).get('prof')||'';
     var royal=/^(soulmaster|flamewizard|windbreaker|nightwalker|striker)/i.test(prof);
-    var offHref=(page==='simulator.html'&&q&&!royal)?'official-simulator.html'+q:'official-index.html';
-    var testHref=(page==='simulator.html'&&q)?'simulator.html'+q:'index.html';
+    function hrefOf(v){
+      if(v==='official') return (onSim&&q&&!royal)?'official-simulator.html'+q:'official-index.html';
+      if(v==='test') return (onSim&&q)?'simulator.html'+q:'index.html';
+      return (onSim&&q)?'v1124-simulator.html'+q:'v1124-simulator.html';
+    }
+    var IC={
+      official:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21.5z"/><path d="M5 5.5V21.5"/><path d="M9 8h6M9 12h6"/></svg>',
+      test:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v5L5.5 18.2A2 2 0 0 0 7.3 21h9.4a2 2 0 0 0 1.8-2.8L14 8V3"/><path d="M8.2 14h7.6"/></svg>',
+      v1124:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16.5 12 4l8 12.5H4z"/><path d="M8 16.5 12 10l4 6.5"/><path d="M3 20h18"/></svg>'
+    };
+    var LABELS={official:['最初版','正式版（最初版）'],test:['測試版','Tespia v2 測試版'],v1124:['11/24 正式版','2026.11.24 正式版']};
+    var BLURB={
+      official:'目前是<b>正式版（最初版）</b>：最早公開的冒險家技能資料。',
+      test:'目前是<b>Tespia v2 測試版</b>：阿泰爾魔改資料，也收了皇家騎士團。',
+      v1124:'目前是<b>2026.11.24 正式版</b>：皇家騎士團用<a href="https://artale.live/tw/patch-notes/cygnus-knights/soulmaster">這天的改版說明</a>。沒寫到的技能沿用最初版。'
+    };
     var st=document.createElement('style');
     st.textContent='#ed-ver{max-width:960px;margin:0 auto;padding:12px 16px 0;text-align:center;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:#3a2f25}'+
-     '#ed-ver .seg{display:inline-flex;border:1px solid #a4602a;border-radius:999px;overflow:hidden;background:#fffaf0}'+
-     '#ed-ver .seg a{padding:7px 18px;font-weight:700;font-size:15px;text-decoration:none;color:#a4602a;white-space:nowrap}'+
-     '#ed-ver .seg a.on{background:#a4602a;color:#fffaf0}'+
-     '#ed-ver p{margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#86745f}'+
-     '@media(max-width:700px){#ed-ver{padding-top:8px}#ed-ver .seg a{padding:6px 12px;font-size:14px}}';
+     '#ed-ver .icons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}'+
+     '#ed-ver .icons a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:108px;min-height:84px;padding:8px 6px 7px;box-sizing:border-box;border:1px solid #e2d3bc;border-radius:14px;background:#fff;color:#6b5846;text-decoration:none;font:700 12px/1.25 "Noto Sans TC","PingFang TC",sans-serif}'+
+     '#ed-ver .icons a .ic{width:28px;height:28px;display:flex}#ed-ver .icons a svg{width:28px;height:28px;stroke:#a4602a}'+
+     '#ed-ver .icons a .now{display:none;font-size:10px;letter-spacing:.12em}'+
+     '#ed-ver .icons a.on{background:#a4602a;color:#fffaf0;border-color:#8a4e1e;box-shadow:0 0 0 3px #e7c9a4}'+
+     '#ed-ver .icons a.on svg{stroke:#fffaf0}#ed-ver .icons a.on .now{display:block}'+
+     '#ed-ver p{margin:8px auto 0;max-width:640px;font-size:13.5px;line-height:1.55;color:#86745f}#ed-ver p a{color:#a4602a;font-weight:700}'+
+     '@media(max-width:700px){#ed-ver{padding:8px 10px 0}#ed-ver .icons{gap:6px}#ed-ver .icons a{width:104px;min-height:76px;font-size:11px}}';
     document.head.appendChild(st);
     var d=document.createElement('div');d.id='ed-ver';
-    d.innerHTML='<div class="seg"><a href="'+offHref+'" class="'+(official?'on':'')+'">正式版（最初版）</a><a href="'+testHref+'" class="'+(official?'':'on')+'">Tespia v2 測試版</a></div>'+
-      '<p>'+(official?'目前是<b>正式版</b>：遊戲裡現在實際的技能資料（冒險家 12 職業）。':'目前是<b>Tespia v2 測試版</b>：加入阿泰爾魔改資料與皇家騎士團 5 職業，未來官方正式提供後，這一版會改成正式版。')+'</p>';
+    d.innerHTML='<div class="icons" role="tablist">'+['official','test','v1124'].map(function(v){
+      var on=v===here;
+      return '<a role="tab" href="'+hrefOf(v)+'" title="'+LABELS[v][1]+'" aria-current="'+(on?'page':'false')+'" class="'+(on?'on':'')+'"><span class="ic">'+IC[v]+'</span><span class="lb">'+LABELS[v][0]+'</span><span class="now">目前</span></a>';
+    }).join('')+'</div><p>'+BLURB[here]+'</p>';
     document.body.insertBefore(d,document.body.firstChild);
-    // 不用瀏覽器記憶（Chrome 會殘留舊紀錄）：每次打開技能頁，第一次點配點都會問；問過之後同一次瀏覽不再重複問
     var answered=false;
     function picked(){return answered}
     function setPick(v){answered=true}
-    // 還沒選過版本時，第一次要點技能點數就先問：用正式版，還是 Tespia v2 測試版
-    if(page!=='simulator.html')return;
+    if(!onSim)return;
     var ms=document.createElement('style');
     ms.textContent='#ed-vp{position:fixed;inset:0;z-index:20000;background:rgba(58,47,37,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}'+
       '#ed-vp .box{background:#fffaf0;border:1px solid #e8dcc3;border-radius:16px;max-width:440px;width:100%;padding:22px 20px;color:#3a2f25;box-shadow:0 12px 40px rgba(0,0,0,.3)}'+
@@ -240,18 +258,21 @@
       '#ed-vp button.cur{background:#f4e8cf}#ed-vp button:hover{background:#f4e8cf}';
     document.head.appendChild(ms);
     var replaying=false;
-    // 皇家騎士團職業只有 Tespia v2 測試版有，不需要問；之後再有新改版再加進來
     function isRoyalNow(){var sel=document.getElementById('professionSelect'),t=sel&&sel.selectedOptions[0]?sel.selectedOptions[0].text:'';return /聖魂劍士|烈焰巫師|破風使者|暗夜行者|閃雷悍將|SoulMaster|FlameWizard|WindBreaker|NightWalker|Striker/i.test(t)||(!sel&&royal)}
+    var CHOICES=[
+      ['official','正式版（最初版）','最早公開的冒險家技能資料。皇家騎士團還沒有這一版。'],
+      ['test','Tespia v2 測試版','阿泰爾魔改資料，也收了皇家騎士團。'],
+      ['v1124','2026.11.24 正式版','皇家騎士團用這天的改版說明，沒寫到的技能沿用最初版。']
+    ];
     function ask(resume){
       if(document.getElementById('ed-vp'))return;
       var m=document.createElement('div');m.id='ed-vp';
-      m.innerHTML='<div class="box" role="dialog" aria-modal="true"><h3>要使用哪一個版本？</h3><p class="s">每次打開技能模擬器，第一次點配點都會先問一次。隨時可以用最上方的切換條換版本。</p>'+
-        '<button type="button" data-v="official" class="'+(official?'cur':'')+'"><b>正式版（最初版）</b><span>遊戲目前實際的技能資料，冒險家 12 職業。'+(official?'（你現在在這一版）':'')+'</span></button>'+
-        '<button type="button" data-v="test" class="'+(official?'':'cur')+'"><b>Tespia v2 測試版</b><span>加入阿泰爾魔改資料與皇家騎士團 5 職業，未來會改成正式版。'+(official?'':'（你現在在這一版）')+'</span></button></div>';
+      m.innerHTML='<div class="box" role="dialog" aria-modal="true"><h3>要使用哪一個版本？</h3><p class="s">每次打開技能模擬器，第一次點配點都會先問一次。隨時可以用最上方的圖示換版本。</p>'+
+        CHOICES.map(function(c){return '<button type="button" data-v="'+c[0]+'" class="'+(c[0]===here?'cur':'')+'"><b>'+c[1]+'</b><span>'+c[2]+(c[0]===here?'（你現在在這一版）':'')+'</span></button>'}).join('')+'</div>';
       document.body.appendChild(m);
       m.addEventListener('click',function(e){var b=e.target.closest('button[data-v]');if(!b)return;var v=b.dataset.v;setPick(v);
-        if((v==='official')===official){m.remove();resume()}
-        else{location.href=v==='official'?(royal||!q?'official-index.html':'official-simulator.html'+q):'simulator.html'+q}});
+        if(v===here){m.remove();resume()}
+        else location.href=hrefOf(v)});
     }
     document.addEventListener('click',function(e){
       if(replaying||picked()||isRoyalNow())return;var b=e.target.closest&&e.target.closest('button[onclick]');if(!b)return;
