@@ -1470,8 +1470,6 @@
             const eng = findEnglishKeyByMixedKey(currentProfessionKey);
             if (!eng) return null;
             const params = new URLSearchParams({ b: eng + '.' + currentLevel + '.' + encodeBuildCode(currentProfessionKey, currentSkillLevels) });
-            const note = getNoteText().trim();
-            if (note && note.length <= NOTE_MAX_IN_LINK) params.set('n', encodeNoteForLink(note));
             if (specialCaseOn && currentProfessionData.specialCase) params.set('x', '1');
             return params;
         }
@@ -1482,7 +1480,7 @@
                 ov.id = 'shareDialog'; ov.className = 'sd-overlay';
                 ov.innerHTML = `<div class="sd-card" role="dialog" aria-modal="true" aria-labelledby="sh-title"><h3 id="sh-title">分享我的配點</h3>
                     <p class="sh-desc">對方打開後，會直接看到你現在完整的點法。</p>
-                    <button type="button" class="sh-opt" id="sh-link"><b>複製分享連結</b><span>很短的一串網址，朋友點開就是你的配點（需要網站在線上）</span></button>
+                    <button type="button" class="sh-opt" id="sh-link"><b>複製分享連結</b><span>很短的一串網址，朋友點開就是你的配點（配點思路請用配點總表圖片分享）</span></button>
                     <button type="button" class="sh-opt" id="sh-file"><b>下載完整 HTML 檔</b><span>一個檔案，雙擊就能開，不用網路</span></button>
                     <p class="sh-note" id="sh-note"></p><p class="sh-msg" id="sh-msg"></p><button type="button" class="sd-close sh-close" id="sh-close">關閉</button></div>`;
                 document.body.appendChild(ov);
@@ -1504,7 +1502,7 @@
                 });
             }
             const nl = getNoteText().trim().length, nm = ov.querySelector('#sh-note');
-            nm.textContent = nl === 0 ? '提醒：你還沒寫「配點思路」，寫了的話對方也看得到。' : (nl <= NOTE_MAX_IN_LINK ? '配點思路 ' + nl + ' 字，連結會一併帶上。' : '配點思路 ' + nl + ' 字超過 ' + NOTE_MAX_IN_LINK + ' 字，連結不會帶上；要完整分享請用「下載完整 HTML 檔」。');
+            nm.textContent = nl === 0 ? '提醒：你還沒寫「配點思路」，寫了的話會直接印在配點總表圖片上。' : '連結只帶配點；配點思路 ' + nl + ' 字會印在配點總表圖片上（按「一鍵複製圖片」）。';
             ov.querySelector('#sh-msg').textContent = '';
             ov.classList.add('show');
         }
@@ -1553,6 +1551,7 @@
             el.addEventListener('input', () => {
                 updateNoteCount();
                 try { localStorage.setItem(noteKey(currentProfessionKey), el.value); } catch (e) { }
+                if (typeof prepBuildImage === 'function') prepBuildImage();
             });
         })();
         // 0 轉（新手）技能只能用那 6 點，不能動用 1 轉以後的點數
@@ -1659,11 +1658,14 @@
         function makeBuildImage() {
             const m = buildTableModel(), n = Math.max(m.cols.length, 1), CW = 250, RH = 34, PAD = 24, W = CW * n + PAD * 2;
             const maxRows = Math.max(1, ...m.cols.map(c => c.list.length));
-            const H = PAD * 2 + RH * 3 + RH * maxRows + 12 + 44;
+            const font = '"Noto Serif TC","Songti TC","PingFang TC","Microsoft JhengHei",serif';
+            const noteTxt = getNoteText().trim(), noteLines = [], NW = CW * n - 24;
+            if (noteTxt) { const mg = document.createElement('canvas').getContext('2d'); mg.font = '16px ' + font; noteTxt.split(/\r?\n/).forEach(p => { if (!p) { noteLines.push(''); return; } let cur = ''; for (const ch of p) { if (mg.measureText(cur + ch).width > NW) { noteLines.push(cur); cur = ch; } else cur += ch; } noteLines.push(cur); }); }
+            const NLH = 26, noteH = noteLines.length ? 50 + noteLines.length * NLH + 14 : 0;
+            const H = PAD * 2 + RH * 3 + RH * maxRows + 12 + 44 + noteH;
             const S = 2, cv = document.createElement('canvas'); cv.width = W * S; cv.height = H * S;
             const g = cv.getContext('2d'); g.scale(S, S);
             g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
-            const font = '"Noto Serif TC","Songti TC","PingFang TC","Microsoft JhengHei",serif';
             g.strokeStyle = '#444'; g.lineWidth = 1; g.fillStyle = '#222'; g.textBaseline = 'middle';
             const heads = [m.ver, '職業：' + m.profName, '當前等級：' + m.level, '已分配點數：' + m.spent, '剩餘點數：' + m.remain];
             const X0 = PAD, Y0 = PAD;
@@ -1685,6 +1687,13 @@
                     g.stroke(); g.beginPath(); g.arc(lx + sz / 2, ly + sz / 2, sz * 0.23, 0, Math.PI * 2); g.stroke();
                     g.fillStyle = gr; g.beginPath(); g.arc(lx + sz * 0.77, ly + sz * 0.23, 1.6, 0, Math.PI * 2); g.fill();
                     g.fillStyle = '#a4602a'; g.fillText('boa19950303', right, cy); g.textBaseline = 'middle';
+                }
+                if (noteLines.length) {   // 配點思路
+                    const ny = Y0 + RH * 3 + RH * maxRows + 12 + 44 + 4, bw = CW * n;
+                    g.strokeStyle = '#444'; g.lineWidth = 1; g.strokeRect(X0 + .5, ny + .5, bw, noteH - 10);
+                    g.fillStyle = '#a4602a'; g.font = '700 17px ' + font; g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillText('配點思路', X0 + 12, ny + 22);
+                    g.fillStyle = '#222'; g.font = '16px ' + font;
+                    noteLines.forEach((t, k) => g.fillText(t, X0 + 12, ny + 50 + k * NLH + NLH / 2 - 4));
                 }
                 return new Promise(res => cv.toBlob(b => res({ blob: b, name: '配點_' + m.profName + '_Lv' + m.level + '.png' })));
             });
