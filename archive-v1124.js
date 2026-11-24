@@ -105,6 +105,8 @@ window.buildV1124Archive = function () {
                 if (!s || (onlyCygnus && !s._cygnus)) return;
                 const card = toSkill(job, s, stage);
                 if (!s._v1124) card.tags = [];
+                const demo = (typeof SKILL_DEMOS !== 'undefined') && SKILL_DEMOS[name.split(' ')[0] + '|' + s.name];
+                if (demo) card.demo = demo;
                 skills.push(card);
             });
         });
