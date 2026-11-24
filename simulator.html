@@ -1672,7 +1672,7 @@
             else cell(X0, Y0, n * CW, RH, heads.slice(0, 3).join('　'), true);
             m.cols.forEach((c, i) => { const x = X0 + i * CW; cell(x, Y0 + RH, CW, RH, c.title, true); cell(x, Y0 + RH * 2, CW, RH, c.pts + ' 點', true); g.strokeRect(x + .5, Y0 + RH * 3 + .5, CW, RH * maxRows + 12); });
             const imgs = [];
-            m.cols.forEach((c, i) => c.list.forEach((sk, j) => { imgs.push(new Promise(res => { const im = new Image(), u = (window.__IMG && window.__IMG[sk.img]) || sk.img || ''; if (!u) { res([null, i, j, sk]); return; } const to = setTimeout(() => res([null, i, j, sk]), 5000); im.onload = () => { clearTimeout(to); res([im, i, j, sk]); }; im.onerror = () => { clearTimeout(to); res([null, i, j, sk]); }; im.src = u; })); }));
+            m.cols.forEach((c, i) => c.list.forEach((sk, j) => { imgs.push(new Promise(res => { const im = new Image(), u = (window.__IMG && window.__IMG[sk.img]) || sk.img || ''; if (!u) { res([null, i, j, sk]); return; } const to = setTimeout(() => res([null, i, j, sk]), 5000); im.onload = () => { clearTimeout(to); res([im, i, j, sk]); }; im.onerror = () => { clearTimeout(to); res([null, i, j, sk]); }; if (/^https?:/i.test(u) && u.indexOf(location.origin) !== 0) im.crossOrigin = 'anonymous'; im.src = u; })); }));
             return Promise.all(imgs).then(arr => {
                 arr.forEach(([im, i, j, sk]) => { const x = X0 + i * CW + 8, y = Y0 + RH * 3 + 6 + j * RH; if (im) g.drawImage(im, x, y + 3, 26, 26); g.font = '16px ' + font; g.textAlign = 'left'; g.fillStyle = '#222'; g.fillText(sk.name + ' ' + sk.lv, x + 34, y + RH / 2); });
                 return new Promise(res => cv.toBlob(b => res({ blob: b, name: '配點_' + m.profName + '_Lv' + m.level + '.png' })));
