@@ -922,7 +922,7 @@
 </head>
 
 <body>
-    <a href="v1124-simulator.html" class="title-link">
+    <a href="v1124-index.html" class="title-link">
         <h1><img src="ui/title-icon.svg" alt="標題圖示" class="title-icon">Artale技能模擬器</h1>
     </a>
 
@@ -2027,7 +2027,7 @@
 
                 // 3) 寫入已點好的狀態；匯出檔內不再顯示分享鈕與回首頁連結
                 const inject = '<scr' + 'ipt>window.__SNAPSHOT_SEARCH=' + JSON.stringify(search) + ';window.__SNAPSHOT_NOTE=' + JSON.stringify(getNoteText().trim()).replace(/</g, '\\u003c') + ';window.__IMG=' + JSON.stringify(imgMap) + ';</scr' + 'ipt><style>.share-button{display:none!important}.title-link{pointer-events:none}</style>';
-                html = html.replace('<head>', () => '<head>' + inject).replace('href="v1124-simulator.html"', 'href="#"');
+                html = html.replace('<head>', () => '<head>' + inject).replace('href="v1124-index.html"', 'href="#"');
 
                 const jobName = professionNameMap[englishProfKey] || englishProfKey;
                 const fname = `Artale配點_${jobName}_Lv${currentLevel}.html`;
@@ -2320,7 +2320,7 @@
         setupBackToTopButton();
     </script>
 <script src="skill-demos.js?v=r1"></script>
-<script src="edward-nav.js?v=r183"></script>
+<script src="edward-nav.js?v=r184"></script>
 <style>
 .sim-refs{width:100%;max-width:1080px;margin:0 auto 36px;padding:18px 16px 8px;box-sizing:border-box;border-top:1px solid #e8dcc3;color:#86745f;font:13.5px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
 .sim-refs h2{margin:0 0 6px;padding:0;border:0;text-align:left;font:700 17px "Noto Serif TC","Songti TC",serif;color:#3a2f25;letter-spacing:.06em}

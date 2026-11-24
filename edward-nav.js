@@ -3,7 +3,7 @@
 (function(){
   if(location.protocol==='file:'||window.__IMG||window.__SNAPSHOT_SEARCH)return;
   var TOOLS=[
-    {id:'sim',name:'技能模擬器',href:'index.html',match:['','index.html','simulator.html','official-index.html','official-simulator.html','v1124-simulator.html'],icon:'<img src="ui/title-icon.svg" alt="">'},
+    {id:'sim',name:'技能模擬器',href:'index.html',match:['','index.html','simulator.html','official-index.html','official-simulator.html','v1124-index.html','v1124-simulator.html'],icon:'<img src="ui/title-icon.svg" alt="">'},
     {id:'archive',name:'魔改存檔',href:'archive.html',match:['archive.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5V21.5"/><path d="M9 8h6M9 12h6"/></svg>'},
     {id:'map',name:'地圖指引',href:'map.html',match:['map.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5z"/><path d="M9 4v14M15 6.5v14"/></svg>'},
     {id:'acc',name:'練功計算',href:'acc.html',match:['acc.html','exp.html'],icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>'}
@@ -206,7 +206,7 @@
 
   // ---- 技能模擬器三個版本：最初版／Tespia v2 測試版／2026.11.24 正式版（皇家騎士團改版）
   function addVersion(){
-    var isSim=['','index.html','simulator.html','official-index.html','official-simulator.html','v1124-simulator.html'].indexOf(cur)>=0;
+    var isSim=['','index.html','simulator.html','official-index.html','official-simulator.html','v1124-index.html','v1124-simulator.html'].indexOf(cur)>=0;
     if(!isSim||document.getElementById('ed-ver'))return;
     var here=/^v1124-/.test(cur)?'v1124':(/^official-/.test(cur)?'official':'test');
     var q=location.search,onSim=/simulator\.html$/.test(cur);
@@ -215,7 +215,7 @@
     function hrefOf(v){
       if(v==='official') return (onSim&&q&&!royal)?'official-simulator.html'+q:'official-index.html';
       if(v==='test') return (onSim&&q)?'simulator.html'+q:'index.html';
-      return (onSim&&q)?'v1124-simulator.html'+q:'v1124-simulator.html';
+      return (onSim&&q)?'v1124-simulator.html'+q:'v1124-index.html';
     }
     var IC={
       official:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21.5z"/><path d="M5 5.5V21.5"/><path d="M9 8h6M9 12h6"/></svg>',
