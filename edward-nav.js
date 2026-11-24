@@ -319,3 +319,16 @@
   function add(){document.body.appendChild(nav);addTopbar();addChrome();addSubTabs();addVersion();addPromo();addUpdates();addBoard();addRefs()}
   if(document.body)add();else document.addEventListener('DOMContentLoaded',add);
 })();
+
+// ---- Instagram 按鈕發亮（右上角、手機頂列、頁尾共用）
+(function(){
+  if(document.getElementById('ed-ig-glow'))return;
+  var s=document.createElement('style');s.id='ed-ig-glow';
+  s.textContent='@keyframes edIgGlow{0%,100%{box-shadow:0 0 0 0 rgba(214,41,118,0),0 0 8px 1px rgba(245,133,41,.35)}50%{box-shadow:0 0 0 4px rgba(214,41,118,.12),0 0 18px 4px rgba(214,41,118,.5),0 0 26px 6px rgba(245,133,41,.35)}}'+
+  '@keyframes edIgShine{0%,100%{filter:none}50%{filter:drop-shadow(0 0 3px rgba(214,41,118,.7))}}'+
+  '.ed-ig,.edig,.ig-pill{border-color:#d62976!important;animation:edIgGlow 2.6s ease-in-out infinite;transition:transform .15s}'+
+  '.ed-ig svg,.edig svg,.ig-pill svg{animation:edIgShine 2.6s ease-in-out infinite}'+
+  '.ed-ig:hover,.edig:hover,.ig-pill:hover{transform:translateY(-1px);box-shadow:0 0 0 4px rgba(214,41,118,.18),0 0 24px 6px rgba(214,41,118,.6),0 0 32px 8px rgba(245,133,41,.4)!important;animation:none}'+
+  '@media(prefers-reduced-motion:reduce){.ed-ig,.edig,.ig-pill,.ed-ig svg,.edig svg,.ig-pill svg{animation:none}.ed-ig,.edig,.ig-pill{box-shadow:0 0 14px 3px rgba(214,41,118,.4)}}';
+  document.head.appendChild(s);
+})();
