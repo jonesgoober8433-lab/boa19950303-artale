@@ -1615,7 +1615,7 @@
             const row2 = m.cols.map(c => `<td class="c">${esc(c.title)}</td>`).join('');
             const row3 = m.cols.map(c => `<td class="c">${c.pts} 點</td>`).join('');
             const row4 = m.cols.map(c => `<td class="sk">${c.list.length ? c.list.map(x => `<div class="sr"><img src="${esc(x.img || '')}" alt="" onerror="this.style.visibility='hidden'">${esc(x.name)} ${x.lv}</div>`).join('') : '<span class="none">—</span>'}</td>`).join('');
-            wrap.innerHTML = `<table class="bt"><tr>${row1}</tr><tr>${row2}</tr><tr>${row3}</tr><tr>${row4}</tr></table>`;
+            wrap.innerHTML = `<table class="bt"><tr>${row1}</tr><tr>${row2}</tr><tr>${row3}</tr><tr>${row4}</tr></table>`; prepBuildImage();
         }
         function makeBuildImage() {
             const m = buildTableModel(), n = Math.max(m.cols.length, 1), CW = 250, RH = 34, PAD = 24, W = CW * n + PAD * 2;
@@ -1643,18 +1643,42 @@
         function saveBuildTableImage() {
             makeBuildImage().then(({ blob, name }) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); btMsg('已儲存成檔案', true); });
         }
+        var btCache = null, btTimer = null;
+        function prepBuildImage() {   // 先在背景畫好圖，按鈕一按就能直接寫進剪貼簿（Safari 要求在點擊當下寫入）
+            btCache = null; clearTimeout(btTimer);
+            btTimer = setTimeout(() => {
+                const pr = makeBuildImage(), c = { pr, blob: null }; btCache = c;
+                pr.then(r => { if (btCache === c) c.blob = r.blob; }).catch(() => { });
+            }, 250);
+        }
+        function showBuildPreview(blob) {
+            let ov = document.getElementById('btPreview');
+            if (!ov) {
+                ov = document.createElement('div'); ov.id = 'btPreview';
+                ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(40,28,18,.72);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto';
+                ov.innerHTML = '<div style="background:#fffaf0;border-radius:16px;padding:16px;max-width:96vw;max-height:94vh;overflow:auto;text-align:center;font:15px/1.6 system-ui,sans-serif;color:#3a2f25"><p style="margin:0 0 10px;font-weight:700">瀏覽器沒有讓我直接複製。<br>請在下面的圖片上按右鍵（或兩指點一下）→ 拷貝圖片，再貼上。</p><img id="btPreviewImg" alt="配點總表" style="max-width:100%;height:auto;border:1px solid #e8dcc3;background:#fff"><p style="margin:10px 0 0"><button type="button" id="btPreviewClose" style="padding:8px 22px;border-radius:999px;border:1px solid #a4602a;background:#a4602a;color:#fff;font-weight:700;cursor:pointer">關閉</button></p></div>';
+                document.body.appendChild(ov);
+                ov.addEventListener('click', e => { if (e.target === ov || e.target.id === 'btPreviewClose') ov.style.display = 'none'; });
+            }
+            const im = ov.querySelector('#btPreviewImg'); if (im.dataset.u) URL.revokeObjectURL(im.dataset.u);
+            im.dataset.u = URL.createObjectURL(blob); im.src = im.dataset.u; ov.style.display = 'flex';
+        }
         async function copyBuildTableImage() {
-            const p = makeBuildImage();
+            clearTimeout(btTimer);
+            const c = btCache && btCache.pr ? btCache : { pr: makeBuildImage(), blob: null };
+            const p = c.pr;
             try {
                 if (!(navigator.clipboard && window.ClipboardItem)) throw new Error('no-clipboard');
-                await navigator.clipboard.write([new ClipboardItem({ 'image/png': p.then(r => r.blob) })]);
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': c.blob || p.then(r => r.blob) })]);
                 btMsg('已複製圖片，到 Discord／Line 直接貼上（Ctrl+V／長按貼上）', true);
             } catch (e) {
-                try {   // 不支援複製圖片時（常見於手機）：改開系統分享，可直接選 Line／Discord
-                    const { blob, name } = await p, f = new File([blob], name, { type: 'image/png' });
-                    if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); btMsg('已開啟分享', true); return; }
+                const { blob, name } = await p;
+                try {   // 手機：改開系統分享，可直接選 Line／Discord
+                    const f = new File([blob], name, { type: 'image/png' });
+                    if (navigator.maxTouchPoints > 0 && navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); btMsg('已開啟分享', true); return; }
                 } catch (e2) { if (e2 && e2.name === 'AbortError') return; }
-                btMsg('這個瀏覽器不能直接複製圖片，請改按「儲存成檔案」', false);
+                showBuildPreview(blob);   // 電腦：顯示圖片，讓你直接右鍵拷貝
+                btMsg('沒辦法自動複製，請在圖片上按右鍵拷貝，或按「儲存成檔案」', false);
             }
         }
         document.addEventListener('click', e => { const id = e.target && e.target.id; if (id === 'btSave') saveBuildTableImage(); else if (id === 'btCopy') copyBuildTableImage(); });
