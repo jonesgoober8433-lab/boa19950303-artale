@@ -48,7 +48,7 @@ tr.r{cursor:pointer}tr.cpr td{background:#fff6e0}tr.cpr:hover td{background:var(
 .cpb{display:inline-block;margin-left:4px;padding:0 7px;border-radius:999px;background:#d9822b;color:#fff;font-size:11.5px;font-weight:700;line-height:1.7;white-space:nowrap}
 .cpi{margin-left:4px;border:1px solid var(--line);background:#fffaf0;border-radius:999px;width:24px;height:24px;padding:0;font-size:13px;line-height:1;cursor:pointer;vertical-align:middle}
 #cpbox{position:fixed;inset:0;z-index:9999;background:rgba(40,28,16,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;cursor:zoom-out}
-#cpbox img{max-width:100%;max-height:calc(100% - 60px);object-fit:contain;border-radius:8px}
+#cpbox{overflow:auto;justify-content:flex-start}#cpbox>:first-child{margin-top:auto}#cpbox>:last-child{margin-bottom:auto}#cpbox img{max-width:100%;max-height:calc(100% - 60px);object-fit:contain;border-radius:8px;flex:none}
 #cpbox div{color:#fff;font-size:13px;text-align:center;line-height:1.6}#cpbox a{color:#ffd9a0}
 tr.r:hover{background:var(--soft)}
 td.n .nm{display:flex;align-items:center;gap:6px}td.n img{width:28px;height:28px;object-fit:contain;image-rendering:pixelated}
@@ -140,6 +140,7 @@ const regions=REG.map(r=>r.name);const rgInfo={};REG.forEach(r=>rgInfo[r.name]={
 function renderChips(){
   $('rgChips').innerHTML=`<button type="button" class="rgc ${S.rg==='all'?'on':''}" data-r="all"><span class="ico0">🍄</span><span class="nm">全部地區</span><small>${D.length}</small></button>`+
    regions.map(r=>`<button type="button" class="rgc ${S.rg===r?'on':''}" data-r="${esc(r)}">${rgInfo[r].icon?`<img src="monster-img/${encodeURIComponent(rgInfo[r].icon)}" alt="">`:'<span class="ico0">·</span>'}<span class="nm">${esc(r)}</span><small>${rgInfo[r].n}</small></button>`).join('')}
+const CPTAB=['菇菇寶貝','三眼章魚','藍水靈','白雞','木面怪人','惡魔水靈','沙漠蛇','沙漠地鼠','黑肥肥','沙漠毒蠍','狐蒙','火肥肥','鋼鐵穆太','鋰礦穆太','青龍','洛伊德','石巨人','魔龍','魔法音響','魔幻電音','異型雙碟'];
 const CPTOP=['黃色蜥蜴','沙漠地鼠','黑肥肥','沙漠毒蠍','狐蒙','成年仙人掌','禿鷹','褐色發條熊','沙漠矮人','火肥肥'];
 const cpv=m=>(m.hp&&m.exp!=null)?m.exp/m.hp*1000:null,cpT=m=>{const v=cpv(m);return v==null?'暫無':v.toFixed(1)};
 const L=m=>m.lv==null?9999:m.lv,lvT=m=>m.lv==null?'等級 暫無':'Lv.'+m.lv;
@@ -178,14 +179,14 @@ function renderTable(){
   else if(sort==='need')rows.sort((a,b)=>(b.c?b.c.a100:-1)-(a.c?a.c.a100:-1));
   else rows.sort((a,b)=>L(a.m)-L(b.m)||a.m.n.localeCompare(b.m.n));
   $('cnt2').textContent=`${rows.length} 隻`;
-  $('tb').innerHTML=rows.map(({m,i,c})=>{const ck=CPTOP.indexOf(m.n);return `<tr class="r${ck>=0?' cpr':''}" data-i="${i}"><td class="n"><div class="nm">${m.img?`<img src="${imgSrc(m)}" alt="" loading="lazy">`:''}<span>${esc(m.n)}${m.sus?' <span class="tag t-warn">疑似預設值</span>':''}${ck>=0?` <span class="cpb">CP榜 #${ck+1}</span><button type="button" class="cpi" title="練功 CP 值比較圖（點開看，附出處）" aria-label="CP 值比較圖">📊</button>`:''}</span></div></td><td>${m.lv==null?'暫無':m.lv}</td><td>${nz(m.hp)}</td><td>${nz(m.exp)}</td><td>${cpT(m)}</td><td>${m.req==null?'暫無':p3(c?c.a100:m.req)}</td><td>${c?`<span class="mini"><i style="width:${c.r}%"></i></span>${p3(c.r)}%`:'暫無'}</td></tr>`}).join('');
+  $('tb').innerHTML=rows.map(({m,i,c})=>{const ck=CPTOP.indexOf(m.n);return `<tr class="r${ck>=0?' cpr':''}" data-i="${i}"><td class="n"><div class="nm">${m.img?`<img src="${imgSrc(m)}" alt="" loading="lazy">`:''}<span>${esc(m.n)}${m.sus?' <span class="tag t-warn">疑似預設值</span>':''}${ck>=0?` <span class="cpb">CP榜 #${ck+1}</span>`:''}${(ck>=0||CPTAB.indexOf(m.n)>=0)?`<button type="button" class="cpi" data-n="${esc(m.n)}" title="練功 CP 值比較圖（點開看，附出處）" aria-label="CP 值比較圖">📊</button>`:''}</span></div></td><td>${m.lv==null?'暫無':m.lv}</td><td>${nz(m.hp)}</td><td>${nz(m.exp)}</td><td>${cpT(m)}</td><td>${m.req==null?'暫無':p3(c?c.a100:m.req)}</td><td>${c?`<span class="mini"><i style="width:${c.r}%"></i></span>${p3(c.r)}%`:'暫無'}</td></tr>`}).join('');
 }
 function all(){renderOut();renderTable()}
 function pick(i){SEL=i;renderList();renderOut();const it=document.querySelector('#list .it.on');if(it)it.scrollIntoView({block:'nearest'})}
 $('q').addEventListener('input',e=>{S.q=e.target.value.trim();renderList()});
 $('rgChips').addEventListener('click',e=>{const b=e.target.closest('.rgc');if(!b)return;const r=b.dataset.r;S.rg=(S.rg===r?'all':r);renderChips();renderList();renderTable()});
 $('list').addEventListener('click',e=>{const it=e.target.closest('.it[data-i]');if(it)pick(+it.dataset.i)});
-document.addEventListener('click',e=>{let bx=document.getElementById('cpbox');if(bx){if(e.target.closest('a'))return;bx.remove();return}const b=e.target.closest&&e.target.closest('.cpi');if(!b)return;e.stopPropagation();bx=document.createElement('div');bx.id='cpbox';bx.innerHTML='<img src="cp-img/cp-compare.webp" alt="怪物練功 CP 值比較"><div>CP值＝經驗 ÷ 血量 × 1,000（只比單隻怪的經驗／血量，不含刷新量、地圖動線、命中等）<br>圖片出處：<a href="https://www.threads.com/share/F6lPCoSzc" target="_blank" rel="noopener">Threads 貼文</a>　點一下關閉</div>';document.body.appendChild(bx)},true);
+document.addEventListener('click',e=>{let bx=document.getElementById('cpbox');if(bx){if(e.target.closest('a'))return;bx.remove();return}const b=e.target.closest&&e.target.closest('.cpi');if(!b)return;e.stopPropagation();const nm=b.dataset.n,im=[];if(CPTOP.indexOf(nm)>=0)im.push(['cp-img/cp-compare.webp','https://www.threads.com/share/F6lPCoSzc']);if(CPTAB.indexOf(nm)>=0)im.push(['cp-img/cp-compare2.webp','https://www.threads.com/share/BBkNgjnsAn']);bx=document.createElement('div');bx.id='cpbox';bx.innerHTML=im.map(x=>'<img src="'+x[0]+'" alt="怪物練功 CP 值比較">').join('')+'<div>CP值＝經驗 ÷ 血量 × 1,000（只比單隻怪的經驗／血量，不含刷新量、地圖動線、命中等）<br>圖片出處：'+im.map((x,i)=>'<a href="'+x[1]+'" target="_blank" rel="noopener">Threads 貼文'+(im.length>1?(i+1):'')+'</a>').join('、')+'　點一下關閉</div>';document.body.appendChild(bx)},true);
 $('tb').addEventListener('click',e=>{const r=e.target.closest('tr[data-i]');if(r){pick(+r.dataset.i);document.querySelector('.grid').scrollIntoView({behavior:'smooth',block:'start'})}});
 ['lv','ac'].forEach(id=>$(id).addEventListener('input',e=>{store(id,e.target.value);all()}));
 ['q2','sort','only'].forEach(id=>$(id).addEventListener('input',renderTable));
