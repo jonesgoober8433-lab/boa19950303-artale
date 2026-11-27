@@ -472,6 +472,9 @@
             /* 內邊距 */
             border-top: 1px dashed #d7ccc8;
             /* 虛線分隔，更具書卷感 */
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
         }
 
         .skill-prerequisites .prereq-met {
@@ -2203,7 +2206,7 @@
                 return;
             }
 
-            let preReqsHtml = '前置: ';
+            let preReqsHtml = '';
             let allMet = true; // 追蹤所有前置技能是否都已滿足
 
             for (const preReqSkillId in skill.preRequisite) {
@@ -2215,7 +2218,7 @@
                 const isMet = currentLevel >= requiredLevel;
                 if (!isMet) allMet = false; // 只要有一個不滿足，就設為false
 
-                preReqsHtml += `<span class="${isMet ? 'prereq-met' : 'prereq-unmet'}">${preReqName} (${currentLevel}/${requiredLevel})</span> `;
+                preReqsHtml += `<span class="${isMet ? 'prereq-met' : 'prereq-unmet'}">前置：${preReqName} (${currentLevel}/${requiredLevel})</span>`;
             }
 
             preReqsDiv.innerHTML = preReqsHtml;
