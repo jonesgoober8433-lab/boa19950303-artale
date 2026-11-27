@@ -17,6 +17,7 @@
     <script src="official-data.js?v=d220"></script>
     <script src="skill-advice.js?v=r3"></script>
     <script src="official-beginner.js?v=d220"></script>
+    <script src="official-fixes.js?v=r3"></script>
     <style>
         /* --- PC 網頁版通用樣式調整 (魔法書卷風格) --- */
 
@@ -483,6 +484,30 @@
             /* 更深的紅色 */
         }
 
+        /* 反向前置：這個技能被其他技能拿來當前置時，寫在自己的卡片上 */
+        .skill-required-by {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .skill-required-by > span {
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.45;
+        }
+
+        /* 同一張卡已經有「前置:」那一行時，接在下面，不再畫第二條虛線 */
+        .skill-required-by.stacked {
+            margin-top: 0;
+            padding-top: 2px;
+            border-top: none;
+        }
+
         .skill-description-area {
             background-color: rgba(245, 245, 245, 0.9);
             /* 略淺的背景，與技能項目主體有層次 */
@@ -767,6 +792,10 @@
                 text-align: left;
             }
 
+            .skill-required-by {
+                gap: 3px;
+            }
+
             .skill-description-area {
                 padding: 10px;
             }
@@ -1024,6 +1053,7 @@
         let skillsData = currentProfessionData.skills; // 技能數據現在會根據所選職業動態變化
 
         let currentSkillLevels = {};
+        let requiredByMap = {};
         let spentSp = 0;
         let remainingSp = 0;
         let currentLevel = 200;
@@ -1178,6 +1208,7 @@
 
         // --- 渲染技能樹 ---
         function renderSkillTree() {
+            rebuildRequiredByMap();
             const skillTreeDiv = document.getElementById('skillTree');
             skillTreeDiv.innerHTML = ''; // 清空現有內容
 
@@ -1216,6 +1247,12 @@
                         preReqsDiv.className = 'skill-prerequisites';
                         preReqsDiv.id = `${skill.id}-prereqs`;
                         skillItem.appendChild(preReqsDiv);
+                        // 反向：哪些技能把這張卡當成前置（沒有的話維持隱藏）
+                        const requiredByDiv = document.createElement('div');
+                        requiredByDiv.className = 'skill-prerequisites skill-required-by';
+                        requiredByDiv.id = `${skill.id}-requiredby`;
+                        requiredByDiv.style.display = 'none';
+                        skillItem.appendChild(requiredByDiv);
                         if (typeof skillAdviceHtml === "function") {
                             const advHtml = skillAdviceHtml(currentProfessionKey, skill.name);
                             if (advHtml) {
@@ -1810,6 +1847,7 @@
 
                             // --- 更新前置技能顯示 ---
                             updateSkillPrerequisitesDisplay(skill.id);
+                            updateSkillRequiredByDisplay(skill.id);
                             // ... (技能詳情顯示邏輯保持不變) ...
                             const descArea = document.getElementById(`${skill.id}-description`);
                             if (descArea) {
@@ -2033,6 +2071,7 @@
                     html = html.replace(m[0], () => '<scr' + 'ipt>' + code + '</scr' + 'ipt>');
                 };
                 await inlineScript(/<script src="(official-data\.js[^"]*)"><\/script>/);
+                await inlineScript(/<script src="(official-fixes\.js[^"]*)"><\/script>/);
 
 
                 const cssM = html.match(/<link rel="stylesheet" href="(edward-style\.css[^"]*)">/);
@@ -2188,6 +2227,53 @@
 
 
 
+
+        // 由目前職業的 preRequisite 反查：每個技能被哪些技能、各要幾點
+        function rebuildRequiredByMap() {
+            requiredByMap = {};
+            if (!currentProfessionData || !skillsData) return;
+            const stages = (currentProfessionData.jobStagesOrder || Object.keys(skillsData)).slice();
+            const seenStages = new Set(stages);
+            Object.keys(skillsData).forEach(stageKey => { if (!seenStages.has(stageKey)) stages.push(stageKey); });
+            stages.forEach(stageKey => {
+                (skillsData[stageKey] || []).forEach(skill => {
+                    const pre = skill.preRequisite;
+                    if (!pre) return;
+                    Object.keys(pre).forEach(reqId => {
+                        const points = Number(pre[reqId]);
+                        if (!reqId || !Number.isFinite(points) || points <= 0) return;
+                        if (!requiredByMap[reqId]) requiredByMap[reqId] = [];
+                        requiredByMap[reqId].push({ name: skill.name, points: points });
+                    });
+                });
+            });
+        }
+
+        function escSkillText(text) {
+            return String(text).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        // 在「被拿來當前置」的技能卡上，列出「某某需要 N 點當前置」
+        function updateSkillRequiredByDisplay(skillId) {
+            const box = document.getElementById(`${skillId}-requiredby`);
+            if (!box) return;
+            const deps = requiredByMap[skillId];
+            if (!deps || deps.length === 0) {
+                box.innerHTML = '';
+                box.style.display = 'none';
+                box.classList.remove('stacked');
+                return;
+            }
+            const current = currentSkillLevels[skillId] || 0;
+            box.innerHTML = deps.map(dep => {
+                const met = current >= dep.points;
+                return `<span class="${met ? 'prereq-met' : 'prereq-unmet'}">${escSkillText(dep.name)}需要 ${dep.points} 點當前置 (${current}/${dep.points})</span>`;
+            }).join('');
+            const forward = document.getElementById(`${skillId}-prereqs`);
+            const forwardVisible = !!(forward && forward.style.display !== 'none' && forward.textContent.trim());
+            box.classList.toggle('stacked', forwardVisible);
+            box.style.display = 'flex';
+        }
 
         // --- 新增：處理技能等級手動輸入 ---
         function getJobStageKeyForSkill(skillId) {
@@ -2359,7 +2445,7 @@
         setupBackToTopButton();
     </script>
 <script src="skill-demos.js?v=r1"></script>
-<script src="edward-nav.js?v=r185"></script>
+<script src="edward-nav.js?v=r186"></script>
 <style>
 .sim-refs{width:100%;max-width:1080px;margin:0 auto 36px;padding:18px 16px 8px;box-sizing:border-box;border-top:1px solid #e8dcc3;color:#86745f;font:13.5px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
 .sim-refs h2{margin:0 0 6px;padding:0;border:0;text-align:left;font:700 17px "Noto Serif TC","Songti TC",serif;color:#3a2f25;letter-spacing:.06em}

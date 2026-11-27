@@ -12,11 +12,13 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="description" content="試點轉職技能點數，17 個職業（含皇家騎士團）。">
     <link rel="icon" type="image/svg+xml" href="ui/title-icon.svg">
-    <title>Artale技能模擬器 - 首頁｜阿泰爾工具箱</title>
+    <title>Artale技能模擬器 - 首頁（2026.11.24 正式版）｜阿泰爾工具箱</title>
 
-    <script src="data.js?v=r131"></script>
-    <script src="artale-patch.js?v=r131"></script>
-    <script src="artale-cygnus.js?v=r133"></script>
+    <script src="official-data.js?v=d220"></script>
+    <script src="official-beginner.js?v=d220"></script>
+    <script src="v1124-adventurer.js?v=r1"></script>
+    <script src="v1124-cygnus.js?v=r1"></script>
+    <script src="v1124-notes.js?v=r2"></script>
     <style>
         /* --- 借用 simulator.html 的基礎樣式 --- */
         body {
@@ -503,17 +505,7 @@
             </div>
         </div>
 
-        <div id="updateLog" class="content-section">
-            <h2>更新日誌</h2>
-            <ul>
-                <li>
-                    <span class="date">2026-11-12</span>
-                    <div class="log-line">1.官方魔改說明：<a href="https://artale.live/tw/balance-patch-v2" target="_blank" rel="noopener noreferrer">https://artale.live/tw/balance-patch-v2</a></div>
-                    <div class="log-line">2.套用阿泰爾魔改版</div>
-                    <div class="log-line">3.分享：可分享你對遊戲的理解，對方打開就能直接看到你完整的點法</div>
-                </li>
-            </ul>
-        </div>
+        
 
         <footer class="page-footer ig-footer">
         <p class="intro-title">聰明理財，輕鬆生活</p>
@@ -581,11 +573,11 @@
                     const data = allProfessionsData[mixedKey];
                     const card = document.createElement('a');
                     card.className = 'profession-card' + (data.isNew ? ' is-new' : '');
-                    card.href = `simulator.html?prof=${encodeURIComponent(key)}`;
-                    const img = data.cardImage || `emblems/${key}_color.png`;
+                    card.href = `v1124-simulator.html?prof=${encodeURIComponent(key)}`;
+                    const img = `emblems/${({buccaneer:"viper",corsair:"captain"})[key.toLowerCase()]||key.toLowerCase().replace(/_/g,"-")}_face.webp`;   /* 職業頭像用 Edward 的（官方頭像） */
                     card.innerHTML = `
                         ${data.isNew ? '<em class="card-new">NEW</em>' : ''}
-                        <img src="${img}" alt="${key}" onerror="this.onerror=null;this.src='images/default.png';">
+                        <img src="${img}" alt="${key}" onerror="this.onerror=null;this.src='ui/mushroom.png';">
                         <span>${professionNameMap[key]}</span>
                     `;
                     grid.appendChild(card);
@@ -621,7 +613,7 @@
                         buildIndex: index
                     });
                     // 連結到 simulator.html，並帶上參數讓它顯示推薦配點的詳情彈窗
-                    const shareUrl = `simulator.html?${params.toString()}`;
+                    const shareUrl = `v1124-simulator.html?${params.toString()}`;
 
                     const card = document.createElement('div');
                     card.className = 'build-card';
@@ -849,7 +841,7 @@
             }
         });
     </script>
-<script src="edward-nav.js?v=r185"></script>
+<script src="edward-nav.js?v=r186"></script>
 </body>
 
 

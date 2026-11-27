@@ -206,26 +206,23 @@
 
   // ---- 技能模擬器三個版本：最初版／Tespia v2 測試版／2026.11.24 正式版（皇家騎士團改版）
   function addVersion(){
-    var isSim=['','index.html','simulator.html','official-index.html','official-simulator.html','v1124-index.html','v1124-simulator.html'].indexOf(cur)>=0;
+    var isSim=['','index.html','official-index.html','official-simulator.html','v1124-index.html','v1124-simulator.html'].indexOf(cur)>=0;
     if(!isSim||document.getElementById('ed-ver'))return;
-    var here=/^v1124-/.test(cur)?'v1124':(/^official-/.test(cur)?'official':'test');
+    var here=/^official-/.test(cur)?'official':'v1124';
     var q=location.search,onSim=/simulator\.html$/.test(cur);
     var prof=(new URLSearchParams(q)).get('prof')||'';
     var royal=/^(soulmaster|flamewizard|windbreaker|nightwalker|striker)/i.test(prof);
     function hrefOf(v){
       if(v==='official') return (onSim&&q&&!royal)?'official-simulator.html'+q:'official-index.html';
-      if(v==='test') return (onSim&&q)?'simulator.html'+q:'index.html';
       return (onSim&&q)?'v1124-simulator.html'+q:'v1124-index.html';
     }
     var IC={
       official:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21.5z"/><path d="M5 5.5V21.5"/><path d="M9 8h6M9 12h6"/></svg>',
-      test:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v5L5.5 18.2A2 2 0 0 0 7.3 21h9.4a2 2 0 0 0 1.8-2.8L14 8V3"/><path d="M8.2 14h7.6"/></svg>',
       v1124:'<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16.5 12 4l8 12.5H4z"/><path d="M8 16.5 12 10l4 6.5"/><path d="M3 20h18"/></svg>'
     };
-    var LABELS={official:['最初版','正式版（最初版）'],test:['測試版','Tespia v2 測試版'],v1124:['11/24 正式版','2026.11.24 正式版']};
+    var LABELS={official:['最初版','正式版（最初版）'],v1124:['11/24 正式版','2026.11.24 正式版']};
     var BLURB={
       official:'目前是<b>正式版（最初版）</b>：最早公開的冒險家技能資料。',
-      test:'目前是<b>Tespia v2 測試版</b>：阿泰爾魔改資料，也收了皇家騎士團。',
       v1124:'目前是<b>2026.11.24 正式版</b>：皇家騎士團用<a href="https://artale.live/tw/patch-notes/cygnus-knights/soulmaster">這天的改版說明</a>。沒寫到的技能沿用最初版。'
     };
     var st=document.createElement('style');
@@ -240,7 +237,7 @@
      '@media(max-width:700px){#ed-ver{padding:8px 10px 0}#ed-ver .icons{gap:6px}#ed-ver .icons a{width:104px;min-height:76px;font-size:11px}}';
     document.head.appendChild(st);
     var d=document.createElement('div');d.id='ed-ver';
-    d.innerHTML='<div class="icons" role="tablist">'+['official','test','v1124'].map(function(v){
+    d.innerHTML='<div class="icons" role="tablist">'+['official','v1124'].map(function(v){
       var on=v===here;
       return '<a role="tab" href="'+hrefOf(v)+'" title="'+LABELS[v][1]+'" aria-current="'+(on?'page':'false')+'" class="'+(on?'on':'')+'"><span class="ic">'+IC[v]+'</span><span class="lb">'+LABELS[v][0]+'</span><span class="now">目前</span></a>';
     }).join('')+'</div><p>'+BLURB[here]+'</p>';
@@ -261,7 +258,6 @@
     function isRoyalNow(){var sel=document.getElementById('professionSelect'),t=sel&&sel.selectedOptions[0]?sel.selectedOptions[0].text:'';return /聖魂劍士|烈焰巫師|破風使者|暗夜行者|閃雷悍將|SoulMaster|FlameWizard|WindBreaker|NightWalker|Striker/i.test(t)||(!sel&&royal)}
     var CHOICES=[
       ['official','正式版（最初版）','最早公開的冒險家技能資料。皇家騎士團還沒有這一版。'],
-      ['test','Tespia v2 測試版','阿泰爾魔改資料，也收了皇家騎士團。'],
       ['v1124','2026.11.24 正式版','皇家騎士團用這天的改版說明，沒寫到的技能沿用最初版。']
     ];
     function ask(resume){
