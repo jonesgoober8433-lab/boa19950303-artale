@@ -14,10 +14,34 @@ const SKILL_DEMOS = {"英雄|究極突刺":{"src":"https://d2lkl8esdt2p15.cloudf
         if (area.style.display === 'none') return;
         const card = area.closest('.skill-item');
         const nameEl = card && card.querySelector('.skill-name');
-        const demo = nameEl ? demoFor(nameEl.textContent.trim()) : null;
-        if (!demo) { area.dataset.demo = '0'; return; }
+        const sname = nameEl ? nameEl.textContent.trim() : '';
+        const demo = nameEl ? demoFor(sname) : null;
+        const jm = /\(([^)]+)\)/.exec(String(typeof currentProfessionKey === 'undefined' ? '' : currentProfessionKey));
+        const cm = (typeof V1124_COMMENTS !== 'undefined' && jm) ? V1124_COMMENTS[jm[1] + '|' + sname] : null;
+        if (!demo && !(cm && (cm.comment || (cm.notes && cm.notes.length)))) { area.dataset.demo = '0'; return; }
         area.dataset.demo = '1';
         area.style.flexWrap = 'wrap';
+        if (cm && (cm.comment || (cm.notes && cm.notes.length))) {   // 官網的開發團隊說明與補充說明
+            const cb = document.createElement('div');
+            cb.className = 'skill-comment';
+            const ct = document.createElement('p');
+            ct.className = 'skill-comment-t';
+            ct.textContent = '官網開發團隊說明';
+            cb.appendChild(ct);
+            if (cm.comment) { const p = document.createElement('p'); p.textContent = cm.comment; cb.appendChild(p); }
+            (cm.notes || []).forEach(function (n) {
+                const d = document.createElement('div');
+                d.className = 'skill-comment-n';
+                const b = document.createElement('b');
+                b.textContent = n[0];
+                const t = document.createElement('span');
+                t.textContent = n[1];
+                d.append(b, t);
+                cb.appendChild(d);
+            });
+            area.appendChild(cb);
+        }
+        if (!demo) return;
         const box = document.createElement('div');
         box.className = 'skill-demo';
         const cap = document.createElement('p');
@@ -72,6 +96,6 @@ const SKILL_DEMOS = {"英雄|究極突刺":{"src":"https://d2lkl8esdt2p15.cloudf
     if (document.getElementById('skill-demo-css')) return;
     const st = document.createElement('style');
     st.id = 'skill-demo-css';
-    st.textContent = '.skill-demo{flex:1 0 100%;margin-top:10px}.skill-demo p{margin:0 0 6px;color:#86745f;font-size:13px;line-height:1.5}.skill-demo a{color:#a4602a;font-weight:700;margin-left:6px}.skill-demo-row{display:flex;gap:12px;flex-wrap:wrap}.skill-demo figure{margin:0}.skill-demo figcaption{font-size:12px;color:#86745f;margin-bottom:4px}.skill-demo img{display:block;width:min(100%,320px);height:auto;border-radius:10px;background:#f4e8cf}';
+    st.textContent = '.skill-comment{flex:1 0 100%;margin-top:10px;padding:8px 12px;background:#f4e8cf;border-radius:10px;line-height:1.65;color:#3a2f25}.skill-comment p{margin:0 0 4px}.skill-comment-t{font-weight:700;color:#a4602a;font-size:13px}.skill-comment-n{margin-top:6px}.skill-comment-n b{display:block;color:#4d7a36}.skill-demo{flex:1 0 100%;margin-top:10px}.skill-demo p{margin:0 0 6px;color:#86745f;font-size:13px;line-height:1.5}.skill-demo a{color:#a4602a;font-weight:700;margin-left:6px}.skill-demo-row{display:flex;gap:12px;flex-wrap:wrap}.skill-demo figure{margin:0}.skill-demo figcaption{font-size:12px;color:#86745f;margin-bottom:4px}.skill-demo img{display:block;width:min(100%,320px);height:auto;border-radius:10px;background:#f4e8cf}';
     document.head.appendChild(st);
 })();

@@ -107,6 +107,16 @@ window.buildV1124Archive = function () {
                 if (!s._v1124) card.tags = [];
                 const demo = (typeof SKILL_DEMOS !== 'undefined') && SKILL_DEMOS[name.split(' ')[0] + '|' + s.name];
                 if (demo) card.demo = demo;
+                const C = (typeof V1124_COMMENTS !== 'undefined') && V1124_COMMENTS[key + '|' + s.name];
+                if (C) {   // 官網每個技能的開發團隊說明、補充說明、標籤
+                    card.siteNotes = card.comment;
+                    card.comment = C.comment || '';
+                    card.notes = C.notes || [];
+                    card.official = true;
+                    if (C.tables && C.tables.length) card.tables = C.tables.map(t => [t.head].concat(t.rows));   // 官網的調整前後表
+                    card.lv = C.lv || [];
+                    if (C.tags && C.tags.length) card.tags = C.tags;
+                }
                 skills.push(card);
             });
         });

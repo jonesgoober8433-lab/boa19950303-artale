@@ -2315,7 +2315,7 @@ const allProfessionsData = {
                     maxLevel: 16,
                     requiredLevel: 10,
                     preRequisite: {},
-                    description: "自我恢复时能回复更多HP。移動中可恢復",
+                    description: "自我恢復時能回復更多HP。移動中可恢復",
                     imageUrl: "images/hpRecovery.png",
                     levels: Array(17).fill(null).map((_, i) => i === 0 ? null : {
                         effect: `回復量: ${i * 3}`,
@@ -3180,7 +3180,7 @@ const allProfessionsData = {
                     maxLevel: 16,
                     requiredLevel: 10,
                     preRequisite: {},
-                    description: "自我恢复时能回复更多HP。移動中可恢復",
+                    description: "自我恢復時能回復更多HP。移動中可恢復",
                     imageUrl: "images/hpRecovery.png",
                     levels: Array(17).fill(null).map((_, i) => i === 0 ? null : {
                         effect: `回復量: ${i * 3}`,
@@ -4088,7 +4088,7 @@ const allProfessionsData = {
                     maxLevel: 16,
                     requiredLevel: 10,
                     preRequisite: {},
-                    description: "自我恢复时能回复更多HP。移動中可恢復",
+                    description: "自我恢復時能回復更多HP。移動中可恢復",
                     imageUrl: "images/hpRecovery.png", // 確保圖片檔案存在
                     levels: Array(17).fill(null).map((_, i) => i === 0 ? null : {
                         effect: `回復量: ${i * 3}`,
@@ -5551,7 +5551,7 @@ const allProfessionsData = {
                         // 11-20級: 350 + (i-10)*5 + 50 = 295 + (i * 5) + 50 = 345 + (i * 5) [11級=405, 20級=450]
                         // 21-30級: 450 + (i-20)*5 + 50 = 390 + (i * 5) + 100 = 490 + (i * 5) [21級=505, 30級=550]
 
-                        // 簡化逻辑：基礎值隨每10級增加 50
+                        // 簡化邏輯：基礎值隨每10級增加 50
                         const stageBonus = Math.floor((i - 1) / 10) * 50;
                         const attack = 300 + (i * 5) + stageBonus;
 

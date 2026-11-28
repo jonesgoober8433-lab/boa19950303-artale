@@ -14,13 +14,15 @@
     <link rel="icon" type="image/svg+xml" href="ui/title-icon.svg">
     <title>Artale技能模擬器（2026.11.24 正式版）｜阿泰爾工具箱</title>
 
-    <script src="official-data.js?v=d220"></script>
+    <script src="official-data.js?v=d221"></script>
     <script src="skill-advice.js?v=r3"></script>
     <script src="official-beginner.js?v=d220"></script>
     <script src="v1124-adventurer.js?v=r1"></script>
     <script src="v1124-cygnus.js?v=r1"></script>
     <script src="v1124-notes.js?v=r2"></script>
     <script src="official-fixes.js?v=r3"></script>
+    <script src="v1124-fixes.js?v=r1"></script>
+    <script src="v1124-comments.js?v=r2"></script>
     <style>
         /* --- PC 網頁版通用樣式調整 (魔法書卷風格) --- */
 
@@ -2083,6 +2085,8 @@
                 await inlineScript(/<script src="(v1124-adventurer\.js[^"]*)"><\/script>/);
                 await inlineScript(/<script src="(v1124-cygnus\.js[^"]*)"><\/script>/);
                 await inlineScript(/<script src="(v1124-notes\.js[^"]*)"><\/script>/);
+                await inlineScript(/<script src="(v1124-fixes\.js[^"]*)"><\/script>/);
+                await inlineScript(/<script src="(v1124-comments\.js[^"]*)"><\/script>/);
 
 
                 const cssM = html.match(/<link rel="stylesheet" href="(edward-style\.css[^"]*)">/);
@@ -2455,7 +2459,7 @@
         initializeSimulator();
         setupBackToTopButton();
     </script>
-<script src="skill-demos.js?v=r1"></script>
+<script src="skill-demos.js?v=r2"></script>
 <script src="edward-nav.js?v=r186"></script>
 <style>
 .sim-refs{width:100%;max-width:1080px;margin:0 auto 36px;padding:18px 16px 8px;box-sizing:border-box;border-top:1px solid #e8dcc3;color:#86745f;font:13.5px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
